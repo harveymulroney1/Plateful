@@ -33,10 +33,10 @@ async function scrapeIngrMethod(url) {
         return Array.from(nutritionList).map(li=>li.textContent.trim());
     });
     const cleanedIngredients = cleanIngredients(ingredients)
-    console.log({nutrition});
-    console.log({ ingredients });
-    console.log({recipeImage});
-    console.log({ cleanedIngredients });
+    //console.log({nutrition});
+    //console.log({ ingredients });
+    //console.log({recipeImage});
+    //console.log({ cleanedIngredients });
     browser.close();
 
 }
@@ -53,6 +53,37 @@ function cleanIngredients(rawIngredients) {
             .trim();
     });
 }
+
+async function getRecipeURLs()
+{
+    // Gets X recipes under filters - Dinner , <45min Cook Time , Easy & 4*/5*
+    const recipeListPage =  'https://www.bbcgoodfood.com/search?tab=recipe&mealType=dinner&totalTime=lt-2700&difficulty=easy&ratings=gte-4%2Cgte-5'
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.goto(recipeListPage)
+    console.log("yep");
+    await page.waitForSelector('a.link.d-block');
+    const recipeURL = await page.evaluate(()=> {
+        /*const recipeHref = document.querySelector('#__next > div.default-layout > main > div.search-page > div > div.fading-overlay > div > div.mb-md > div.layout-md-rail > div.layout-md-rail__primary > div:nth-child(2) > article > div.card__section.card__content > a')
+        .getAttribute('href').replace('/','');
+        return recipeHref;*/
+        let links = Array.from(document.querySelectorAll('a.link.d-block'))
+        .map(anchor => anchor.getAttribute('href'))
+        .filter(href => href.startsWith('/recipes/')); // Ensure only valid recipe links
+        return [...new Set (links)];
+        //const firstRecipe = document.querySelector('a.link.d-block');
+        //return firstRecipe ? firstRecipe.getAttribute('href') : null;
+    }
+    )
+    console.log("Recipe URLs: "+ recipeURL);
+    console.log("Count: "+ recipeURL.length);
+    recipeURL.forEach(url => {
+        scrapeIngrMethod(`https://www.bbcgoodfood.com${url}`,url)
+        
+    });
+    scrapeIngrMethod()
+}
 //scrapeIngrMethod("https://www.bbcgoodfood.com/recipes/sticky-chinese-chicken-traybake")
 //scrapeIngrMethod("https://www.bbcgoodfood.com/recipes/tuna-avocado-quinoa-salad")
+getRecipeURLs()
 scrapeIngrMethod("https://www.bbcgoodfood.com/recipes/hot-sour-prawn-sweetcorn-soup")
