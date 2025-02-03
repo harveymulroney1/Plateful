@@ -8,7 +8,12 @@ async function scrapeIngrMethod(url) {
 
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
-    await page.goto(url)
+    await page.goto(url ,{waitUntil: 'domcontentloaded' } )
+    await page.waitForSelector('h1');
+    const recipeTitle = await page.evaluate(() =>{
+        let titleElement =  document.querySelector('#__next > div.default-layout > main > div.post.recipe > section > div > div.post-header__body.oflow-x-hidden > div.headline.post-header__title.post-header__title--masthead-layout > h1')
+        return titleElement ? titleElement.innerText.trim(): 'Title Not Found'
+    })
     const ingredients = await page.evaluate(() => {
         const ingredientList = document.querySelectorAll('#ingredients-list section ul li'); 
         return Array.from(ingredientList).map(li => {
@@ -32,11 +37,18 @@ async function scrapeIngrMethod(url) {
         
         return Array.from(nutritionList).map(li=>li.textContent.trim());
     });
+    const method = await page.evaluate(()=> {
+        const methodList = document.querySelectorAll('#__next > div.default-layout > main > div.post.recipe > div > div.layout-md-rail > div.layout-md-rail__primary > div.post__content > div:nth-child(2) > div > div > div.js-piano-recipe-method.col-12.pa-reset > section > ul>li')
+        return Array.from(methodList).map(li=>li.textContent.trim());
+    } )
     const cleanedIngredients = cleanIngredients(ingredients)
     //console.log({nutrition});
     //console.log({ ingredients });
     //console.log({recipeImage});
-    //console.log({ cleanedIngredients });
+    console.log({ cleanedIngredients });
+    console.log(recipeTitle);
+    console.log(method);
+    console.log(nutrition);
     browser.close();
 
 }
@@ -45,7 +57,7 @@ function cleanIngredients(rawIngredients) {
     return rawIngredients.map(item => {
         const ingredient = item?.ingredient || '';
 
-        console.log({ingredient});
+        //console.log({ingredient});
         // Remove quantity and descriptors using regex
         return ingredient
             .replace(/[^a-zA-Z\s]/g, '') // removes quantities
@@ -77,13 +89,13 @@ async function getRecipeURLs()
     )
     console.log("Recipe URLs: "+ recipeURL);
     console.log("Count: "+ recipeURL.length);
-    recipeURL.forEach(url => {
-        scrapeIngrMethod(`https://www.bbcgoodfood.com${url}`,url)
+    recipeURL.forEach(async url => {
+        await scrapeIngrMethod(`https://www.bbcgoodfood.com${url}`,url)
         
     });
-    scrapeIngrMethod()
+    //scrapeIngrMethod()
 }
 //scrapeIngrMethod("https://www.bbcgoodfood.com/recipes/sticky-chinese-chicken-traybake")
 //scrapeIngrMethod("https://www.bbcgoodfood.com/recipes/tuna-avocado-quinoa-salad")
-getRecipeURLs()
+//getRecipeURLs()
 scrapeIngrMethod("https://www.bbcgoodfood.com/recipes/hot-sour-prawn-sweetcorn-soup")
