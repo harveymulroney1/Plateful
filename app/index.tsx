@@ -1,18 +1,29 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Text, View, Image,TextInput, Button} from "react-native";
 import { FlatList } from "react-native-gesture-handler";
+import { Link, useRouter, useNavigation } from 'expo-router';
 import { red } from "react-native-reanimated/lib/typescript/Colors";
 
 export default function Index() {
- const [name,setName] = useState("");
- const [ingrList,setingrList] = useState<string[]>([])
- const [inputText, setInputText] = useState("");
+  const [name, setName] = useState("");
+  const [ingrList, setingrList] = useState<string[]>([]);
+  const [inputText, setInputText] = useState("");
+  const router = useRouter();
+  const navigation = useNavigation();
  const handleAddItem = () => {
   if (inputText.trim()) {
     setingrList([...ingrList, inputText.trim()]);
     setInputText("");
   }
-};
+ };
+ useEffect(() => {
+  navigation.setOptions({
+    title: "Index", // Change header title
+    headerLeft: () => (
+      <Button onPress={() => router.push("/profile")} title="Profile"></Button>
+    ),
+  });
+}, [navigation]);
   return (
     <View
       style={{
@@ -65,7 +76,7 @@ export default function Index() {
       
     </FlatList>
     <Button onPress={() => {setingrList([])}} title="Clear Ingredients" color = "red"></Button>
+      <Button onPress = {() => router.push("/IngredientsInput") } title = "Scan Receipt"></Button>
     </View>
-
   );
 }

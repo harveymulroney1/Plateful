@@ -2,7 +2,8 @@ import { View, StyleSheet,Text,TextInput,FlatList,Button } from 'react-native';
 import CustomButton from '@/components/Button';
 import ImageViewer from '@/components/ImageViewer';
 import * as ImagePicker from 'expo-image-picker'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigation, useRouter } from "expo-router";
 import { red } from 'react-native-reanimated/lib/typescript/Colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
 const PlaceholderImage = require('@/assets/images/background-image.png');
@@ -11,12 +12,18 @@ const PlaceholderImage = require('@/assets/images/background-image.png');
 export default function Index() {
     const [ingrList,setingrList] = useState<string[]>([])
     const [inputText, setInputText] = useState("");
+  const navigation = useNavigation();
     const handleAddItem = () => {
         if (inputText.trim()) {
         setingrList([...ingrList, inputText.trim()]);
         setInputText("");
         }
-    }
+  }
+  useEffect(() => {
+          navigation.setOptions({
+            title: "Scan Receipt",
+          });
+        }, [navigation]);
   const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({

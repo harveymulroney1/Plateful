@@ -4,7 +4,7 @@
     var con = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "password"
+    password: ""
     });
 
     con.connect(function(err) {
@@ -155,7 +155,7 @@ function insertIngredients(userName, ingredients, password)
 
 //Testing functions
 
-//createTables();
+createTables();
 //insertIngredients("John", ["Lettuce", "Tomato", "Mayo", "Basil"], "password")
 //insertRecipes("Salad", ["Lettuce", "Tomato", "Mayo"], "Chop nicely");
 //getRecipeNames("John", "password");
