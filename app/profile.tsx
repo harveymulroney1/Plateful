@@ -9,7 +9,7 @@ export default function Profile() {
     const router = useRouter();
     useEffect(() => {
         navigation.setOptions({
-          title: "Profile", // Change header title
+          title: "Profile",
           headerRight: () => (
             <Button title="Settings" onPress={() => router.push("/settings")} />
           ),

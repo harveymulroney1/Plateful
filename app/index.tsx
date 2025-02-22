@@ -76,7 +76,8 @@ export default function Index() {
       
     </FlatList>
     <Button onPress={() => {setingrList([])}} title="Clear Ingredients" color = "red"></Button>
-      <Button onPress = {() => router.push("/IngredientsInput") } title = "Scan Receipt"></Button>
+      <Button onPress={() => router.push("/IngredientsInput")} title="Input Ingredients"></Button>
+      <Button onPress = {() => router.push("/homepage") } title = "Homepage (mockup)"></Button>
     </View>
   );
 }

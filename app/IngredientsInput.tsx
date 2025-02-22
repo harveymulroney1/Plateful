@@ -20,12 +20,12 @@ export default function Index() {
         }
   }
   useEffect(() => {
-          navigation.setOptions({
-            title: "Scan Receipt",
-          });
-        }, [navigation]);
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
-  const pickImageAsync = async () => {
+    navigation.setOptions({
+      title: "Input Ingredients",
+    });
+  }, [navigation]);
+    const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
+    const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
