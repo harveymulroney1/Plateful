@@ -1,4 +1,4 @@
-# --- Translation Backend Setup Instructions ---
+# --- Translation Instructions ---
 
 # This backend service is built using FastAPI and Hugging Face’s M2M-100 model, which supports multiple languages.
 # It can be used to translate text from one language to another.
