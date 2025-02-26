@@ -1,8 +1,11 @@
 import { createWorker } from 'tesseract.js';
 
+export function scanReceipt(url)
+{
 (async () => {
   const worker = await createWorker('eng');
-  const ret = await worker.recognize('C:/Users/harvey/Desktop/201Project/PlateFul/assets/receipts/test2.jpg');
-  console.log(ret.data.text);
+  const ret = await worker.recognize(url);
   await worker.terminate();
+  return ret.data.text;
 })();
+}
