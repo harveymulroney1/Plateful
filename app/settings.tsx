@@ -1,4 +1,4 @@
-import { Text, View, } from "react-native";
+import { Text, View, Button} from "react-native";
 import { useEffect } from "react";
 import { useNavigation, useRouter } from "expo-router";
 export default function Settings() {
@@ -17,7 +17,7 @@ export default function Settings() {
                 alignItems: "center",
             }}>
             <View>
-                <Text>Settings should go here</Text>
+                <Button title="Login" onPress={() => router.push("/loginPage")} />
             </View>
         </View>
     )

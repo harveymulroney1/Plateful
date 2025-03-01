@@ -116,7 +116,6 @@ const styles = StyleSheet.create({
     filters: {
         flexDirection: 'row',
         marginBottom: 10,
-        marginRight: 20,
     },
     resultsCount: {
         fontSize: 16,
