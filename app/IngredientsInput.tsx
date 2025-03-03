@@ -3,12 +3,18 @@ import { useState, useEffect } from 'react';
 import { useNavigation, useRouter } from "expo-router";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { processReceipt } from "../backend/receiptOCR.js";
-
+import ImageViewer from '@/components/ImageViewer';
+import * as ImagePicker from 'expo-image-picker'
+import CustomButton from '@/components/Button';
+import DropdownMenu from './dropdownMenu';
 const PlaceholderImage = require('@/assets/images/background-image.png');
 const receiptIngrList = [];
 
 export default function Index() {
-    const [ingrList,setingrList] = useState<string[]>([])
+    const [ingrList,setingrList] = useState<string[]>([]);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+    const router = useRouter();
     const [receiptLines, setReceiptLines] = useState<string[]>([]);
     const [inputText, setInputText] = useState("");
     const handleAddItem = () => {
@@ -31,6 +37,21 @@ export default function Index() {
       alert('You didnt select an image.');
     }
   }
+  const handleMenuToggle = () => {
+    setIsMenuOpen(prev => !prev); // Toggle the menu visibility
+};
+
+const handleCloseMenu = () => {
+    setIsMenuOpen(false); // Close the menu when clicking outside
+};
+
+
+
+
+const menuItems = [
+  { title: 'Enter Ingredients Page', onPress: () => router.push("/IngredientsInput") },
+  // Add more menu items here
+];
   async function imageToIngredient()
   {
     if(selectedImage != undefined)
@@ -38,8 +59,11 @@ export default function Index() {
         try {
           const text = await processReceipt(selectedImage);
           const lines = text.split("\n").filter((line) => line.trim() !== ""); // Split text into lines & remove empty ones
+          console.log("Setting List:",ingrList);
+          console.log("Lines:",lines);
           setReceiptLines(lines);
           setingrList([...ingrList, ...lines]);
+          console.log("Updated List:",ingrList);
         } catch (error) {
           console.error("Error processing receipt:", error);
           setReceiptLines(["Failed to process the receipt."]);
@@ -49,95 +73,29 @@ export default function Index() {
 
 
 
-import DropdownMenu from './dropdownMenu';
 
-export default function IngredientsInput() {
+
+  /*function IngredientsInput() {
   const [ingrList, setIngrList] = useState<string[]>([]);
   const [inputText, setInputText] = useState("");
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
-  const navigation = useNavigation();
-  const router = useRouter();
+
 
   const handleAddItem = () => {
       if (inputText.trim()) {
           setIngrList([...ingrList, inputText.trim()]);
           setInputText("");
       }
-  };
+  };*/
 
-  const handleMenuToggle = () => {
-      setIsMenuOpen(prev => !prev); // Toggle the menu visibility
-  };
 
-  const handleCloseMenu = () => {
-      setIsMenuOpen(false); // Close the menu when clicking outside
-  };
-
-  useEffect(() => {
-    navigation.setOptions({
-      headerTitle: () => (
-          <Button
-            onPress={() => router.push("/")} title="Home" // Need to add logo image
-          />
-      ),
-      headerLeft: () => (
-          <Button onPress={() => router.push("/profile")} title="Profile" />
-      ),
-      headerRight: () => (
-          <Button title="Menu" onPress={handleMenuToggle} />
-      ),
-    });
-  }, [navigation]);
-
-  const menuItems = [
-    { title: 'Enter Ingredients Page', onPress: () => router.push("/IngredientsInput") },
-    // Add more menu items here
-  ];
 
   return (
-    <SafeAreaView>
-      <View style={styles.imageContainer}>
-      <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} />
-      </View>
-      <View style={styles.footerContainer}>
-        <CustomButton theme="primary" label="Upload Receipt" onPress={pickImageAsync} />
-        <CustomButton theme="primary" label="Use this photo" onPress={imageToIngredient}/>
-        </View>
-        <View style={styles.manualInputContainer}>
-            <Text>Enter your Ingredients Below:</Text>
-                <TextInput
-                  style={{
-                    height: 40,
-                    borderColor: 'gray',
-                    borderWidth: 1,
-                  }}
-                  placeholder="Type Here"
-                  defaultValue={inputText}
-                  value={inputText}
-                  onChangeText={(inputText) => setInputText(inputText)}
-                  onSubmitEditing={handleAddItem}
-                />
-              <FlatList
-                data={ingrList}
-                keyExtractor={(ingr, index) => index.toString()}
-                renderItem={({ item }) => (
-                  <View>
-                    <Text>{item}</Text>
-                  </View>
-                )}
-              >
-                
-                
-              </FlatList>
-              <Button onPress={() => {setingrList([])}} title="Clear Ingredients" color='red' ></Button>
-        </View>
-    </SafeAreaView>
     <View style={styles.container}>
       <Text style={styles.header}>Find Tailored Recipes!</Text>
       
-      <Button title="Scan Ingredients" color="blue"/>
-
+      <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} />
+      <CustomButton theme="primary" label="Upload Receipt" onPress={pickImageAsync} />
+      <CustomButton theme="primary" label="Use this photo" onPress={imageToIngredient}/>
       <TextInput
           style={styles.searchBar}
           defaultValue={inputText}
@@ -157,7 +115,7 @@ export default function IngredientsInput() {
           )}
       />
 
-      <Button title="Clear Ingredients" color="red" onPress={() => setIngrList([])} />
+      <Button title="Clear Ingredients" color="red" onPress={() => setingrList([])} />
 
       <Button title="Find Recipes" color="blue"/>
 
@@ -166,7 +124,6 @@ export default function IngredientsInput() {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
       flex: 1,
