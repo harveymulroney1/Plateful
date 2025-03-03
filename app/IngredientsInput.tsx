@@ -136,7 +136,7 @@ export default function IngredientsInput() {
     <View style={styles.container}>
       <Text style={styles.header}>Find Tailored Recipes!</Text>
       
-      <Button title="Scan Ingredients" color="blue"/>
+      <Button title="Scan Ingredients"/>
 
       <TextInput
           style={styles.searchBar}
@@ -159,7 +159,7 @@ export default function IngredientsInput() {
 
       <Button title="Clear Ingredients" color="red" onPress={() => setIngrList([])} />
 
-      <Button title="Find Recipes" color="blue"/>
+      <Button title="Find Recipes"/>
 
       <DropdownMenu isOpen={isMenuOpen} onClose={handleCloseMenu} menuItems={menuItems} />
     
