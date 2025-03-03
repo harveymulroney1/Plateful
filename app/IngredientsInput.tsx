@@ -7,46 +7,7 @@ import { processReceipt } from "../backend/receiptOCR.js";
 const PlaceholderImage = require('@/assets/images/background-image.png');
 const receiptIngrList = [];
 
-// export default function Index() {
-//   const [ingrList, setingrList] = useState<string[]>([])
-//   const [receiptLines, setReceiptLines] = useState<string[]>([]);
-//   const [inputText, setInputText] = useState("");
-//   const handleAddItem = () => {
-//     if (inputText.trim()) {
-//       setingrList([...ingrList, inputText.trim()]);
-//       setInputText("");
-//     }
-//   }
-//   const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
-//   const pickImageAsync = async () => {
-//     let result = await ImagePicker.launchImageLibraryAsync({
-//       mediaTypes: ['images'],
-//       allowsEditing: true,
-//       quality: 1
-//     });
-//     if (!result.canceled) {
-//       setSelectedImage(result.assets[0].uri);
-//       console.log(result);
-//     } else {
-//       alert('You didnt select an image.');
-//     }
-//   }
-//   async function imageToIngredient() {
-//     if (selectedImage != undefined) {
-//       try {
-//         const text = await processReceipt(selectedImage);
-//         const lines = text.split("\n").filter((line) => line.trim() !== ""); // Split text into lines & remove empty ones
-//         setReceiptLines(lines);
-//         setingrList([...ingrList, ...lines]);
-//       } catch (error) {
-//         console.error("Error processing receipt:", error);
-//         setReceiptLines(["Failed to process the receipt."]);
-//       }
-//     }
-//   }
 
-
-// }
 import DropdownMenu from './dropdownMenu';
 
 export default function IngredientsInput() {
