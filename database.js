@@ -1,9 +1,10 @@
     var mysql = require('mysql2'); //Creates Database
+    const {createhash} = require('crypto');
 
     var con = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "password"
+    password: ""
     });
 
     con.connect(function(err) {
@@ -30,14 +31,19 @@ function createTables() //Creates Recipes, Ingredients and Stats tables
     console.log("Table Recipe created");
     });
 
+    var sql = "CREATE TABLE IF NOT EXISTS Account (UserName VARCHAR(255) PRIMARY KEY, Password VARCHAR(100), Salt VARCHAR(100))";
+    con.query(sql, function (err, result) {
+    if (err) throw err;
+    console.log("Table Account created");
+    });
 
-    var sql = "CREATE TABLE IF NOT EXISTS Ingredients (UserName VARCHAR(255) PRIMARY KEY, Ingredients VARCHAR(1000), Password VARCHAR(100))";
+    var sql = "CREATE TABLE IF NOT EXISTS Ingredients (UserName VARCHAR(255) FOREIGN KEY, Ingredients VARCHAR(1000), Password VARCHAR(100) REFERENCES Account(AccountName))";
         con.query(sql, function (err, result) {
         if (err) throw err;
         console.log("Table Ingredients created");
         });
 
-    var sql = "CREATE TABLE IF NOT EXISTS Statistics (UserName VARCHAR(255) PRIMARY KEY, Temp VARCHAR(255), Password VARCHAR(100))";
+    var sql = "CREATE TABLE IF NOT EXISTS Statistics (UserName VARCHAR(255) PRIMARY KEY, Temp VARCHAR(255), Password VARCHAR(100) REFERENCES Account(AccountName))";
         con.query(sql, function (err, result) {
         if (err) throw err;
         console.log("Table Statistics created");
@@ -98,8 +104,17 @@ function getRecipe(recipeName) //Returns the recipes name, ingredients and metho
 function insertIngredients(userName, ingredients, password)
 {
     ingredients=ingredients.sort();
-    
-    var sql ="SELECT UserName FROM Ingredients WHERE UserName='"+userName+"' AND Password='"+password+"'";
+
+    var sql ="SELECT Salt FROM Account WHERE UserName='"+userName+"'";
+    con.query(sql, function (err, salt) {
+        salt=JSON.stringify(result[0]).replace("{\"Salt\":\"", "").replace("\"}","");
+        return null, salt;
+    });
+
+    password=password+salt//Salting
+    password=createhash('sha256').update(password).digest('hex'); //Hashing
+
+    var sql ="SELECT UserName FROM Account WHERE UserName='"+userName+"' AND Password='"+password+"'";
     con.query(sql, function (err, result) {
         
         if (result.length>=1)
@@ -108,6 +123,11 @@ function insertIngredients(userName, ingredients, password)
         }
         if (result==userName)
         {
+            var sql = "UPDATE Account SET UserName= '"+userName+"', Password='"+password+"'";
+                con.query(sql, function (err, result) {
+                if (err) throw err;
+                });
+
             var sql = "UPDATE Ingredients SET UserName= '"+userName+"', Ingredients='"+ingredients+"', Password='"+password+"'";
                 con.query(sql, function (err, result) {
                 if (err) throw err;
@@ -115,6 +135,14 @@ function insertIngredients(userName, ingredients, password)
                 });
         }
         else{
+            salt=createhash.randomBytes(16); //Creating Salt
+            password=password+salt //Salting
+            password=createhash('sha256').update(password).digest('hex'); //Hashing
+
+            var sql = "INSERT INTO Account (UserName, Password, Salt) VALUES ('"+userName+"', '"+password+"', '"+salt+"')";
+                con.query(sql, function (err, result) {
+                if (err) throw err;
+                });
 
             var sql = "INSERT INTO Ingredients (UserName, Ingredients, Password) VALUES ('"+userName+"', '"+ingredients+"', '"+password+"')";
                 con.query(sql, function (err, result) {
@@ -127,7 +155,7 @@ function insertIngredients(userName, ingredients, password)
 
 //Testing functions
 
-//createTables();
+createTables();
 //insertIngredients("John", ["Lettuce", "Tomato", "Mayo", "Basil"], "password")
 //insertRecipes("Salad", ["Lettuce", "Tomato", "Mayo"], "Chop nicely");
 //getRecipeNames("John", "password");

@@ -1,4 +1,8 @@
 import puppeteer from 'puppeteer';
+import {insertRecipes} from './database.js';
+
+//const { insertRecipes } = require('./database.js');
+
 // Launch the browser and open a new blank page
 //const browser = await puppeteer.launch();
 //const page = await browser.newPage();
@@ -43,12 +47,14 @@ async function scrapeIngrMethod(url) {
     } )
     const cleanedIngredients = cleanIngredients(ingredients)
     //console.log({nutrition});
-    //console.log({ ingredients });
-    //console.log({recipeImage});
-    console.log({ cleanedIngredients });
-    console.log(recipeTitle);
-    console.log(method);
-    console.log(nutrition);
+    // console.log({ ingredients });
+    // //console.log({recipeImage});
+    // console.log({ cleanedIngredients });
+    // console.log(recipeTitle);
+    // console.log(method);
+    // console.log(nutrition);
+    // console.log(recipeImage);
+    insertRecipes(recipeTitle,ingredients, method, recipeImage); //Example: insertRecipes("Salad", ["Lettuce", "Tomato", "Mayo"], "Chop nicely", https://images.immediate.co.uk/production/volatile/sites/30/2020/08/sweetcorn-soup-f432263.jpg?quality=90&resize=440,400)
     browser.close();
 
 }
@@ -66,7 +72,7 @@ function cleanIngredients(rawIngredients) {
     });
 }
 
-async function getRecipeURLs()
+export async function getRecipeURLs()
 {
     // Gets X recipes under filters - Dinner , <45min Cook Time , Easy & 4*/5*
     const recipeListPage =  'https://www.bbcgoodfood.com/search?tab=recipe&mealType=dinner&totalTime=lt-2700&difficulty=easy&ratings=gte-4%2Cgte-5'
@@ -98,4 +104,4 @@ async function getRecipeURLs()
 //scrapeIngrMethod("https://www.bbcgoodfood.com/recipes/sticky-chinese-chicken-traybake")
 //scrapeIngrMethod("https://www.bbcgoodfood.com/recipes/tuna-avocado-quinoa-salad")
 //getRecipeURLs()
-scrapeIngrMethod("https://www.bbcgoodfood.com/recipes/hot-sour-prawn-sweetcorn-soup")
+//scrapeIngrMethod("https://www.bbcgoodfood.com/recipes/hot-sour-prawn-sweetcorn-soup")
