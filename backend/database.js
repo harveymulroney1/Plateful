@@ -4,7 +4,7 @@ import createhash from 'crypto';
     var con = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "password"
+    password: ""
     });
 
     con.connect(function(err) {
@@ -37,13 +37,13 @@ export function createTables() //Creates Recipes, Ingredients and Stats tables
     console.log("Table Account created");
     });
 
-    var sql = "CREATE TABLE IF NOT EXISTS Ingredients (UserName VARCHAR(255) , Ingredients VARCHAR(1000), Password VARCHAR(100), FOREIGN KEY (UserName)REFERENCES Account(AccountName))";
+    var sql = "CREATE TABLE IF NOT EXISTS Ingredients (UserName VARCHAR(255) , Ingredients VARCHAR(1000), Password VARCHAR(100), FOREIGN KEY (UserName)REFERENCES Account(UserName))";
         con.query(sql, function (err, result) {
         if (err) throw err;
         console.log("Table Ingredients created");
         });
 
-    var sql = "CREATE TABLE IF NOT EXISTS Statistics (UserName VARCHAR(255) PRIMARY KEY, Temp VARCHAR(255), Password VARCHAR(100) REFERENCES Account(AccountName))";
+    var sql = "CREATE TABLE IF NOT EXISTS Statistics (UserName VARCHAR(255) PRIMARY KEY, Temp VARCHAR(255), Password VARCHAR(100) REFERENCES Account(UserName))";
         con.query(sql, function (err, result) {
         if (err) throw err;
         console.log("Table Statistics created");
