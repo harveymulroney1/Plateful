@@ -1,11 +1,9 @@
 import { createWorker } from 'tesseract.js';
 
-export function scanReceipt(url)
-{
-(async () => {
+export async function processReceipt(imagePath){
   const worker = await createWorker('eng');
-  const ret = await worker.recognize(url);
+  const ret = await worker.recognize(imagePath);
   await worker.terminate();
-  return ret.data.text;
-})();
-}
+  return (ret.data.text);
+  
+};
