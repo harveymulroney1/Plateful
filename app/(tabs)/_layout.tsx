@@ -1,4 +1,5 @@
 import { Tabs } from "expo-router";
+import { Image, Text, TextInput, View, Button, FlatList, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 export default function TabsLayout() {
   return <Tabs
@@ -9,6 +10,7 @@ export default function TabsLayout() {
     },
     headerShadowVisible: false,
     headerTintColor: '#fff',
+    headerTitle:"",
     tabBarStyle: {
     backgroundColor: '#25292e',
     },
@@ -16,12 +18,25 @@ export default function TabsLayout() {
     >
     <Tabs.Screen name="index" 
     options={{
-        headerTitle:"Home",
+          headerTitle: () => (
+              <Image 
+                  source={require("../../assets/images/logo.png")}
+                  style={{ width: 60, height: 60, resizeMode: "contain" }} 
+              />
+          ),
+          headerLeft: () => (
+              <Button onPress={() =>("/profile")} title="Profile" />
+          ),
+          headerRight: () => (
+              <Button title="Menu" /*onPress={handleMenuToggle}*/ />
+          ),
+      
         tabBarIcon: ({focused,color}) => 
         <Ionicons 
         name={focused ? "home-sharp":"home-outline"} 
         color={color} 
         size={24}/>
+        
     }}
     />
     <Tabs.Screen name="IngredientsInput" 
@@ -43,15 +58,6 @@ export default function TabsLayout() {
             name={focused ? "person-sharp":"person-outline"}
             color={color}
             size={24}/>
-    }}/>
-    <Tabs.Screen name = "recipe"
-    options={{
-      headerTitle:"Chilli Con Carne",
-      tabBarIcon:({focused,color})=>
-        <Ionicons
-        name={focused ? "restaurant-sharp":"restaurant-outline"}
-        color={color}
-        size={24}/>
     }}/>
     </Tabs>
 
