@@ -1,5 +1,5 @@
 import puppeteer from 'puppeteer';
-import {insertRecipes} from './database.js';
+//import {insertRecipes} from './database.js';
 
 //const { insertRecipes } = require('./database.js');
 
@@ -8,9 +8,10 @@ import {insertRecipes} from './database.js';
 //const page = await browser.newPage();
 //await page.goto("https://www.bbcgoodfood.com/recipes/collection/cheap-eat-recipes")
 
-async function scrapeIngrMethod(url) {
+export async function scrapeIngrMethod(url) {
 
     const browser = await puppeteer.launch();
+    console.log("Running");
     const page = await browser.newPage();
     await page.goto(url ,{waitUntil: 'domcontentloaded' } )
     await page.waitForSelector('h1');
@@ -46,6 +47,8 @@ async function scrapeIngrMethod(url) {
         return Array.from(methodList).map(li=>li.textContent.trim());
     } )
     const cleanedIngredients = cleanIngredients(ingredients)
+    browser.close();
+    return cleanedIngredients; // testing receiptOCR
     //console.log({nutrition});
     // console.log({ ingredients });
     // //console.log({recipeImage});
@@ -54,8 +57,8 @@ async function scrapeIngrMethod(url) {
     // console.log(method);
     // console.log(nutrition);
     // console.log(recipeImage);
-    insertRecipes(recipeTitle,ingredients, method, recipeImage); //Example: insertRecipes("Salad", ["Lettuce", "Tomato", "Mayo"], "Chop nicely", https://images.immediate.co.uk/production/volatile/sites/30/2020/08/sweetcorn-soup-f432263.jpg?quality=90&resize=440,400)
-    browser.close();
+    //insertRecipes(recipeTitle,ingredients, method, recipeImage); //Example: insertRecipes("Salad", ["Lettuce", "Tomato", "Mayo"], "Chop nicely", https://images.immediate.co.uk/production/volatile/sites/30/2020/08/sweetcorn-soup-f432263.jpg?quality=90&resize=440,400)
+    //
 
 }
 function cleanIngredients(rawIngredients) {
