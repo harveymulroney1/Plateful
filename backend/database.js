@@ -4,7 +4,7 @@ import createhash from 'crypto';
     var con = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: ""
+    password: "password"
     });
 
     con.connect(function(err) {
@@ -58,6 +58,37 @@ export async function insertRecipes (recipeName, ingredients, method, url) //Ins
     con.query(sql, function (err, result) {
         console.log("Recipe", recipeName, "inserted");
     });
+}
+
+export function logIn(userName, password)
+{
+    var sql ="SELECT Salt FROM Account WHERE UserName='"+userName+"'";
+    con.query(sql, function (err, salt) {
+        if (salt!=undefined && salt.length>=1)
+        {
+            salt=JSON.stringify(salt).replace("[{\"Salt\":\"", "").replace("\"}]","");
+            password=password+salt//Salting
+            password=createhash.createHash('sha256').update(password).digest('hex'); //Hashing
+                var sql = "SELECT UserName FROM Account WHERE UserName= '"+userName+"' AND Password= '"+password+"'";
+                con.query(sql, function (err, result) {
+                    if (result.length>=1)
+                        {
+                            result=JSON.stringify(result[0]).replace("{\"UserName\":\"", "").replace("\"}","");
+                            if (result==userName)
+                            {
+                                console.log("Successful log in")
+                                return "Successful log in";
+                            }
+                        }
+                        else 
+                        {
+                            console.log("Incorrect password")
+                            return "Incorrect password";
+                        }
+                if (err) throw err;
+                });
+        }
+});
 }
 
 export function getRecipeNames(userName, password) //Gets all recipes which contain only ingrediants the user has
@@ -149,9 +180,14 @@ export function insertIngredients(userName, ingredients, password)
                         }
                     });
         }
-        else
-        {
-            salt=createhash.randomBytes(16).toString('hex'); //Creating Salt
+        });      
+}
+
+export function createAccount(userName, password)
+{
+    var ingredients=""
+        
+            var salt=createhash.randomBytes(16).toString('hex'); //Creating Salt
             password=password+salt //Salting
             password=createhash.createHash('sha256').update(password).digest('hex'); //Hashing
             var sql = "INSERT INTO Account (UserName, Password, Salt) VALUES ('"+userName+"', '"+password+"', '"+salt+"')";
@@ -164,13 +200,14 @@ export function insertIngredients(userName, ingredients, password)
                 if (err) throw err;
                 console.log("1 record inserted");
                 });
-        }
-        });      
 }
+
 
 //Testing functions
 
-//createTables();
+createTables();
+//createAccount("Rebecca", "password");
+//logIn("Rebecca", "password");
 // insertIngredients("Rebecca", ["Lettuce", "Tomato", "Mayo", "Basi"], "password")
 // insertRecipes("Salad", ["Lettuce", "Tomato", "Mayo"], "Chop nicely");
 

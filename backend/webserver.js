@@ -21,8 +21,34 @@ app.listen(port,hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
 });
 
+//Handle Post request on /createAccount
+//This is used to create an account
+app.post('/createAccount', (req, res) => {
+    //Recieves user data
+    const userName = req.body.u;
+    const password = req.body.p;
+    database.createAccount(userName, password) //Layout: insertingredients("Rebecca", "mypassword")
+    res.end('Account created');
+
+})
+
+//Handle Post request on /logIn
+//This is used to log into an account
+app.post('/logIn', (req, res) => {
+    //Recieves user data
+    const userName = req.body.u;
+    const password = req.body.p;
+    database.logIn(userName, password) //Layout: insertingredients("Rebecca", "mypassword")
+    .then(result => {
+        res.end(result);
+    })
+    .catch(err => {
+        console.error(err);
+    });
+})
+
 //Handle Post request on /insert ingredient
-//This is used to create an account/insert the ingredients the person has. When creating account just pass ingredients as ""
+//To insert the ingredients the person has
 app.post('/insert', (req, res) => {
     //Recieves user data
     const ingredients= req.body.i;
