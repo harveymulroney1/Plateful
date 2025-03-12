@@ -4,7 +4,7 @@ import createhash from 'crypto';
     var con = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "password"
+    password: ""
     });
 
     con.connect(function(err) {

@@ -15,7 +15,10 @@ export default function Settings() {
     //let username = "";
     //let password = "";
     function login() {
-        axios.post("http://127.0.0.1:3000/getName", { u: username, p: password })
+        axios.post("http://127.0.0.1:3000/logIn", { u: username, p: password })
+    }
+    function createAccount() {
+        axios.post("http://127.0.0.1:3000/createAccount", { u: username, p: password })
     }
     return(
         <View
@@ -38,10 +41,10 @@ export default function Settings() {
                     onChangeText={(password) => setPassword(password)}
                 />
                 <View style = {styles.buttons}>
-                    <Button title="Login" />
+                    <Button title="Login" onPress={login}/>
                 </View> 
                 <View style = {styles.buttons}>
-                    <Button title="Create Account" onPress={login} />
+                    <Button title="Create Account" onPress={createAccount} />
                 </View> 
             </View>
         </View>
