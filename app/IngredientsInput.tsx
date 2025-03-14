@@ -2,13 +2,16 @@ import { Image, View, StyleSheet, Text, TextInput, FlatList, Button, TouchableOp
 import { useState, useEffect } from 'react';
 import { useNavigation, useRouter } from "expo-router";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { processReceipt } from "../backend/receiptOCR.js";
+//import { processReceipt } from "../backend/receiptOCR.js";
 
 const PlaceholderImage = require('@/assets/images/background-image.png');
 const receiptIngrList = [];
 
 
 import DropdownMenu from './dropdownMenu';
+import axios from 'axios';
+let username = "test1";
+let password = "test1";
 
 export default function IngredientsInput() {
   const [ingrList, setIngrList] = useState<string[]>([]);
@@ -20,8 +23,9 @@ export default function IngredientsInput() {
 
   const handleAddItem = () => {
       if (inputText.trim()) {
-          setIngrList([...ingrList, inputText.trim()]);
-          setInputText("");
+        setIngrList([...ingrList, inputText.trim()]);
+        axios.post("http://127.0.0.1:3000/insert", { u: username, i: ingrList, p: password })
+        setInputText("");
       }
   };
 

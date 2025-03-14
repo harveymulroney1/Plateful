@@ -13,6 +13,7 @@ const Recipes = [
     { id: "7", title: "Recipe 7" },
     { id: "8", title: "Recipe 8" },
     { id: "9", title: "Recipe 9" },
+    { id: "10", title: "Recipe 10" },
 ];
 
 type ItemProps = { title: string };
