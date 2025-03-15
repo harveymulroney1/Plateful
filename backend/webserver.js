@@ -39,12 +39,12 @@ app.post('/logIn', (req, res) => {
     const userName = req.body.u;
     const password = req.body.p;
     database.logIn(userName, password) //Layout: insertingredients("Rebecca", "mypassword")
-    .then(result => {
-        res.end(result);
-    })
-    .catch(err => {
-        console.error(err);
-    });
+    // .then(result => {
+    //     res.end(result);
+    // }) //commented out to stop error
+    // .catch(err => {
+    //     console.error(err);
+    // });
 })
 
 //Handle Post request on /insert ingredient
