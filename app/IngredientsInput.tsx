@@ -2,7 +2,7 @@ import { Image, View, StyleSheet, Text, TextInput, FlatList, Button, TouchableOp
 import { useState, useEffect } from 'react';
 import { useNavigation, useRouter } from "expo-router";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { processReceipt } from "../backend/receiptOCR.js";
+//import { processReceipt } from "../backend/receiptOCR.js";
 import ImageViewer from '@/components/ImageViewer';
 import * as ImagePicker from 'expo-image-picker'
 import CustomButton from '@/components/Button';
@@ -11,10 +11,7 @@ const PlaceholderImage = require('@/assets/images/background-image.png');
 const receiptIngrList = [];
 
 export default function Index() {
-    const [ingrList,setingrList] = useState<string[]>([]);
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
-    const router = useRouter();
+    const [ingrList,setingrList] = useState<string[]>([])
     const [receiptLines, setReceiptLines] = useState<string[]>([]);
     const [inputText, setInputText] = useState("");
     const handleAddItem = () => {
@@ -37,21 +34,6 @@ export default function Index() {
       alert('You didnt select an image.');
     }
   }
-  const handleMenuToggle = () => {
-    setIsMenuOpen(prev => !prev); // Toggle the menu visibility
-};
-
-const handleCloseMenu = () => {
-    setIsMenuOpen(false); // Close the menu when clicking outside
-};
-
-
-
-
-const menuItems = [
-  { title: 'Enter Ingredients Page', onPress: () => router.push("/IngredientsInput") },
-  // Add more menu items here
-];
   async function imageToIngredient()
   {
     if(selectedImage != undefined)
@@ -59,11 +41,8 @@ const menuItems = [
         try {
           const text = await processReceipt(selectedImage);
           const lines = text.split("\n").filter((line) => line.trim() !== ""); // Split text into lines & remove empty ones
-          console.log("Setting List:",ingrList);
-          console.log("Lines:",lines);
           setReceiptLines(lines);
           setingrList([...ingrList, ...lines]);
-          console.log("Updated List:",ingrList);
         } catch (error) {
           console.error("Error processing receipt:", error);
           setReceiptLines(["Failed to process the receipt."]);
@@ -73,7 +52,10 @@ const menuItems = [
 
 
 
-
+import DropdownMenu from './dropdownMenu';
+import axios from 'axios';
+let username = "test1";
+let password = "test1";
 
   /*function IngredientsInput() {
   const [ingrList, setIngrList] = useState<string[]>([]);
@@ -82,8 +64,9 @@ const menuItems = [
 
   const handleAddItem = () => {
       if (inputText.trim()) {
-          setIngrList([...ingrList, inputText.trim()]);
-          setInputText("");
+        setIngrList([...ingrList, inputText.trim()]);
+        axios.post("http://127.0.0.1:3000/insert", { u: username, i: ingrList, p: password })
+        setInputText("");
       }
   };*/
 
@@ -93,6 +76,8 @@ const menuItems = [
     <View style={styles.container}>
       <Text style={styles.header}>Find Tailored Recipes!</Text>
       
+      <Button title="Scan Ingredients"/>
+
       <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} />
       <CustomButton theme="primary" label="Upload Receipt" onPress={pickImageAsync} />
       <CustomButton theme="primary" label="Use this photo" onPress={imageToIngredient}/>
@@ -117,7 +102,7 @@ const menuItems = [
 
       <Button title="Clear Ingredients" color="red" onPress={() => setingrList([])} />
 
-      <Button title="Find Recipes" color="blue"/>
+      <Button title="Find Recipes"/>
 
       <DropdownMenu isOpen={isMenuOpen} onClose={handleCloseMenu} menuItems={menuItems} />
     
