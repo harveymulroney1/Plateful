@@ -54,9 +54,15 @@ export async function insertRecipes (recipeName, ingredients, method, url) //Ins
 {    
     ingredients.sort(); //Sorts in alphebetical order
 
-    var sql = "INSERT INTO Recipe (RecipeName, Ingredients, Method) VALUES ('"+recipeName+"', '"+ingredients+"', '"+method+"','"+url+"')";
+    //var sql = "INSERT INTO Recipe (RecipeName, Ingredients, Method) VALUES ('"+recipeName+"', '"+ingredients+"', '"+method+"','"+url+"')";
+    var sql = "INSERT INTO Recipe (RecipeName, Ingredients, Method) VALUES ('"+recipeName+"', '"+ingredients+"', '"+method+"')";
     con.query(sql, function (err, result) {
-        console.log("Recipe", recipeName, "inserted");
+        if (err) {
+            console.log("Error inserting recipe: " + err + " recipe attempted: " + recipeName);
+        }
+        else {
+            console.log("Recipe", recipeName, "inserted");
+        }
     });
 }
 
@@ -137,11 +143,16 @@ export function getRecipeNames(userName, password) //Gets all recipes which cont
 
 export function getRecipe(recipeName) //Returns the recipes name, ingredients and method
 {   
+    console.log("Recipe name requested: " + recipeName)
     return new Promise((resolve, reject) => {
         con.query("SELECT * FROM Recipe WHERE RecipeName='"+recipeName+"'", function (err, result) {
             if (err) {
                 reject(err);
             } else {
+                console.log("RESULT FROM database.js: " + result);
+                if (!result) {
+                    print("!result");
+                }
                 resolve(result); 
             }
         });
