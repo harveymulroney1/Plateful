@@ -1,27 +1,27 @@
-import { Image, Text, TextInput, View, Button, FlatList, StyleSheet } from "react-native";
+import { Image, Text, TextInput, View, Button, FlatList, StyleSheet, TouchableOpacity } from "react-native";
 import { useEffect, useState } from "react";
 import { useNavigation, useRouter } from "expo-router";
 import DropdownMenu from "./dropdownMenu";
 
 const Recipes = [
-    { id: "1", title: "Recipe 1" },
-    { id: "2", title: "Recipe 2" },
-    { id: "3", title: "Recipe 3" },
-    { id: "4", title: "Recipe 4" },
-    { id: "5", title: "Recipe 5" },
-    { id: "6", title: "Recipe 6" },
-    { id: "7", title: "Recipe 7" },
-    { id: "8", title: "Recipe 8" },
-    { id: "9", title: "Recipe 9" },
-    { id: "10", title: "Recipe 10" },
+    { id: "1", title: "Spiced duck breasts with sticky clementine sauce" },
+    { id: "2", title: "Spicy peanut butter & corn ramen" },
+    { id: "3", title: "Air fryer quesadillas" },
+    { id: "4", title: "Butter bean saag" },
+    { id: "5", title: "Tuscan sausage gnocchi" },
+    { id: "6", title: "Easy paella" },
+    { id: "7", title: "Peanut chickpea rice bowl" },
+    { id: "8", title: "Quick & spicy chicken noodles" },
+    { id: "9", title: "Burger bowl" },
+    { id: "10", title: "Rib-eye with cacio e pepe butter" },
 ];
 
-type ItemProps = { title: string };
+type ItemProps = { title: string; onPress: () => void };
 
-const Item = ({ title }: ItemProps) => (
-    <View style={styles.item}>
+const Item = ({ title, onPress }: ItemProps) => (
+    <TouchableOpacity onPress={onPress} style={styles.item}>
         <Text style={styles.title}>{title}</Text>
-    </View>
+    </TouchableOpacity>
 );
 
 export default function Homepage() {
@@ -56,9 +56,12 @@ export default function Homepage() {
         });
     }, [navigation]);
 
+    const handleItemPress = (recipeTitle: string) => {
+        router.push(`/recipe?title=${encodeURIComponent(recipeTitle)}`);
+    };
+
     const menuItems = [
         { title: 'Enter Ingredients Page', onPress: () => router.push("/IngredientsInput") },
-        { title: 'Recipe viewer test (burger bowl)', onPress: () => router.push("/recipe?title=Burger%20Bowl") },
         // Add more menu items here
     ];
 
@@ -82,7 +85,9 @@ export default function Homepage() {
 
             <FlatList
                 data={Recipes}
-                renderItem={({ item }) => <Item title={item.title} />}
+                renderItem={({ item }) => (
+                    <Item title={item.title} onPress={() => handleItemPress(item.title)} />
+                )}
                 keyExtractor={item => item.id}
                 showsVerticalScrollIndicator={false}
             />

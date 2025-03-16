@@ -1,4 +1,4 @@
-import { Text, View, Button } from "react-native";
+import { Image, Text, View, Button } from "react-native";
 import { useEffect, useState } from "react";
 import { useNavigation, useRouter, useLocalSearchParams } from "expo-router";
 import axios from "axios";
@@ -12,11 +12,20 @@ export default function Recipe() {
     const [method, setMethod] = useState("");
 
     useEffect(() => {
-        if (!recipeTitle) return; // Ensure title exists before proceeding
 
         navigation.setOptions({
-            title: recipeTitle,
+            headerLeft: () => (
+                <Button onPress={() => router.replace("/")} title="Home" />
+            ),
+            headerTitle: () => (
+                <Image 
+                    source={require("../assets/images/logo.png")}
+                    style={{ width: 60, height: 60, resizeMode: "contain" }} 
+                />
+            ),
         });
+
+        if (!recipeTitle) return; // Ensure title exists before proceeding
 
         axios.post("http://127.0.0.1:3000/getRecipe", { n: recipeTitle })
             .then(response => {
