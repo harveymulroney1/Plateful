@@ -58,6 +58,7 @@ export default function Homepage() {
 
     const menuItems = [
         { title: 'Enter Ingredients Page', onPress: () => router.push("/IngredientsInput") },
+        { title: 'Recipe viewer test (burger bowl)', onPress: () => router.push("/recipe?title=Burger%20Bowl") },
         // Add more menu items here
     ];
 
