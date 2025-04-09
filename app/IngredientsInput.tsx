@@ -9,7 +9,9 @@ import CustomButton from '@/components/Button';
 import DropdownMenu from './dropdownMenu';
 const PlaceholderImage = require('@/assets/images/background-image.png');
 const receiptIngrList = [];
-
+import axios from 'axios';
+let username = "test1";
+let password = "test1";
 export default function Index() {
     const [ingrList,setingrList] = useState<string[]>([])
     const [receiptLines, setReceiptLines] = useState<string[]>([]);
@@ -34,7 +36,7 @@ export default function Index() {
       alert('You didnt select an image.');
     }
   }
-  async function imageToIngredient()
+ /*  async function imageToIngredient()
   {
     if(selectedImage != undefined)
       {
@@ -48,14 +50,11 @@ export default function Index() {
           setReceiptLines(["Failed to process the receipt."]);
         }
       }
-  }
+  } */
 
 
 
-import DropdownMenu from './dropdownMenu';
-import axios from 'axios';
-let username = "test1";
-let password = "test1";
+
 
   /*function IngredientsInput() {
   const [ingrList, setIngrList] = useState<string[]>([]);
@@ -76,11 +75,11 @@ let password = "test1";
     <View style={styles.container}>
       <Text style={styles.header}>Find Tailored Recipes!</Text>
       
-      <Button title="Scan Ingredients"/>
+      <Button onPress={pickImageAsync} title="Scan Ingredients"/>
 
       <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} />
       <CustomButton theme="primary" label="Upload Receipt" onPress={pickImageAsync} />
-      <CustomButton theme="primary" label="Use this photo" onPress={imageToIngredient}/>
+      
       <TextInput
           style={styles.searchBar}
           defaultValue={inputText}
@@ -104,7 +103,7 @@ let password = "test1";
 
       <Button title="Find Recipes"/>
 
-      <DropdownMenu isOpen={isMenuOpen} onClose={handleCloseMenu} menuItems={menuItems} />
+      
     
     </View>
   );
