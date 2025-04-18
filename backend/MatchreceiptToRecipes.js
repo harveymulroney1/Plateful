@@ -60,24 +60,26 @@ function removePantryItems(ingredients){
 
 const options = {
   includeScore: true,
-  threshold: 0.25, // Adjust for leniency
+  threshold: 0.25, // Adjust for leniency - should be 0.25
   keys: ["name"]
 };
 
 
-export function fetchRecipes(receiptLines)
+export async function fetchRecipes(receiptLines)
 {
     const recipesToSuggest = [];
-    getXRecipes(30, 0)
+    await getXRecipes(10, 0)
     .then(recipes => {
         console.log("Received recipes:", recipes);
         recipes.forEach(element => {
             const name = element.RecipeName;
-            const ingredients = element.Ingredients;
+            const ingredients = JSON.parse(element.Ingredients);
             const method = element.Method;
             const image = element.Image;
-            if(findRecipeMatches(ingredients,receiptLines)==true){
-                recipesToSuggest.add([name,ingredients,method,image]);
+            const result = findRecipeMatches(ingredients,receiptLines);
+            if(result===true){
+                console.log("adding to suggestion");
+                recipesToSuggest.push([name,ingredients,method,image]);
             }
         });
     })
@@ -85,7 +87,7 @@ export function fetchRecipes(receiptLines)
         console.error("Error fetching recipes:", err);
     });
     
-    
+    return recipesToSuggest;
 
 }
 
@@ -130,10 +132,11 @@ export async function findRecipeMatches(recipeToCheck,receiptLines)
   let ingredientsCount = recipe.length;
   console.log("Matches: ",fuzzyMatches);
   console.log("Matches Count: ",matchesCount);
-  console.log(((matchesCount/ingredientsCount) * 100)>20 ? "Suggest Recipe":"Don't suggest recipe");
+  console.log(((matchesCount/ingredientsCount) * 100)>30 ? "Suggest Recipe":"Don't suggest recipe");
   if (ingredientsCount === 0) return false;
+  
   return ((matchesCount/ingredientsCount) * 100)>30 
-  console.log("Original Receipt Lines",);
+  
 
 }
 function extractProductNames(receiptLines) {
@@ -150,6 +153,6 @@ function extractProductNames(receiptLines) {
       })
       .filter(product => product !== null); // Remove null values
 }
-const recipeIngr = await scrapeIngrMethod("https://www.bbcgoodfood.com/recipes/easy-teriyaki-chicken");
-console.log(recipeIngr);
-findRecipeMatches(recipeIngr,cleanedProducts);
+//const recipeIngr = await scrapeIngrMethod("https://www.bbcgoodfood.com/recipes/easy-teriyaki-chicken");
+//console.log(recipeIngr);
+//findRecipeMatches(recipeIngr,cleanedProducts);

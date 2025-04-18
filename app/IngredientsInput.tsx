@@ -6,6 +6,7 @@ import { scanReceipt } from "../backend/receiptOCR.js";
 import ImageViewer from '@/components/ImageViewer';
 import * as ImagePicker from 'expo-image-picker'
 import CustomButton from '@/components/Button';
+import {fetchRecipes} from "../backend/MatchreceiptToRecipes.js"
 import DropdownMenu from './dropdownMenu';
 const PlaceholderImage = require('@/assets/images/background-image.png');
 const receiptIngrList = [];
@@ -16,21 +17,31 @@ export default function Index() {
     const [ingrList,setingrList] = useState<string[]>([])
     const [receiptLines, setReceiptLines] = useState<string[]>([]);
     const [inputText, setInputText] = useState("");
+    type Recipe = {
+      RecipeName:string;
+      Ingredients:string[];
+      Method:string[];
+      Image:string;
+    }
+    const [recipes,setRecipes] = useState<Recipe[]>([]);
     const handleAddItem = () => {
         if (inputText.trim()) {
         setingrList([...ingrList, inputText.trim()]);
         setInputText("");
         }
     }
+    const navigation = useNavigation();
+    const router = useRouter();
   const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
-      quality:1
+      quality:0.5
     });
     if (!result.canceled){
       setSelectedImage(result.assets[0].uri);
+      imageToIngredient();
       console.log(result);
     } else{
       alert('You didnt select an image.');
@@ -40,6 +51,19 @@ export default function Index() {
   {
     if(selectedImage != undefined)
       {
+        console.log("Trying to scan")
+        axios.post("http://127.0.0.1:3000/scan", 
+          { i:selectedImage })
+        .then(function (response) {
+          console.log("Lines Received: ",response.data);
+          const lines = response.data.split("\n").filter((line:string) => line.trim() !== ""); // Split text into lines & remove empty ones
+          setReceiptLines(lines);
+          setingrList([...ingrList, ...lines]);
+          
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
         try {
           const text = await scanReceipt(selectedImage);
           const lines = text.split("\n").filter((line) => line.trim() !== ""); // Split text into lines & remove empty ones
@@ -51,6 +75,29 @@ export default function Index() {
         }
       }
   } 
+  async function getRecipes () {
+    console.log("Getting Post for Recipes. Ingr List Length: ",ingrList.length);
+    if(ingrList.length>0){
+      axios.post("http://127.0.0.1:3000/getRecipesToDisplay", 
+        { ingredients:ingrList })
+      .then(function (response) {
+        const formatted = response.data.map((r: any): Recipe => ({
+          RecipeName: r.RecipeName,
+          Ingredients: typeof r.Ingredients === 'string' ? JSON.parse(r.Ingredients) : r.Ingredients,
+          Method: typeof r.Method === 'string' ? JSON.parse(r.Method) : r.Method,
+          Image: r.Image || ""
+        }));
+        console.log("Recipes Received: ",response.data);
+        setRecipes(formatted);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    }
+    
+    
+    
+  }
 
 
 
@@ -70,6 +117,15 @@ export default function Index() {
   };*/
 
 
+  const handleItemPress = (recipeTitle: string) => {
+    router.push(`/recipe?title=${encodeURIComponent(recipeTitle)}`);
+};
+  type ItemProps = { title: string; onPress: () => void };
+const Item = ({ title, onPress }: ItemProps) => (
+    <TouchableOpacity onPress={onPress} style={styles.item}>
+        <Text style={styles.title}>{title}</Text>
+    </TouchableOpacity>
+);
 
   return (
     <View style={styles.container}>
@@ -77,8 +133,8 @@ export default function Index() {
       
       <Button onPress={pickImageAsync} title="Scan Ingredients"/>
 
-      <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} />
-      <CustomButton theme="primary" label="Upload Receipt" onPress={pickImageAsync} />
+      {/* <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} /> */}
+      {/* <CustomButton theme="primary" label="Upload Receipt" onPress={pickImageAsync} /> */}
       
       <TextInput
           style={styles.searchBar}
@@ -88,7 +144,7 @@ export default function Index() {
           onSubmitEditing={handleAddItem}
           placeholder="Add Ingredients!"
       />
-      <CustomButton theme="primary" label = "Find Recipes!"></CustomButton>
+      <CustomButton theme="primary" label = "Find Recipes!" onPress={getRecipes}></CustomButton>
 
       <FlatList
           data={ingrList}
@@ -99,7 +155,13 @@ export default function Index() {
             </View>
           )}
       />
-
+      <FlatList
+        data={recipes}
+        renderItem={({ item }) => (
+            <Item title={item.RecipeName} onPress={() => handleItemPress(item.RecipeName)} />
+        )}
+        showsVerticalScrollIndicator={false}
+    />
       <Button title="Clear Ingredients" color="red" onPress={() => setingrList([])} />
 
       
@@ -164,4 +226,14 @@ const styles = StyleSheet.create({
       fontSize: 18,
       fontWeight: "bold",
   },
+  item: {
+    backgroundColor: "#94bdff",
+    padding: 25,
+    marginVertical: 8,
+    marginHorizontal: 16,
+    borderRadius: 10,
+},
+title: {
+    fontSize: 20,
+},
 });

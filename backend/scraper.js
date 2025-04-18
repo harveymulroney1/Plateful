@@ -98,13 +98,17 @@ export async function getRecipeURLs()
     )
     console.log("Recipe URLs: "+ recipeURL);
     console.log("Count: "+ recipeURL.length);
-    await scrapeIngrMethod(recipeURL[0]);
+    //await scrapeIngrMethod(recipeURL[0]);
 
-
+    for (let i = 0; i < 2 && i < recipeURL.length; i++) {
+        console.log(recipeURL[i]);
+        await scrapeIngrMethod(recipeURL[i]);
+    }
     /*recipeURL.forEach(async url => {
-        await scrapeIngrMethod(`https://www.bbcgoodfood.com${url}`,url)
+        await scrapeIngrMethod(url)
         
     });*/
+    
     //scrapeIngrMethod()
 }
 //scrapeIngrMethod("https://www.bbcgoodfood.com/recipes/sticky-chinese-chicken-traybake")
