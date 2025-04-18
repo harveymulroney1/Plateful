@@ -8,7 +8,7 @@ import {insertRecipes} from './database.js';
 //const page = await browser.newPage();
 //await page.goto("https://www.bbcgoodfood.com/recipes/collection/cheap-eat-recipes")
 
-async function scrapeIngrMethod(url) {
+export async function scrapeIngrMethod(url) {
 
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
@@ -55,6 +55,7 @@ async function scrapeIngrMethod(url) {
     // console.log(nutrition);
     // console.log(recipeImage);
     insertRecipes(recipeTitle,ingredients, method, recipeImage); //Example: insertRecipes("Salad", ["Lettuce", "Tomato", "Mayo"], "Chop nicely", https://images.immediate.co.uk/production/volatile/sites/30/2020/08/sweetcorn-soup-f432263.jpg?quality=90&resize=440,400)
+    
     browser.close();
 
 }
@@ -79,7 +80,7 @@ export async function getRecipeURLs()
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.goto(recipeListPage)
-    console.log("yep");
+   
     await page.waitForSelector('a.link.d-block');
     const recipeURL = await page.evaluate(()=> {
         /*const recipeHref = document.querySelector('#__next > div.default-layout > main > div.search-page > div > div.fading-overlay > div > div.mb-md > div.layout-md-rail > div.layout-md-rail__primary > div:nth-child(2) > article > div.card__section.card__content > a')
@@ -87,7 +88,9 @@ export async function getRecipeURLs()
         return recipeHref;*/
         let links = Array.from(document.querySelectorAll('a.link.d-block'))
         .map(anchor => anchor.getAttribute('href'))
-        .filter(href => href.startsWith('/recipes/')); // Ensure only valid recipe links
+        //.filter(href => href.startsWith('/recipes/')); // Ensure only valid recipe links
+        .filter(href=>href.includes('/recipes/'))
+        
         return [...new Set (links)];
         //const firstRecipe = document.querySelector('a.link.d-block');
         //return firstRecipe ? firstRecipe.getAttribute('href') : null;
@@ -95,10 +98,13 @@ export async function getRecipeURLs()
     )
     console.log("Recipe URLs: "+ recipeURL);
     console.log("Count: "+ recipeURL.length);
-    recipeURL.forEach(async url => {
+    await scrapeIngrMethod(recipeURL[0]);
+
+
+    /*recipeURL.forEach(async url => {
         await scrapeIngrMethod(`https://www.bbcgoodfood.com${url}`,url)
         
-    });
+    });*/
     //scrapeIngrMethod()
 }
 //scrapeIngrMethod("https://www.bbcgoodfood.com/recipes/sticky-chinese-chicken-traybake")

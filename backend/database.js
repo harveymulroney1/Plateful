@@ -4,18 +4,26 @@ import createhash from 'crypto';
     var con = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: ""
+    password:""
+    
     });
 
+export function connectToDB()
+{
     con.connect(function(err) {
         if (err) throw err;
         console.log("Connected!");
         con.query("CREATE DATABASE IF NOT EXISTS PlatefulDB", function (err, result) {
-        if (err) throw err;
-        console.log("Plateful Database created/connected");
+        if (err) {throw err;}
+        else {
+            console.log("Plateful Database created/connected");
+            createTables();
+        }
         
         });
     });
+}
+
 
 
 export function createTables() //Creates Recipes, Ingredients and Stats tables
@@ -23,31 +31,30 @@ export function createTables() //Creates Recipes, Ingredients and Stats tables
     con.query("USE PlatefulDB", function (err, result) {
         if (err) throw err;
         console.log("Using PlatefulDB");
-    });
-
-    var sql = "CREATE TABLE IF NOT EXISTS Recipe (RecipeName VARCHAR(255) PRIMARY KEY, Ingredients VARCHAR(1000), Method VARCHAR(5000), Image Varchar(1000))";
-    con.query(sql, function (err, result) {
-    if (err) throw err;
-    console.log("Table Recipe created");
-    });
-
-    var sql = "CREATE TABLE IF NOT EXISTS Account (UserName VARCHAR(255) PRIMARY KEY, Password VARCHAR(100), Salt VARCHAR(100))";
-    con.query(sql, function (err, result) {
-    if (err) throw err;
-    console.log("Table Account created");
-    });
-
-    var sql = "CREATE TABLE IF NOT EXISTS Ingredients (UserName VARCHAR(255) , Ingredients VARCHAR(1000), Password VARCHAR(100), FOREIGN KEY (UserName)REFERENCES Account(UserName))";
+        var sql = "CREATE TABLE IF NOT EXISTS Recipe (RecipeName VARCHAR(255) PRIMARY KEY, Ingredients VARCHAR(1000), Method VARCHAR(5000), Image Varchar(1000))";
         con.query(sql, function (err, result) {
         if (err) throw err;
-        console.log("Table Ingredients created");
+        console.log("Table Recipe created");
         });
 
-    var sql = "CREATE TABLE IF NOT EXISTS Statistics (UserName VARCHAR(255) PRIMARY KEY, Temp VARCHAR(255), Password VARCHAR(100) REFERENCES Account(UserName))";
+        var sql = "CREATE TABLE IF NOT EXISTS Account (UserName VARCHAR(255) PRIMARY KEY, Password VARCHAR(100), Salt VARCHAR(100))";
         con.query(sql, function (err, result) {
         if (err) throw err;
-        console.log("Table Statistics created");
-        });    
+        console.log("Table Account created");
+        });
+
+        var sql = "CREATE TABLE IF NOT EXISTS Ingredients (UserName VARCHAR(255) , Ingredients VARCHAR(1000), Password VARCHAR(100), FOREIGN KEY (UserName)REFERENCES Account(UserName))";
+            con.query(sql, function (err, result) {
+            if (err) throw err;
+            console.log("Table Ingredients created");
+            });
+
+        var sql = "CREATE TABLE IF NOT EXISTS Statistics (UserName VARCHAR(255) PRIMARY KEY, Temp VARCHAR(255), Password VARCHAR(100), FOREIGN KEY (UserName) REFERENCES Account(UserName))";
+            con.query(sql, function (err, result) {
+            if (err) throw err;
+            console.log("Table Statistics created");
+            });    
+    });
 }
 
 export async function insertRecipes (recipeName, ingredients, method, url) //Insert recipeName(str), ingredients(str) e.g "Tomato, Basil, Apple" and method(str)
@@ -97,7 +104,7 @@ export function logIn(userName, password)
 });
 }
 
-export function getRecipeNames(userName, password) //Gets all recipes which contain only ingrediants the user has
+export function getRecipeNames(userName, password) //Gets all recipes which contain only ingredients the user has
 {
     return new Promise((resolve, reject) => {
     var sql ="SELECT Salt FROM Account WHERE UserName='"+userName+"'";
@@ -193,7 +200,22 @@ export function insertIngredients(userName, ingredients, password)
         }
         });      
 }
-
+export function getXRecipes(limit,offset)
+{
+    return new Promise((resolve, reject) => {
+        con.query("SELECT * FROM Recipe LIMIT ? OFFSET ?",[limit,offset], function (err, result) {
+            if (err) {
+                reject(err);
+            } else {
+                console.log("RESULT FROM database.js: " + result);
+                if (!result || result.length === 0) {
+                    print("No Recipes found");
+                }
+                resolve(result); 
+            }
+        });
+    });
+}
 export function createAccount(userName, password)
 {
     var ingredients=""
@@ -216,7 +238,6 @@ export function createAccount(userName, password)
 
 //Testing functions
 
-createTables();
 //createAccount("Rebecca", "password");
 //logIn("Rebecca", "password");
 // insertIngredients("Rebecca", ["Lettuce", "Tomato", "Mayo", "Basi"], "password")

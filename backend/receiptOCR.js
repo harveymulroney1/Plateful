@@ -7,3 +7,4 @@ export async function scanReceipt(imagePath){
   return (ret.data.text);
   
 };
+

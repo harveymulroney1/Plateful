@@ -2,7 +2,7 @@ import { Image, View, StyleSheet, Text, TextInput, FlatList, Button, TouchableOp
 import { useState, useEffect } from 'react';
 import { useNavigation, useRouter } from "expo-router";
 import { SafeAreaView } from 'react-native-safe-area-context';
-//import { processReceipt } from "../backend/receiptOCR.js";
+import { scanReceipt } from "../backend/receiptOCR.js";
 import ImageViewer from '@/components/ImageViewer';
 import * as ImagePicker from 'expo-image-picker'
 import CustomButton from '@/components/Button';
@@ -36,12 +36,12 @@ export default function Index() {
       alert('You didnt select an image.');
     }
   }
- /*  async function imageToIngredient()
+  async function imageToIngredient()
   {
     if(selectedImage != undefined)
       {
         try {
-          const text = await processReceipt(selectedImage);
+          const text = await scanReceipt(selectedImage);
           const lines = text.split("\n").filter((line) => line.trim() !== ""); // Split text into lines & remove empty ones
           setReceiptLines(lines);
           setingrList([...ingrList, ...lines]);
@@ -50,7 +50,7 @@ export default function Index() {
           setReceiptLines(["Failed to process the receipt."]);
         }
       }
-  } */
+  } 
 
 
 
@@ -88,6 +88,7 @@ export default function Index() {
           onSubmitEditing={handleAddItem}
           placeholder="Add Ingredients!"
       />
+      <CustomButton theme="primary" label = "Find Recipes!"></CustomButton>
 
       <FlatList
           data={ingrList}
@@ -101,7 +102,7 @@ export default function Index() {
 
       <Button title="Clear Ingredients" color="red" onPress={() => setingrList([])} />
 
-      <Button title="Find Recipes"/>
+      
 
       
     

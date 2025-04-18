@@ -4,8 +4,8 @@ import {getRecipeURLs} from "./scraper.js"
 import {scanReceipt} from "./receiptOCR.js"
 import express from 'express';
 import cors from 'cors';
-
-database.createTables(); //Create tables for database
+database.connectToDB();
+//database.createTables(); //Create tables for database
 getRecipeURLs(); //Add recipes to database
 
 //New Express instance
