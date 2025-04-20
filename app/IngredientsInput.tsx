@@ -40,22 +40,23 @@ export default function Index() {
       quality:0.5
     });
     if (!result.canceled){
-      await setSelectedImage(result.assets[0].uri);
+      setSelectedImage(result.assets[0].uri);
       console.log("Selected img set",selectedImage);
-      await imageToIngredient();
+      
+      imageToIngredient(result.assets[0].uri);
       console.log(result);
     } else{
       alert('You didnt select an image.');
     }
   }
-  async function imageToIngredient()
+  function imageToIngredient(imgURI:string)
   {
     // selected img not updated
-    if(selectedImage != undefined)
+    if(imgURI)
       {
         console.log("Trying to scan")
         axios.post("http://127.0.0.1:3000/scan", 
-          { i:selectedImage })
+          { i:imgURI })
         .then(function (response) {
           console.log("Lines Received: ",response.data);
           const lines = response.data.split("\n").filter((line:string) => line.trim() !== ""); // Split text into lines & remove empty ones
@@ -64,17 +65,9 @@ export default function Index() {
           
         })
         .catch(function (error) {
-          console.log(error);
-        });
-        try {
-          const text = await scanReceipt(selectedImage);
-          const lines = text.split("\n").filter((line) => line.trim() !== ""); // Split text into lines & remove empty ones
-          setReceiptLines(lines);
-          setingrList([...ingrList, ...lines]);
-        } catch (error) {
           console.error("Error processing receipt:", error);
           setReceiptLines(["Failed to process the receipt."]);
-        }
+        });
       }
     else
     {
