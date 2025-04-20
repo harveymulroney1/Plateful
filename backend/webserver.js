@@ -4,7 +4,7 @@ import {getRecipeURLs} from "./scraper.js"
 import {scanReceipt} from "./receiptOCR.js"
 import express from 'express';
 import cors from 'cors';
-import {fetchRecipes} from "./MatchreceiptToRecipes.js";
+import {fetchRecipes,cleanIngredientsOnly} from "./MatchreceiptToRecipes.js";
 database.connectToDB();
 //database.createTables(); //Create tables for database
 getRecipeURLs(); //Add recipes to database
@@ -105,12 +105,18 @@ app.post('/getRecipesToDisplay',(req,res)=>{
 })
 //Handle Post request on /scan
 //This is used to scan receipt
+
 app.post('/scan', (req, res) => {
     //Recieves user data
     const img = req.body.i;
     scanReceipt(img)
     .then(result => {
-                res.end(result);
+        console.log("Trying to scan)");
+        const lines = result.split("\n").filter((line) => line.trim() !== ""); // Split text into lines & remove empty ones
+        let cleanedIngr =cleanIngredientsOnly(lines)
+                //res.end(result);
+                //res.end(cleanedIngr);
+                res.json(cleanedIngr);
             })
             .catch(err => {
                 console.error(err);

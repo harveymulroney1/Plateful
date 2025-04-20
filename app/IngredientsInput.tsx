@@ -59,7 +59,9 @@ export default function Index() {
           { i:imgURI })
         .then(function (response) {
           console.log("Lines Received: ",response.data);
-          const lines = response.data.split("\n").filter((line:string) => line.trim() !== ""); // Split text into lines & remove empty ones
+          // (DEBUGGING DOING LINES ON SERVER SIDE)
+          const lines = response.data;
+          //const lines = response.data.split("\n").filter((line:string) => line.trim() !== ""); // Split text into lines & remove empty ones
           setReceiptLines(lines);
           setingrList([...ingrList, ...lines]);
           

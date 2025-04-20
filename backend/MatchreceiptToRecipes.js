@@ -116,7 +116,12 @@ export async function fetchRecipes(receiptLines)
 
 }
 
-
+export function cleanIngredientsOnly(receiptLines){
+  console.log("cleanIngredientsOnly received:", typeof receiptLines, receiptLines);
+  let ingr = extractProductNames(receiptLines);
+  const cleaned =  cleanIngredients(ingr); // cleaned ingredients
+  return cleaned;
+}
 
 export async function findRecipeMatches(recipeToCheck,receiptLines)
 {
