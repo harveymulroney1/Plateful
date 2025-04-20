@@ -169,7 +169,7 @@ export function getRecipe(recipeName) //Returns the recipes name, ingredients an
             if (err) {
                 reject(err);
             } else {
-                console.log("RESULT FROM database.js: " + result);
+                //console.log("RESULT FROM database.js: " + JSON.stringify(result));
                 if (!result) {
                     print("!result");
                 }

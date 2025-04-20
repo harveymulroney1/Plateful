@@ -12,6 +12,7 @@ export default function Recipe() {
     const [ingredients, setIngredients] = useState<string[]>([]);
     const [method, setMethod] = useState<string[][]>([]);
     const [nutrition, setNutrition] = useState<string[][]>([]);
+    const [img,setIMG] = useState("");
     
     useEffect(() => {
 
@@ -62,7 +63,8 @@ export default function Recipe() {
                 console.log("Raw Ingredients Data:", response.data[0].Ingredients);
                 const parsedIngredients = JSON.parse(response.data[0].Ingredients);
                 console.log("Full Ingredients Array:", JSON.stringify(response.data[0].Ingredients, null, 2));
-                
+                console.log("Image Data Received:",response.data[0].Image);
+                setIMG(response.data[0].Image);
                 if (Array.isArray(parsedIngredients)) {
                     setIngredients(parsedIngredients);
                 } else {
@@ -86,10 +88,16 @@ export default function Recipe() {
             style={{
                 flex: 1,
                 justifyContent: "flex-start",
-                alignItems: "center",
                 padding: 20,
             }}
         >
+            <View style={{ padding: 20 }}>
+                {img ? (
+                    <Image source={{ uri: img }} style={{ width: 200, height: 200 }} />
+                    ) : (
+                    <Text>No image available Image: {img}</Text>
+                    )}
+                </View>
             <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 10 }}>
                 {recipeTitle}
             </Text>
@@ -135,7 +143,7 @@ export default function Recipe() {
 
                 ))
             ) : (
-                <Text>Loading Method...</Text>
+                <Text>Loading Nutritional Values...</Text>
             )}
         </View>
     );

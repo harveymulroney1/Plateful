@@ -83,7 +83,7 @@ app.post('/getRecipe', (req, res) => {
     database.getRecipe(name)
     .then(result => {
             //res.end(result);
-            console.log("RESULT: " + result);
+            console.log("RESULT: " + JSON.stringify(result));
             res.json(result) //maybe this will fix loading the recipe
             })
             .catch(err => {
@@ -96,7 +96,7 @@ app.post('/getRecipesToDisplay',(req,res)=>{
     const ingr = req.body.ingredients;
     fetchRecipes(ingr)
     .then(result=> {
-        console.log("GetDisplayRecipes Result: ",result);
+       // console.log("GetDisplayRecipes Result: ",result);
         res.json(result)
     })
     .catch(err => {
