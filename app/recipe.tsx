@@ -1,7 +1,8 @@
-import { Image, Text, View, Button } from "react-native";
+import { Image, Text, View, Button, StyleSheet} from "react-native";
 import { useEffect, useState } from "react";
 import { useNavigation, useRouter, useLocalSearchParams } from "expo-router";
 import axios from "axios";
+
 
 export default function Recipe() {
     const navigation = useNavigation();
@@ -9,8 +10,8 @@ export default function Recipe() {
     const { title: recipeTitle } = useLocalSearchParams();
 
     const [ingredients, setIngredients] = useState<string[]>([]);
-    const [method, setMethod] = useState("");
-
+    const [method, setMethod] = useState<string[][]>([]);
+    
     useEffect(() => {
 
         navigation.setOptions({
@@ -26,7 +27,30 @@ export default function Recipe() {
         });
 
         if (!recipeTitle) return; // Ensure title exists before proceeding
+        function formatMethod(methodToFormat:string[]){
+            const formattedMethod = [];
+            for(const el of methodToFormat){
+                const match = el.match(/step\s*(\d+)\s*(.+)/i) // skips spaces, grabs number & instruction
+                if(match){
+                    const stepNum = match[1];
+                    const instruction = match[2];
+                    formattedMethod.push([`Step ${stepNum}`,instruction.trim()]);
+                }
 
+                
+                //let newElem = el.split(/Step \d+/);
+            }
+            console.log("Formatted method: ",formattedMethod);
+            setMethod(formattedMethod);
+
+            /*
+            const formattedMethod = method.map((r: any): [string[]] => ({
+                r.split("/Step \d+/"),
+                
+            }));*/
+
+            
+        }
         axios.post("http://127.0.0.1:3000/getRecipe", { n: recipeTitle })
             .then(response => {
                 console.log("RESPONSE.DATA:", JSON.stringify(response.data, null, 2));
@@ -40,7 +64,8 @@ export default function Recipe() {
                     console.error("Expected ingredients to be an array, but got:", response.data[0].Ingredients);
                     setIngredients([]); // Fallback to empty array
                 }
-                setMethod(response.data[0].Method || "Error fetching method");
+                formatMethod(JSON.parse(response.data[0].Method));
+                //setMethod(JSON.parse(response.data[0].Method) || "Error fetching method");
             })
             .catch(error => console.error("Error fetching recipe:", error));
     }, [navigation, recipeTitle]);
@@ -78,9 +103,40 @@ export default function Recipe() {
             <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 10 }}>
                 Method:
             </Text>
-            <Text style={{ fontSize: 16, textAlign: "center", marginTop: 5 }}>
+{/*             <Text style={{ fontSize: 16, textAlign: "center", marginTop: 5 }}>
                 {method || "Loading method..."}
-            </Text>
+            </Text> */}
+            {method.length > 0 ? (
+                method.map(([step,instruction]) => (
+                    <View style={styles.stepContainer}>
+                        <Text style={styles.stepLabel}>• {step}:</Text>
+                        <Text style={styles.stepText}>{instruction}</Text>
+                    </View>
+
+                ))
+            ) : (
+                <Text>Loading Method...</Text>
+            )}
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    stepLabel: {
+        width: 70, 
+        color: '#3366cc',
+        fontWeight: 'bold',
+    },
+      
+    stepText: {
+        color: `#333`,
+        flex:1,
+        fontSize:16,
+    },
+    stepContainer: {
+        flexDirection: 'row',       
+        alignItems: 'flex-start',   // Align tops of step + text
+        marginBottom: 8,
+      },
+      
+});
