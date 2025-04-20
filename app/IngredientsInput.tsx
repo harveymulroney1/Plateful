@@ -14,7 +14,7 @@ import axios from 'axios';
 let username = "test1";
 let password = "test1";
 export default function Index() {
-    const [ingrList,setingrList] = useState<string[]>([])
+    const [ingrList,setingrList] = useState<string[]>([]);
     const [receiptLines, setReceiptLines] = useState<string[]>([]);
     const [inputText, setInputText] = useState("");
     type Recipe = {
@@ -104,8 +104,19 @@ export default function Index() {
     
     
   }
+  const updateIngredient = (text:string, index: number) => {
+    const updated = [...ingrList];
+    updated[index] = text;
+    setingrList(updated);
+  };
 
-
+function removeIngredient(index:number)
+{
+  const updated = [...ingrList];
+  const x = updated.splice(index,1);
+  setingrList(updated);
+  console.log("Removed elem: ",x);
+}
 
 
 
@@ -155,9 +166,17 @@ const Item = ({ title, onPress }: ItemProps) => (
       <FlatList
           data={ingrList}
           keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => (
+          renderItem={({ item,index }) => (
             <View>
-              <Text>{item}</Text>
+              {/* <Text>{item}</Text> */}
+              <TextInput
+                style={styles.searchBar}
+                value={item}
+                onChangeText={(item) => updateIngredient(item, index)}
+                
+                
+              />
+              <Button title="X" onPress={()=> removeIngredient(index)}></Button>
             </View>
           )}
       />
