@@ -103,6 +103,21 @@ app.post('/getRecipesToDisplay',(req,res)=>{
         console.error(err);
     })
 })
+
+app.post('/bookmarkRecipe',(req,res)=>{
+    console.log("Bookmark req Received");
+    const recipeName = req.body.RecipeName;
+    const userName = req.body.UserName;
+    database.bookmarkRecipeByName(userName,recipeName)
+    .then(result=> {
+       // console.log("GetDisplayRecipes Result: ",result);
+        res.json(result)
+    })
+    .catch(err => {
+        console.error(err);
+    })
+})
+
 //Handle Post request on /scan
 //This is used to scan receipt
 

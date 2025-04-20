@@ -35,7 +35,7 @@ export function createTables() //Creates Recipes, Ingredients and Stats tables
         console.log("Table Recipe created");
         });
 
-        var sql = "CREATE TABLE IF NOT EXISTS Account (UserName VARCHAR(255) PRIMARY KEY, Password VARCHAR(100), Salt VARCHAR(100))";
+        var sql = "CREATE TABLE IF NOT EXISTS Account (UserName VARCHAR(255) PRIMARY KEY, Password VARCHAR(100), Salt VARCHAR(100),Bookmarks VARCHAR(1000))";
         con.query(sql, function (err, result) {
         if (err) throw err;
         console.log("Table Account created");
@@ -160,7 +160,43 @@ export function getRecipeNames(userName, password) //Gets all recipes which cont
 });
 
 }
-
+export function selectBookmarksByName(userName){
+    return new Promise((resolve, reject) => {
+    con.query(
+        "SELECT Bookmarks FROM Account WHERE UserName=(?)",[userName], function (err, result) {
+            if (err) {
+                reject(err);
+            }
+            else{
+                console.log(`Selecting bookmarks for ${userName}`);
+                const bookmarks = result[0]?.Bookmarks ?? "";
+                resolve(bookmarks);
+            }
+        });
+    });
+}
+export async function bookmarkRecipeByName(userName,recipeName)
+{
+    const bookmarkList = [];
+    selectBookmarksByName(userName)
+        .then(result=>{
+            console.log("Select result:",result);
+            if(result.length>1){
+                bookmarkList = result.split(",").map(b=>b.trim()); // puts into list & trims recipeName - csv it too
+            }
+            if(!bookmarkList.includes(recipeName)){
+                bookmarkList.push(recipeName);
+            }
+            const updatedBookMarks = bookmarkList.join(", ");
+            console.log(updatedBookMarks);
+            con.query(
+                "UPDATE Account SET Bookmarks = ? WHERE UserName = ?",[updatedBookMarks,userName], function (err, result) 
+                {
+                    if (err) throw err;
+                    console.log("1 record updated");
+                });
+        })
+}
 export function getRecipe(recipeName) //Returns the recipes name, ingredients and method
 {   
     console.log("Recipe name requested: " + recipeName)
