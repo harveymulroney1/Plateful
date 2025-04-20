@@ -52,9 +52,9 @@ export async function scrapeIngrMethod(url) {
     // console.log({ cleanedIngredients });
     // console.log(recipeTitle);
     // console.log(method);
-    // console.log(nutrition);
+    console.log("Nutrition: ",nutrition);
     // console.log(recipeImage);
-    insertRecipes(recipeTitle,ingredients, method, recipeImage); //Example: insertRecipes("Salad", ["Lettuce", "Tomato", "Mayo"], "Chop nicely", https://images.immediate.co.uk/production/volatile/sites/30/2020/08/sweetcorn-soup-f432263.jpg?quality=90&resize=440,400)
+    insertRecipes(recipeTitle,ingredients, method, recipeImage,nutrition); //Example: insertRecipes("Salad", ["Lettuce", "Tomato", "Mayo"], "Chop nicely", https://images.immediate.co.uk/production/volatile/sites/30/2020/08/sweetcorn-soup-f432263.jpg?quality=90&resize=440,400)
     
     browser.close();
 

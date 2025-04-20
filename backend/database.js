@@ -24,14 +24,12 @@ export function connectToDB()
     });
 }
 
-
-
 export function createTables() //Creates Recipes, Ingredients and Stats tables
 {
     con.query("USE PlatefulDB", function (err, result) {
         if (err) throw err;
         console.log("Using PlatefulDB");
-        var sql = "CREATE TABLE IF NOT EXISTS Recipe (RecipeName VARCHAR(255) PRIMARY KEY, Ingredients VARCHAR(5000), Method VARCHAR(5000), Image Varchar(1000))";
+        var sql = "CREATE TABLE IF NOT EXISTS Recipe (RecipeName VARCHAR(255) PRIMARY KEY, Ingredients VARCHAR(5000), Method VARCHAR(5000), Image Varchar(1000),Nutrition VARCHAR(1000))";
         con.query(sql, function (err, result) {
         if (err) throw err;
         console.log("Table Recipe created");
@@ -57,13 +55,13 @@ export function createTables() //Creates Recipes, Ingredients and Stats tables
     });
 }
 
-export async function insertRecipes (recipeName, ingredients, method, url) //Insert recipeName(str), ingredients(str) e.g "Tomato, Basil, Apple" and method(str)
+export async function insertRecipes (recipeName, ingredients, method, url,Nutrition) //Insert recipeName(str), ingredients(str) e.g "Tomato, Basil, Apple" and method(str)
 {    
     ingredients.sort(); //Sorts in alphebetical order
     //const cleanedIngredients = ingredients.map(i => typeof i === 'string' ? i : i.name || '');
     //var sql = "INSERT INTO Recipe (RecipeName, Ingredients, Method) VALUES ('"+recipeName+"', '"+ingredients+"', '"+method+"','"+url+"')";
     //var sql = "INSERT INTO Recipe (RecipeName, Ingredients, Method, Image) VALUES (?,?,?,?)",[recipeName,ingredients,method,url]; '"+recipeName+"', '"+ingredients+"', '"+method+"'
-
+    
     const imgURL = url || null;
     const cleanedIngredients = ingredients.map(i => 
         typeof i === 'string' ? i : i.ingredient || i.name || ''
@@ -73,10 +71,11 @@ export async function insertRecipes (recipeName, ingredients, method, url) //Ins
     console.log("Ingredients (before stringify):", ingredients);
     console.log("Method:", method);
     console.log("Image URL:", url);
+    console.log("Nutrition:",Nutrition);
     console.log("Final Ingredients (stringified):", JSON.stringify(ingredients));
     console.log("Cleaned Ingr: ",cleanedIngredients);
     con.query(
-        "INSERT INTO Recipe (RecipeName, Ingredients, Method, Image) VALUES (?,?,?,?)",[recipeName,JSON.stringify(cleanedIngredients),JSON.stringify(method),imgURL], 
+        "INSERT INTO Recipe (RecipeName, Ingredients, Method, Image,Nutrition) VALUES (?,?,?,?,?)",[recipeName,JSON.stringify(cleanedIngredients),JSON.stringify(method),imgURL,JSON.stringify(Nutrition)], 
         function (err, result) {
         if (err) {
             console.log("Error inserting recipe: " + err + " recipe attempted: " + recipeName);

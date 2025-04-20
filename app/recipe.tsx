@@ -11,6 +11,7 @@ export default function Recipe() {
 
     const [ingredients, setIngredients] = useState<string[]>([]);
     const [method, setMethod] = useState<string[][]>([]);
+    const [nutrition, setNutrition] = useState<string[][]>([]);
     
     useEffect(() => {
 
@@ -36,20 +37,24 @@ export default function Recipe() {
                     const instruction = match[2];
                     formattedMethod.push([`Step ${stepNum}`,instruction.trim()]);
                 }
-
-                
-                //let newElem = el.split(/Step \d+/);
             }
             console.log("Formatted method: ",formattedMethod);
-            setMethod(formattedMethod);
-
-            /*
-            const formattedMethod = method.map((r: any): [string[]] => ({
-                r.split("/Step \d+/"),
-                
-            }));*/
-
+            setMethod(formattedMethod);           
+        }
+        function formatNutrition(nutritionToFormat:string[]){
+            const formattedNutrition = [];
+            for(const el of nutritionToFormat){
+                const match = el.match(/^([a-z]+)([\d.]+g)/i) // skips spaces, grabs number & instruction
+                if(match){
+                    const nutrType = match[1];
+                    const nutrVal = match[2];
+                    console.log(`${nutrType} : ${nutrVal}`)
+                    formattedNutrition.push([nutrType,nutrVal.trim()]);
+                }
+            }
             
+            console.log("Formatted Nutrition: ",formattedNutrition);
+            setNutrition(formattedNutrition);           
         }
         axios.post("http://127.0.0.1:3000/getRecipe", { n: recipeTitle })
             .then(response => {
@@ -57,14 +62,16 @@ export default function Recipe() {
                 console.log("Raw Ingredients Data:", response.data[0].Ingredients);
                 const parsedIngredients = JSON.parse(response.data[0].Ingredients);
                 console.log("Full Ingredients Array:", JSON.stringify(response.data[0].Ingredients, null, 2));
-
+                
                 if (Array.isArray(parsedIngredients)) {
                     setIngredients(parsedIngredients);
                 } else {
                     console.error("Expected ingredients to be an array, but got:", response.data[0].Ingredients);
                     setIngredients([]); // Fallback to empty array
                 }
+                
                 formatMethod(JSON.parse(response.data[0].Method));
+                formatNutrition(JSON.parse(response.data[0].Nutrition));
                 //setMethod(JSON.parse(response.data[0].Method) || "Error fetching method");
             })
             .catch(error => console.error("Error fetching recipe:", error));
@@ -111,6 +118,19 @@ export default function Recipe() {
                     <View style={styles.stepContainer}>
                         <Text style={styles.stepLabel}>• {step}:</Text>
                         <Text style={styles.stepText}>{instruction}</Text>
+                        
+                    </View>
+
+                ))
+            ) : (
+                <Text>Loading Method...</Text>
+            )}
+            {nutrition.length > 0 ? (
+                nutrition.map(([nutrType,nutrVal]) => (
+                    <View style={styles.stepContainer}>
+                        <Text style={styles.stepLabel}>• {nutrType}:</Text>
+                        <Text style={styles.stepText}>{nutrVal}</Text>
+                        
                     </View>
 
                 ))
