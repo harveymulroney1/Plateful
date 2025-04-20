@@ -67,27 +67,52 @@ const options = {
 
 export async function fetchRecipes(receiptLines)
 {
-    const recipesToSuggest = [];
-    await getXRecipes(10, 0)
+  try{
+
+  
+    const recipes = await getXRecipes(10,0);
+    console.log("Received Recipes: ",recipes);
+
+    const recipeChecks = recipes.map(async element => {
+      const name = element.RecipeName;
+      const ingredients = JSON.parse(element.Ingredients);
+      const method = element.Method;
+      const image = element.Image;
+      const result = await findRecipeMatches(ingredients,receiptLines);
+      console.log("result for: ",name, ": ",result);
+      if(result===true){
+        console.log("adding to suggestion");
+        return [name,ingredients,method,image];
+      }
+      else{ return null;}
+
+    })
+    const resolved = await Promise.all(recipeChecks); // allows parrel processing of recipe matching.
+    const recipesToSuggest = resolved.filter(r => r !=null); // removes null
+    return recipesToSuggest;
+  }
+  catch (err){
+    console.error("Error fetching recipes: ",err);
+    return [];
+  }
+    /*await getXRecipes(10, 0)
     .then(recipes => {
         console.log("Received recipes:", recipes);
-        recipes.forEach(element => {
+        recipes.forEach(async element => {
             const name = element.RecipeName;
             const ingredients = JSON.parse(element.Ingredients);
             const method = element.Method;
             const image = element.Image;
-            const result = findRecipeMatches(ingredients,receiptLines);
-            if(result===true){
-                console.log("adding to suggestion");
-                recipesToSuggest.push([name,ingredients,method,image]);
-            }
+            const result = await findRecipeMatches(ingredients,receiptLines);
+            console.log("result: ",result);
+
         });
     })
     .catch(err => {
         console.error("Error fetching recipes:", err);
     });
     
-    return recipesToSuggest;
+    return recipesToSuggest;*/
 
 }
 
@@ -96,6 +121,7 @@ export async function fetchRecipes(receiptLines)
 export async function findRecipeMatches(recipeToCheck,receiptLines)
 {
     receiptLines = extractProductNames(receiptLines);
+    console.log("Receipt Lines:",receiptLines);
     let cleanedReceiptLines = cleanIngredients(receiptLines);
   console.log("Cleaned Lines: ",cleanedReceiptLines);
   const recipe = removePantryItems(recipeToCheck);
@@ -111,12 +137,9 @@ export async function findRecipeMatches(recipeToCheck,receiptLines)
    
     for (const word of receiptWords) {
       const result = fuse.search(word);
-      if(result.length>0)
-      {
+      console.log("Word checking: ",word);
+      if (result.length > 0 && !matchedRecipeItems.has(result[0].item.name) && word.length >= (result[0].item.name.length *0.65)) {
         console.log(`Checking "${word}" → Matched "${result[0].item.name}" (score: ${result[0].score})`); // debug
-      }
-
-      if (result.length > 0 && !matchedRecipeItems.has(result[0].item.name)) {
         fuzzyMatches.push(result[0].item.name); // match found
         matchedRecipeItems.add(result[0].item.name);
         matched = true;
@@ -135,7 +158,7 @@ export async function findRecipeMatches(recipeToCheck,receiptLines)
   console.log(((matchesCount/ingredientsCount) * 100)>30 ? "Suggest Recipe":"Don't suggest recipe");
   if (ingredientsCount === 0) return false;
   
-  return ((matchesCount/ingredientsCount) * 100)>30 
+  return ((matchesCount/ingredientsCount) * 100)>30 ;
   
 
 }
@@ -148,8 +171,9 @@ function extractProductNames(receiptLines) {
       })
       .map(line => {
           // Extract only the product name
-          const match = line.match(/^(.+?)\s+[\d,.]+$/);
-          return match ? match[1].trim() : null;
+          //const match = line.match(/^(.+?)\s+[\d,.]+$/);
+          const match = line.match(/^\d*\s*([A-Z\s]+.*?)\s+[\d,.]+\s*[A-Z]?$/i);
+          return match ? match[1].trim() : line;
       })
       .filter(product => product !== null); // Remove null values
 }

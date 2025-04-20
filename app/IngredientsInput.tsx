@@ -40,8 +40,9 @@ export default function Index() {
       quality:0.5
     });
     if (!result.canceled){
-      setSelectedImage(result.assets[0].uri);
-      imageToIngredient();
+      await setSelectedImage(result.assets[0].uri);
+      console.log("Selected img set",selectedImage);
+      await imageToIngredient();
       console.log(result);
     } else{
       alert('You didnt select an image.');
@@ -49,6 +50,7 @@ export default function Index() {
   }
   async function imageToIngredient()
   {
+    // selected img not updated
     if(selectedImage != undefined)
       {
         console.log("Trying to scan")
@@ -74,20 +76,29 @@ export default function Index() {
           setReceiptLines(["Failed to process the receipt."]);
         }
       }
+    else
+    {
+      console.log("Selected img is undefined");
+    }
   } 
   async function getRecipes () {
     console.log("Getting Post for Recipes. Ingr List Length: ",ingrList.length);
     if(ingrList.length>0){
+      console.log("Sending Post");
       axios.post("http://127.0.0.1:3000/getRecipesToDisplay", 
         { ingredients:ingrList })
+        
       .then(function (response) {
         const formatted = response.data.map((r: any): Recipe => ({
-          RecipeName: r.RecipeName,
-          Ingredients: typeof r.Ingredients === 'string' ? JSON.parse(r.Ingredients) : r.Ingredients,
-          Method: typeof r.Method === 'string' ? JSON.parse(r.Method) : r.Method,
+          RecipeName: r[0],
+          Ingredients: r[1],
+          //Ingredients: typeof r.Ingredients === 'string' ? JSON.parse(r.Ingredients) : r.Ingredients,
+          //Method: typeof r.Method === 'string' ? JSON.parse(r.Method) : r.Method,
+          Method: r[2],
           Image: r.Image || ""
         }));
         console.log("Recipes Received: ",response.data);
+        console.log("Formatted recipes: ",formatted);
         setRecipes(formatted);
       })
       .catch(function (error) {
@@ -158,6 +169,7 @@ const Item = ({ title, onPress }: ItemProps) => (
       <FlatList
         data={recipes}
         renderItem={({ item }) => (
+          
             <Item title={item.RecipeName} onPress={() => handleItemPress(item.RecipeName)} />
         )}
         showsVerticalScrollIndicator={false}

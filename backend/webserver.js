@@ -92,6 +92,7 @@ app.post('/getRecipe', (req, res) => {
 })
 
 app.post('/getRecipesToDisplay',(req,res)=>{
+    console.log("Post req Received");
     const ingr = req.body.ingredients;
     fetchRecipes(ingr)
     .then(result=> {
