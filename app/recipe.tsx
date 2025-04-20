@@ -8,7 +8,7 @@ export default function Recipe() {
     const router = useRouter();
     const { title: recipeTitle } = useLocalSearchParams();
 
-    const [ingredients, setIngredients] = useState([]);
+    const [ingredients, setIngredients] = useState<string[]>([]);
     const [method, setMethod] = useState("");
 
     useEffect(() => {
@@ -31,11 +31,11 @@ export default function Recipe() {
             .then(response => {
                 console.log("RESPONSE.DATA:", JSON.stringify(response.data, null, 2));
                 console.log("Raw Ingredients Data:", response.data[0].Ingredients);
+                const parsedIngredients = JSON.parse(response.data[0].Ingredients);
                 console.log("Full Ingredients Array:", JSON.stringify(response.data[0].Ingredients, null, 2));
-                console.log("First Ingredient Object:", response.data[0].Ingredients[0]);
 
-                if (Array.isArray(response.data[0].Ingredients)) {
-                    setIngredients(response.data[0].Ingredients);
+                if (Array.isArray(parsedIngredients)) {
+                    setIngredients(parsedIngredients);
                 } else {
                     console.error("Expected ingredients to be an array, but got:", response.data[0].Ingredients);
                     setIngredients([]); // Fallback to empty array
