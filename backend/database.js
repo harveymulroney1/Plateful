@@ -160,6 +160,22 @@ export function getRecipeNames(userName, password) //Gets all recipes which cont
 });
 
 }
+export function getAllRecipeNames(){
+    return new Promise((resolve,reject) => {
+    con.query("SELECT RecipeName FROM Recipe",function(err,result){
+        if (err){
+            console.error("Error on DB fetch getAllName: ",err);
+            reject(err);
+        }
+        else{
+            console.log("Fetch all rec names from DB: ",result);
+            const recipeNames = result;
+            resolve(recipeNames);
+        }
+    }
+    )
+    });
+}
 export function selectBookmarksByName(userName){
     return new Promise((resolve, reject) => {
     con.query(
@@ -177,6 +193,7 @@ export function selectBookmarksByName(userName){
 }
 export async function bookmarkRecipeByName(userName,recipeName)
 {
+    return new Promise((resolve,reject) => {
     const bookmarkList = [];
     selectBookmarksByName(userName)
         .then(result=>{
@@ -192,10 +209,11 @@ export async function bookmarkRecipeByName(userName,recipeName)
             con.query(
                 "UPDATE Account SET Bookmarks = ? WHERE UserName = ?",[updatedBookMarks,userName], function (err, result) 
                 {
-                    if (err) throw err;
+                    if (err) reject(err);
                     console.log("1 record updated");
                 });
         })
+    });
 }
 export function getRecipe(recipeName) //Returns the recipes name, ingredients and method
 {   

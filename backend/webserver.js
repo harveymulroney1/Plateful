@@ -90,7 +90,17 @@ app.post('/getRecipe', (req, res) => {
                 console.error(err);
             });
 })
-
+app.post('/loadAllRecipeNames',(req,res)=>{
+    console.log("Post req to load all received");
+    database.getAllRecipeNames()
+    .then(result =>{
+        console.log("Result - All Recipe Names: ",(result));
+        res.json(result);
+    })
+    .catch(err=> {
+        console.error("Error on fetch all names",err);
+    })
+});
 app.post('/getRecipesToDisplay',(req,res)=>{
     console.log("Post req Received");
     const ingr = req.body.ingredients;

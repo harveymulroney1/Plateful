@@ -58,7 +58,7 @@ export default function Index() {
         axios.post("http://127.0.0.1:3000/scan", 
           { i:imgURI })
         .then(function (response) {
-          console.log("Lines Received: ",response.data);
+          //console.log("Lines Received: ",response.data);
           // (DEBUGGING DOING LINES ON SERVER SIDE)
           const lines = response.data;
           //const lines = response.data.split("\n").filter((line:string) => line.trim() !== ""); // Split text into lines & remove empty ones
@@ -92,7 +92,7 @@ export default function Index() {
           Method: r[2],
           Image: r.Image || ""
         }));
-        console.log("Recipes Received: ",response.data);
+        //console.log("Recipes Received: ",response.data);
         console.log("Formatted recipes: ",formatted);
         setRecipes(formatted);
       })

@@ -39,7 +39,7 @@ export default function Recipe() {
                     formattedMethod.push([`Step ${stepNum}`,instruction.trim()]);
                 }
             }
-            console.log("Formatted method: ",formattedMethod);
+            //console.log("Formatted method: ",formattedMethod);
             setMethod(formattedMethod);           
         }
         function formatNutrition(nutritionToFormat:string[]){
@@ -54,16 +54,16 @@ export default function Recipe() {
                 }
             }
             
-            console.log("Formatted Nutrition: ",formattedNutrition);
+            //console.log("Formatted Nutrition: ",formattedNutrition);
             setNutrition(formattedNutrition);           
         }
         axios.post("http://127.0.0.1:3000/getRecipe", { n: recipeTitle })
             .then(response => {
-                console.log("RESPONSE.DATA:", JSON.stringify(response.data, null, 2));
-                console.log("Raw Ingredients Data:", response.data[0].Ingredients);
+                //console.log("RESPONSE.DATA:", JSON.stringify(response.data, null, 2));
+                //console.log("Raw Ingredients Data:", response.data[0].Ingredients);
                 const parsedIngredients = JSON.parse(response.data[0].Ingredients);
-                console.log("Full Ingredients Array:", JSON.stringify(response.data[0].Ingredients, null, 2));
-                console.log("Image Data Received:",response.data[0].Image);
+                //console.log("Full Ingredients Array:", JSON.stringify(response.data[0].Ingredients, null, 2));
+                //console.log("Image Data Received:",response.data[0].Image);
                 setIMG(response.data[0].Image);
                 if (Array.isArray(parsedIngredients)) {
                     setIngredients(parsedIngredients);
@@ -80,7 +80,7 @@ export default function Recipe() {
     }, [navigation, recipeTitle]);
 
     useEffect(() => {
-        console.log("Updated method:", method);
+        //console.log("Updated method:", method);
     }, [method]);
 
     return (
