@@ -1,13 +1,14 @@
 "use strict";
 import * as database from "./database.js"
-import {getRecipeURLs} from "./scraper.js"
-import {scanReceipt} from "./receiptOCR.js"
+// import {getRecipeURLs} from "./scraper.js"
+// import {scanReceipt} from "./receiptOCR.js"
 import express from 'express';
 import cors from 'cors';
-import {fetchRecipes,cleanIngredientsOnly} from "./MatchreceiptToRecipes.js";
+//import {fetchRecipes,cleanIngredientsOnly} from "./MatchreceiptToRecipes.js";
+import { spawn } from 'child_process';
 database.connectToDB();
 //database.createTables(); //Create tables for database
-getRecipeURLs(); //Add recipes to database
+//getRecipeURLs(); //Add recipes to database
 
 //New Express instance
 const app = express();
@@ -147,5 +148,38 @@ app.post('/scan', (req, res) => {
                 console.error(err);
             });
 })
+
+//Handle Post request on /translate
+//This is used to translate any text sent in
+
+app.post('/translate', (req, res) => {
+    //Recieves user data
+    const input =req.body.i //Input language
+    const flang=req.body.f //First langauge (probs english) = 'en'
+    const slang=req.body.s //Second language (What we translate to) = 'fr' , 'gr' etc
+    new Promise((resolve, reject) => {
+        const py = spawn('python3', ['translator_code.py']);
+    
+        let data=''
+        py.stdout.on('data', (chunk) => {
+        data += chunk.toString();
+        });
+    
+        py.stderr.on('data', (err) => {
+        console.error('Error:', err.toString());
+        });
+    
+        py.on('close', () => {
+        const result = JSON.parse(data);
+        console.log(result);
+        res.json(result);
+        resolve(result);
+        });
+    
+        py.stdin.write(JSON.stringify({ input, flang, slang }));
+        py.stdin.end();
+    });
+});
+
 
 

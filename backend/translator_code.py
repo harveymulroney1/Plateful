@@ -73,6 +73,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+import sys
 import json
 
 # Load the multilingual model
@@ -104,7 +105,7 @@ class TranslationRequest(BaseModel):
     tgt_lang: str
 
 # Translation function
-def translate_text(text, src_lang="en", tgt_lang="fr"):
+def translate_text(text, src_lang, tgt_lang):
     """Translates text from src_lang to tgt_lang using M2M-100 model."""
     if src_lang == tgt_lang:
         return text  # No need to translate
@@ -114,7 +115,11 @@ def translate_text(text, src_lang="en", tgt_lang="fr"):
     generated_tokens = model.generate(**encoded, forced_bos_token_id=tokenizer.get_lang_id(tgt_lang))
     return tokenizer.decode(generated_tokens[0], skip_special_tokens=True)
 
-@app.post("/translate/")
-async def translate(request: TranslationRequest):
-    translated_text = translate_text(request.text, src_lang=request.src_lang, tgt_lang=request.tgt_lang)
-    return {"translated_text": translated_text}
+#Takes input from the webserver and sends it back to webserver
+data = json.loads(sys.stdin.read())
+input = data['input']
+flang = data['flang']
+slang = data['slang']
+result = translate_text(input, flang, slang)
+print(json.dumps({'result': result}))
+
