@@ -1,14 +1,14 @@
 "use strict";
 import * as database from "./database.js"
-// import {getRecipeURLs} from "./scraper.js"
-// import {scanReceipt} from "./receiptOCR.js"
+import {getRecipeURLs} from "./scraper.js"
+import {scanReceipt} from "./receiptOCR.js"
 import express from 'express';
 import cors from 'cors';
-//import {fetchRecipes,cleanIngredientsOnly} from "./MatchreceiptToRecipes.js";
+import {fetchRecipes,cleanIngredientsOnly} from "./MatchreceiptToRecipes.js";
 import { spawn } from 'child_process';
 database.connectToDB();
-//database.createTables(); //Create tables for database
-//getRecipeURLs(); //Add recipes to database
+database.createTables(); //Create tables for database
+getRecipeURLs(); //Add recipes to database
 
 //New Express instance
 const app = express();
