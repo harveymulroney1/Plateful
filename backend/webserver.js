@@ -192,5 +192,15 @@ app.post('/translate', (req, res) => {
     });
 });
 
-
-
+app.post('/checkToken', (req, res) => { //validate a jwt token
+    const token = req.headers['authorization']?.split(' ')[1];
+    if (token) {
+        jwt.verify(token, JWT_SECRET, (err, decoded) => {
+            if (err) {
+                console.log("JWT VERIFICATION ERROR: ")
+                console.log(err)
+            }
+            res.json({ userName: decoded.userName });
+        })
+    }
+});
