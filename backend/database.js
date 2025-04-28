@@ -88,33 +88,36 @@ export async function insertRecipes (recipeName, ingredients, method, url,Nutrit
 
 export function logIn(userName, password)
 {
-    var sql ="SELECT Salt FROM Account WHERE UserName='"+userName+"'";
-    con.query(sql, function (err, salt) {
-        if (salt!=undefined && salt.length>=1)
-        {
-            salt=JSON.stringify(salt).replace("[{\"Salt\":\"", "").replace("\"}]","");
-            password=password+salt//Salting
-            password=createhash.createHash('sha256').update(password).digest('hex'); //Hashing
-                var sql = "SELECT UserName FROM Account WHERE UserName= '"+userName+"' AND Password= '"+password+"'";
+    return new Promise((resolve, reject) => {
+        var sql = "SELECT Salt FROM Account WHERE UserName='" + userName + "'";
+        con.query(sql, function (err, salt) {
+            if (err) {
+                return reject(err);
+            }
+            if (salt != undefined && salt.length >= 1) {
+                salt = JSON.stringify(salt).replace("[{\"Salt\":\"", "").replace("\"}]", "");
+                password = password + salt//Salting
+                password = createhash.createHash('sha256').update(password).digest('hex'); //Hashing
+                var sql = "SELECT UserName FROM Account WHERE UserName= '" + userName + "' AND Password= '" + password + "'";
                 con.query(sql, function (err, result) {
-                    if (result.length>=1)
-                        {
-                            result=JSON.stringify(result[0]).replace("{\"UserName\":\"", "").replace("\"}","");
-                            if (result==userName)
-                            {
-                                console.log("Successful log in")
-                                return "Successful log in";
-                            }
+                    if (result.length >= 1) {
+                        result = JSON.stringify(result[0]).replace("{\"UserName\":\"", "").replace("\"}", "");
+                        if (result == userName) {
+                            console.log("Successful log in")
+                            resolve(true);
+                            return "Successful log in";
                         }
-                        else 
-                        {
-                            console.log("Incorrect password")
-                            return "Incorrect password";
-                        }
-                if (err) throw err;
+                    }
+                    else {
+                        console.log("Incorrect password")
+                        resolve(false);
+                        return "Incorrect password";
+                    }
+                    if (err) throw err;
                 });
-        }
-});
+            }
+        });
+    });
 }
 
 export function getRecipeNames(userName, password) //Gets all recipes which contain only ingredients the user has

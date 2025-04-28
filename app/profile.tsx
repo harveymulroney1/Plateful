@@ -30,6 +30,7 @@ export default function Profile() {
             <View>
                 <Text>Level: {Level}</Text>
                 <Text>Recipes Made: {recipeMadeCount}</Text>
+                <Button title="View your badges" onPress={() => router.push("/badges")}/>
             </View>
         </View>
     )
