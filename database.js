@@ -1,4 +1,4 @@
-    var mysql = require('mysql2'); //Creates Database
+var mysql = require('mysql2'); //Creates Database
     const {createhash} = require('crypto');
 
     var con = mysql.createConnection({
@@ -25,7 +25,7 @@ function createTables() //Creates Recipes, Ingredients and Stats tables
         console.log("Using PlatefulDB");
     });
 
-    var sql = "CREATE TABLE IF NOT EXISTS Recipe (RecipeName VARCHAR(255) PRIMARY KEY, Ingredients VARCHAR(1000), Method VARCHAR(5000))";
+    var sql = "CREATE TABLE IF NOT EXISTS Recipe (RecipeName VARCHAR(255) PRIMARY KEY, Ingredients VARCHAR(1000), Method VARCHAR(5000), Keywords VARCHAR(1000), Image VARCHAR(1000), Nutrition VARCHAR(1000))";
     con.query(sql, function (err, result) {
     if (err) throw err;
     console.log("Table Recipe created");
@@ -50,13 +50,27 @@ function createTables() //Creates Recipes, Ingredients and Stats tables
         });    
 }
 
-async function insertRecipes (recipeName, ingredients, method) //Insert recipeName(str), ingredients(str) e.g "Tomato, Basil, Apple" and method(str)
-{    
-    ingredients.sort(); //Sorts in alphebetical order
+// async function insertRecipes (recipeName, ingredients, method) //Insert recipeName(str), ingredients(str) e.g "Tomato, Basil, Apple" and method(str)
+// {    
+//     ingredients.sort(); //Sorts in alphebetical order
 
-    var sql = "INSERT INTO Recipe (RecipeName, Ingredients, Method) VALUES ('"+recipeName+"', '"+ingredients+"', '"+method+"')";
-    con.query(sql, function (err, result) {});
+//     var sql = "INSERT INTO Recipe (RecipeName, Ingredients, Method) VALUES ('"+recipeName+"', '"+ingredients+"', '"+method+"')";
+//     con.query(sql, function (err, result) {});
+// }
+async function insertRecipes(recipeName, ingredients, method, keywords, image, nutrition) {
+    console.log("Inserting recipe:", recipeName, ingredients, method, keywords, image, nutrition);
+    ingredients.sort();
+    var sql = "INSERT INTO Recipe (RecipeName, Ingredients, Method, Keywords, Image, Nutrition) VALUES (?, ?, ?, ?, ?, ?)";
+    // const image = "https://example.com/image.jpg"; // Placeholder for image URL
+    con.query(sql, [recipeName, ingredients.join(', '), method, keywords, image, nutrition], function (err, result) {
+        if (err) {
+            console.error("Error inserting recipe:", err);
+            return;
+        }
+        console.log("Recipe inserted successfully:", result);
+    });
 }
+
 
 function getRecipeNames(userName, password) //Gets all recipes which contain only ingrediants the user has
 {
@@ -153,10 +167,31 @@ function insertIngredients(userName, ingredients, password)
     });
 }
 
+
+
+function testInsertRecipe() {
+    console.log("Running testInsertRecipe...");
+    const testRecipeName = "Vegan Thai Curry";
+    const testIngredients = ["Tofu", "Coconut Milk", "Chili", "Basil"];
+    const testMethod = "Cook tofu and simmer with other ingredients.";
+    const testKeywords = "Vegan, Thai, Budget";
+    const testImage = "https://example.com/image.jpg"; // Placeholder for image URL
+    const testNutrition = "Calories: 200, Protein: 10g"; 
+
+    insertRecipes(testRecipeName, testIngredients, testMethod, testKeywords, testImage, testNutrition);
+}
+
+
+
+
 //Testing functions
 
-createTables();
+// createTables();
 //insertIngredients("John", ["Lettuce", "Tomato", "Mayo", "Basil"], "password")
 //insertRecipes("Salad", ["Lettuce", "Tomato", "Mayo"], "Chop nicely");
 //getRecipeNames("John", "password");
 //getRecipe("Salad");
+
+createTables();
+testInsertRecipe();
+console.log("Test recipe inserted successfully.");
