@@ -59,7 +59,7 @@ export default function Recipe() {
         }
         axios.post("http://127.0.0.1:3000/getRecipe", { n: recipeTitle })
             .then(response => {
-                //console.log("RESPONSE.DATA:", JSON.stringify(response.data, null, 2));
+                console.log("RESPONSE.DATA:", JSON.stringify(response.data, null, 2));
                 //console.log("Raw Ingredients Data:", response.data[0].Ingredients);
                 const parsedIngredients = JSON.parse(response.data[0].Ingredients);
                 //console.log("Full Ingredients Array:", JSON.stringify(response.data[0].Ingredients, null, 2));

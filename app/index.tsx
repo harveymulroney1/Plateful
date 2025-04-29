@@ -69,11 +69,6 @@ export default function Homepage() {
         <View style={styles.container}>
             <Text style={styles.header}>Get cooking today!</Text>
 
-            <TextInput
-                style={styles.searchBar}
-                placeholder="Search for recipes..."
-            />
-
             <View style={styles.filters}>
                 <Button title="All" onPress={() => setFilter("All")} />
                 <Button title="Mains" onPress={() => setFilter("Mains")} />

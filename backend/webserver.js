@@ -6,6 +6,7 @@ import express from 'express';
 import cors from 'cors';
 import {fetchRecipes,cleanIngredientsOnly} from "./MatchreceiptToRecipes.js";
 import { spawn } from 'child_process';
+import jwt from 'jsonwebtoken';
 database.connectToDB();
 database.createTables(); //Create tables for database
 getRecipeURLs(); //Add recipes to database
@@ -24,6 +25,9 @@ app.listen(port,hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
 });
 
+//set the JWT secret
+const JWT_SECRET = "57e1e7af0d0ad7e2d0f645f85a60abd75decd94700c93786db8ce28d99d35999"
+
 //Handle Post request on /createAccount
 //This is used to create an account
 app.post('/createAccount', (req, res) => {
@@ -37,11 +41,18 @@ app.post('/createAccount', (req, res) => {
 
 //Handle Post request on /logIn
 //This is used to log into an account
-app.post('/logIn', (req, res) => {
+app.post('/logIn', async (req, res) => {
     //Recieves user data
     const userName = req.body.u;
     const password = req.body.p;
-    database.logIn(userName, password) //Layout: insertingredients("Rebecca", "mypassword")
+    const success = await database.logIn(userName, password); //Layout: insertingredients("Rebecca", "mypassword")
+    if (success) {
+        const token = jwt.sign({ userName }, JWT_SECRET, { expiresIn: '1h' });
+        res.json({ token });
+    }
+    else {
+        res.status(401).send("Invalid login");
+    }
     // .then(result => {
     //     res.end(result);
     // }) //commented out to stop error
@@ -181,5 +192,15 @@ app.post('/translate', (req, res) => {
     });
 });
 
-
-
+app.post('/checkToken', (req, res) => { //validate a jwt token
+    const token = req.headers['authorization']?.split(' ')[1];
+    if (token) {
+        jwt.verify(token, JWT_SECRET, (err, decoded) => {
+            if (err) {
+                console.log("JWT VERIFICATION ERROR: ")
+                console.log(err)
+            }
+            res.json({ userName: decoded.userName });
+        })
+    }
+});
