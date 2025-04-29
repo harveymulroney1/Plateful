@@ -52,10 +52,22 @@ export async function scrapeIngrMethod(url) {
         return Array.from(methodList).map(li=>li.textContent.trim());
     } )
     const keyword = await page.evaluate(() => {
-        const keywords = document.querySelectorAll('div.post-header--masthead__tags > div');
-        console.log("Keywords: ", keywords);
-        return Array.from(keywords).map(li => li.textContent.trim());
+        const keywords = [];
+        const keywordElements = document.querySelectorAll('div.post-header--masthead__tags > div');
+        keywords.push(...Array.from(keywordElements).map(el => el.textContent.trim()));
+        const adSettingsTag = document.querySelector('#__AD_SETTINGS__');
+        if (adSettingsTag) {
+            try {
+                const data = JSON.parse(adSettingsTag.textContent);
+                const cuisines = data?.targets?.cuisine || []; 
+                keywords.push(...cuisines); 
+            } catch (e) {
+                console.error("Error parsing __AD_SETTINGS__ JSON:", e);
+            }
+        }
+        return [...new Set(keywords)]; 
     });
+    
     
         const cleanedIngredients = cleanIngredients(ingredients);
         //console.log({nutrition});
