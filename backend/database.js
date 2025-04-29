@@ -1,10 +1,12 @@
 import mysql from'mysql2'; //Creates Database
 import createhash from 'crypto';
+import { json } from 'stream/consumers';
 
     var con = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password:""
+    password:"",
+    database: "PlatefulDB",
     
     });
 
@@ -29,7 +31,7 @@ export function createTables() //Creates Recipes, Ingredients and Stats tables
     con.query("USE PlatefulDB", function (err, result) {
         if (err) throw err;
         console.log("Using PlatefulDB");
-        var sql = "CREATE TABLE IF NOT EXISTS Recipe (RecipeName VARCHAR(255) PRIMARY KEY, Ingredients VARCHAR(5000), Method VARCHAR(5000), Image Varchar(1000),Nutrition VARCHAR(1000))";
+        var sql = "CREATE TABLE IF NOT EXISTS Recipe (RecipeName VARCHAR(255) PRIMARY KEY, Ingredients VARCHAR(5000), Method VARCHAR(5000), Image Varchar(1000),Nutrition VARCHAR(1000), Keywords VARCHAR(1000))";
         con.query(sql, function (err, result) {
         if (err) throw err;
         console.log("Table Recipe created");
@@ -55,7 +57,7 @@ export function createTables() //Creates Recipes, Ingredients and Stats tables
     });
 }
 
-export async function insertRecipes (recipeName, ingredients, method, url,Nutrition) //Insert recipeName(str), ingredients(str) e.g "Tomato, Basil, Apple" and method(str)
+export async function insertRecipes (recipeName, ingredients, method, url,Nutrition, Keywords) //Insert recipeName(str), ingredients(str) e.g "Tomato, Basil, Apple" and method(str)
 {    
     ingredients.sort(); //Sorts in alphebetical order
     //const cleanedIngredients = ingredients.map(i => typeof i === 'string' ? i : i.name || '');
@@ -73,9 +75,18 @@ export async function insertRecipes (recipeName, ingredients, method, url,Nutrit
     console.log("Image URL:", url);
     console.log("Nutrition:",Nutrition);
     console.log("Final Ingredients (stringified):", JSON.stringify(ingredients));
+    console.log("Keywords:", Keywords, JSON.stringify(Keywords));
     console.log("Cleaned Ingr: ",cleanedIngredients);
     con.query(
-        "INSERT INTO Recipe (RecipeName, Ingredients, Method, Image,Nutrition) VALUES (?,?,?,?,?)",[recipeName,JSON.stringify(cleanedIngredients),JSON.stringify(method),imgURL,JSON.stringify(Nutrition)], 
+        "INSERT INTO Recipe (RecipeName, Ingredients, Method, Image, Nutrition, Keywords) VALUES (?,?,?,?,?,?)",
+        [
+            recipeName,
+            JSON.stringify(cleanedIngredients),
+            JSON.stringify(method),
+            imgURL,
+            JSON.stringify(Nutrition),
+            JSON.stringify(Keywords)
+        ],        
         function (err, result) {
         if (err) {
             console.log("Error inserting recipe: " + err + " recipe attempted: " + recipeName);
@@ -301,6 +312,34 @@ export function createAccount(userName, password)
                 console.log("1 record inserted");
                 });
 }
+
+export function keywordSearch(keyword) {
+    console.log("Keyword requested: " + keyword);
+    return new Promise((resolve, reject) => {
+        // Ensure the database is selected
+        con.query("USE PlatefulDB", function (err) {
+            if (err) {
+                console.error("Error selecting database:", err);
+                reject(err);
+                return;
+            }
+            console.log("Database selected successfully");
+
+            // Perform the keyword search
+            con.query("SELECT * FROM Recipe WHERE Keywords='" + keyword + "'", function (err, result) {
+                if (err) {
+                    reject(err);
+                } else {
+                    if (!result) {
+                        console.log("No results found for keyword:", keyword);
+                    }
+                    resolve(result);
+                }
+            });
+        });
+    });
+}
+// Testing keywordSearch
 
 
 //Testing functions

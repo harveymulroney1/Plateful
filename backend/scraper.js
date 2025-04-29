@@ -51,9 +51,12 @@ export async function scrapeIngrMethod(url) {
         const methodList = document.querySelectorAll('#__next > div.default-layout > main > div.post.recipe > div > div.layout-md-rail > div.layout-md-rail__primary > div.post__content > div:nth-child(2) > div > div > div.js-piano-recipe-method.col-12.pa-reset > section > ul>li')
         return Array.from(methodList).map(li=>li.textContent.trim());
     } )
-    const keyword = await page.evaluate(()=> {
-        const keywordList = document.querySelectorAll('#__next > div.default-layout > main > div.post.recipe > section > div.container.post-header__container.post-header__container--masthead-layout.post-header__container--new-masthead > div:nth-child(1) > div > div > div > div.image.chromatic-ignore.bg-regular.image--fluid.image--reserved-space-fallback > button > picture > img')
-        return Array.from(keywordList).map(li=>li.textContent.trim());
+    const keyword = await page.evaluate(() => {
+        const keywords = document.querySelectorAll('div.post-header--masthead__tags > div');
+        console.log("Keywords: ", keywords);
+        return Array.from(keywords).map(li => li.textContent.trim());
+    });
+    
         const cleanedIngredients = cleanIngredients(ingredients);
         //console.log({nutrition});
         // console.log({ ingredients });
@@ -63,10 +66,11 @@ export async function scrapeIngrMethod(url) {
         // console.log(method);
         //console.log("Nutrition: ",nutrition);
         // console.log(recipeImage);
+        //console.log ("Keywords: ", keyword);
         insertRecipes(recipeTitle, ingredients, method, recipeImage, nutrition, keyword); //Example: insertRecipes("Salad", ["Lettuce", "Tomato", "Mayo"], "Chop nicely", https://images.immediate.co.uk/production/volatile/sites/30/2020/08/sweetcorn-soup-f432263.jpg?quality=90&resize=440,400);
-        console.log ("Keywords: ", keyword);
+        
         browser.close();
-    });
+    
 
 }
 function cleanIngredients(rawIngredients) {
@@ -118,10 +122,9 @@ export async function getRecipeURLs()
         await scrapeIngrMethod(url)
         
     });*/
-    // await scrapeIngrMethod("https://www.bbcgoodfood.com/recipes/sticky-chinese-chicken-traybake");
-    //scrapeIngrMethod()
+    // scrapeIngrMethod()
 }
 // scrapeIngrMethod("https://www.bbcgoodfood.com/recipes/sticky-chinese-chicken-traybake")
-//scrapeIngrMethod("https://www.bbcgoodfood.com/recipes/tuna-avocado-quinoa-salad")
+// scrapeIngrMethod("https://www.bbcgoodfood.com/recipes/tuna-avocado-quinoa-salad")
 //getRecipeURLs()
-//scrapeIngrMethod("https://www.bbcgoodfood.com/recipes/hot-sour-prawn-sweetcorn-soup")
+//scrapeIngrMethod("https://www.bbcgoodfood.com/recipes/hot-sour-prawn-sweetcorn-soup")npm install puppeteer

@@ -40,7 +40,7 @@
     "fuse": "^0.12.1",
     "fuse.js": "^7.1.0",
     "mysql2": "^3.12.0",
-    "puppeteer": "^24.1.1",
+    "puppeteer": "^24.7.2",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-native": "0.76.6",
