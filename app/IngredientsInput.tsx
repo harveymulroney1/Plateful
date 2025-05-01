@@ -1,16 +1,11 @@
-import { Image, View, StyleSheet, Text, TextInput, FlatList, Button, TouchableOpacity } from 'react-native';
-import { useState, useEffect } from 'react';
-import { useNavigation, useRouter } from "expo-router";
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { scanReceipt } from "../backend/receiptOCR.js";
-import ImageViewer from '@/components/ImageViewer';
-import * as ImagePicker from 'expo-image-picker'
 import CustomButton from '@/components/Button';
-import {fetchRecipes} from "../backend/MatchreceiptToRecipes.js"
-import DropdownMenu from './dropdownMenu';
+import axios from 'axios';
+import * as ImagePicker from 'expo-image-picker';
+import { useNavigation, useRouter } from "expo-router";
+import { useState } from 'react';
+import { Button, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 const PlaceholderImage = require('@/assets/images/background-image.png');
 const receiptIngrList = [];
-import axios from 'axios';
 let username = "test1";
 let password = "test1";
 export default function Index() {
@@ -55,7 +50,7 @@ export default function Index() {
     if(imgURI)
       {
         console.log("Trying to scan")
-        axios.post("http://127.0.0.1:3000/scan", 
+        axios.post("http://127.0.0.1:3000/scan",
           { i:imgURI })
         .then(function (response) {
           //console.log("Lines Received: ",response.data);
