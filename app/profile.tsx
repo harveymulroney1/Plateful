@@ -1,4 +1,4 @@
-import { Text,Image, View, Button } from "react-native";
+import { Text, Image, View, Button, TouchableOpacity, StyleSheet} from "react-native";
 import { useState, useEffect } from "react";
 import { useNavigation, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
