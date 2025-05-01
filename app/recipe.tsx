@@ -4,7 +4,6 @@ import { useNavigation, useRouter, useLocalSearchParams } from "expo-router";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-
 export default function Recipe() {
     const navigation = useNavigation();
     const router = useRouter();
@@ -16,22 +15,16 @@ export default function Recipe() {
     const [img,setIMG] = useState("");
     
     useEffect(() => {
-
         navigation.setOptions({
+            headerStyle: { backgroundColor: "#FAFAFC" },
+            headerTitle: "",
             headerLeft: () => (
-                <Button onPress={() => router.replace("/")} title="Home" />
-            ),
-            headerRight: () => (
-                <Button onPress={() => addCount()} title="Complete" />
-            ),
-            headerTitle: () => (
-                <Image 
-                    source={require("../assets/images/logo.png")}
-                    style={{ width: 60, height: 60, resizeMode: "contain" }} 
-                />
+                <TouchableOpacity onPress={() => router.push("/")} style={styles.backButton}>
+                    <Ionicons name="arrow-back" size={24} color="black" />
+                </TouchableOpacity>
             ),
         });
-
+        
         const addCount = async () => {
             try {
                 const token = await AsyncStorage.getItem("userToken");
@@ -58,6 +51,7 @@ export default function Recipe() {
         }
 
         if (!recipeTitle) return; // Ensure title exists before proceeding
+        
         function formatMethod(methodToFormat:string[]){
             const formattedMethod = [];
             for(const el of methodToFormat){
@@ -71,6 +65,7 @@ export default function Recipe() {
             //console.log("Formatted method: ",formattedMethod);
             setMethod(formattedMethod);           
         }
+        
         function formatNutrition(nutritionToFormat:string[]){
             const formattedNutrition = [];
             for(const el of nutritionToFormat){
@@ -86,6 +81,7 @@ export default function Recipe() {
             //console.log("Formatted Nutrition: ",formattedNutrition);
             setNutrition(formattedNutrition);           
         }
+        
         axios.post("http://127.0.0.1:3000/getRecipe", { n: recipeTitle })
             .then(response => {
                 console.log("RESPONSE.DATA:", JSON.stringify(response.data, null, 2));
@@ -113,87 +109,184 @@ export default function Recipe() {
     }, [method]);
 
     return (
-        <View
-            style={{
-                flex: 1,
-                justifyContent: "flex-start",
-                padding: 20,
-            }}
-        >
-            <View style={{ padding: 20 }}>
-                {img ? (
-                    <Image source={{ uri: img }} style={{ width: 200, height: 200 }} />
+                <ScrollView>
+
+            <View style={styles.container}>
+
+                <Text style={styles.titleText}>{recipeTitle}</Text>
+
+                <View style={styles.imageContainer}>
+                    <View style={styles.imageShadow}>
+                        {img ? (
+                            <Image source={{ uri: img }} style={styles.recipeImage} />
+                        ) : (
+                            <Image source={require('../assets/images/food-image.png')} style={styles.recipeImage} />
+                        )}
+                    </View>
+                </View>
+
+                <View style={styles.descriptionContainer}>
+                    <Text style={styles.sectionTitle}>Description</Text>
+                    <Text style={styles.loadingText}>Loading description...</Text>
+                </View>
+
+                <View style={styles.labelContainer}>
+                        <Text style={styles.label}>Servings</Text>
+                        <Text style={styles.label}>Prep Time</Text>
+                        <Text style={styles.label}>Cook Time</Text>
+                    </View>
+
+                <View style={styles.sectionContainer}>
+                    <Text style={styles.sectionTitle}>Ingredients</Text>
+                    {ingredients.length > 0 ? (
+                        ingredients.map((item, index) => (
+                            <Text key={index} style={styles.listItem}>
+                                • {item}
+                            </Text>
+                        ))
                     ) : (
-                    <Text>No image available Image: {img}</Text>
+                        <Text style={styles.loadingText}>Loading ingredients...</Text>
                     )}
                 </View>
-            <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 10 }}>
-                {recipeTitle}
-            </Text>
 
-            <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 10 }}>
-                Ingredients:
-            </Text>
-            {ingredients.length > 0 ? (
-                ingredients.map((item, index) => (
-                    <Text key={index} style={{ fontSize: 16 }}>
-                        • {item}
-                    </Text>
-                ))
-            ) : (
-                <Text>Loading ingredients...</Text>
-            )}
+                <View style={styles.sectionContainer}>
+                    <Text style={styles.sectionTitle}>Method</Text>
+                    {method.length > 0 ? (
+                        method.map(([step, instruction], index) => (
+                            <View key={index} style={styles.stepContainer}>
+                                <Text style={styles.stepLabel}>• {step}:</Text>
+                                <Text style={styles.stepText}>{instruction}</Text>
+                            </View>
+                        ))
+                    ) : (
+                        <Text style={styles.loadingText}>Loading method...</Text>
+                    )}
+                </View>
 
-            <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 10 }}>
-                Method:
-            </Text>
-{/*             <Text style={{ fontSize: 16, textAlign: "center", marginTop: 5 }}>
-                {method || "Loading method..."}
-            </Text> */}
-            {method.length > 0 ? (
-                method.map(([step,instruction]) => (
-                    <View style={styles.stepContainer}>
-                        <Text style={styles.stepLabel}>• {step}:</Text>
-                        <Text style={styles.stepText}>{instruction}</Text>
-                        
-                    </View>
+                <View style={styles.sectionContainer}>
+                    <Text style={styles.sectionTitle}>Nutrition</Text>
+                    {nutrition.length > 0 ? (
+                        nutrition.map(([nutrType, nutrVal], index) => (
+                            <View key={index} style={styles.stepContainer}>
+                                <Text style={styles.stepLabel}>• {nutrType}:</Text>
+                                <Text style={styles.stepText}>{nutrVal}</Text>
+                            </View>
+                        ))
+                    ) : (
+                        <Text style={styles.loadingText}>Loading nutritional values...</Text>
+                    )}
+                </View>
 
-                ))
-            ) : (
-                <Text>Loading Method...</Text>
-            )}
-            {nutrition.length > 0 ? (
-                nutrition.map(([nutrType,nutrVal]) => (
-                    <View style={styles.stepContainer}>
-                        <Text style={styles.stepLabel}>• {nutrType}:</Text>
-                        <Text style={styles.stepText}>{nutrVal}</Text>
-                        
-                    </View>
+            </View>
 
-                ))
-            ) : (
-                <Text>Loading Nutritional Values...</Text>
-            )}
-        </View>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
-    stepLabel: {
-        width: 70, 
-        color: '#3366cc',
-        fontWeight: 'bold',
+    container: {
+        flex: 1,
+        paddingVertical: 20,
+        backgroundColor: "#FAFAFC",
+        alignItems: "flex-start",
+        justifyContent: "flex-start",
     },
-      
-    stepText: {
-        color: `#333`,
-        flex:1,
-        fontSize:16,
+    backButton: {
+        marginLeft: 20,
+    },
+    imageContainer: {
+        padding: 20,
+        alignSelf: "center",
+        width: "100%",
+        alignItems: "center",
+    },
+    imageShadow: {
+        width: "98%",
+        height: 200,
+        borderRadius: 12,
+        overflow: "hidden",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+        backgroundColor: "#FAFAFC",
+    },
+    recipeImage: {
+        flex: 1,
+        justifyContent: 'flex-end',
+    },
+    titleText: {
+        fontSize: 26,
+        fontWeight: 'bold',
+        marginTop: 10,
+        marginBottom: 15,
+        marginHorizontal: 20,
+        color: "#333333",
+        fontFamily: "System",
+    },
+    sectionContainer: {
+        marginTop: 10,
+        marginHorizontal: 20,
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#333333",
+        marginBottom: 10,
+        fontFamily: "System",
+    },
+    listItem: {
+        fontSize: 16,
     },
     stepContainer: {
-        flexDirection: 'row',       
-        alignItems: 'flex-start',   // Align tops of step + text
+        flexDirection: "row",
+        alignItems: "flex-start",
         marginBottom: 8,
-      },
-      
+    },
+    stepLabel: {
+        width: 80,
+        color: "#3366cc",
+        fontWeight: "bold",
+    },
+    stepText: {
+        color: "#333",
+        flex: 1,
+        fontSize: 16,
+    },
+    descriptionContainer: {
+        marginTop: 10,
+        marginHorizontal: 20,
+        marginBottom: 10,
+    },
+    loadingText: {
+        fontSize: 14,
+        color: "#999999",
+        marginBottom: 20,
+        fontFamily: "System",
+    },
+    labelContainer: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        justifyContent: "center",
+        alignSelf: "stretch",
+        marginBottom: 10,
+    },
+    label: {
+        backgroundColor: "#FA6163",
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderRadius: 20,
+        marginTop: 4,
+        marginRight: 15,
+        marginBottom: 5,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+        fontFamily: "System",
+        fontSize: 14,
+        color: "white",
+    },
 });
