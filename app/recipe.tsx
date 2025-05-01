@@ -1,6 +1,8 @@
-import { Image, Text, View, Button, StyleSheet} from "react-native";
+import { Image, Text, View, Button, StyleSheet, TouchableOpacity, ScrollView} from "react-native";
 import { useEffect, useState } from "react";
 import { useNavigation, useRouter, useLocalSearchParams } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
