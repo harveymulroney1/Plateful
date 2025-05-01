@@ -2,6 +2,7 @@ import { Image, Text, View, Button, StyleSheet} from "react-native";
 import { useEffect, useState } from "react";
 import { useNavigation, useRouter, useLocalSearchParams } from "expo-router";
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 export default function Recipe() {
@@ -20,6 +21,9 @@ export default function Recipe() {
             headerLeft: () => (
                 <Button onPress={() => router.replace("/")} title="Home" />
             ),
+            headerRight: () => (
+                <Button onPress={() => addCount()} title="Complete" />
+            ),
             headerTitle: () => (
                 <Image 
                     source={require("../assets/images/logo.png")}
@@ -27,6 +31,31 @@ export default function Recipe() {
                 />
             ),
         });
+
+        const addCount = async () => {
+            try {
+                const token = await AsyncStorage.getItem("userToken");
+                if (!token) {
+                    console.log("!token")
+                }
+                if (token) {
+                    const response = await axios.post('http://127.0.0.1:3000/addCookedStatistic', null, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        }
+                    });
+                    if (response.data) {
+                        let username = response.data;
+                        
+                    }
+                } else {
+                    console.log("No token found");
+                }
+            } catch (error) {
+                console.log("caught an error: ");
+                console.log(error);
+            }
+        }
 
         if (!recipeTitle) return; // Ensure title exists before proceeding
         function formatMethod(methodToFormat:string[]){

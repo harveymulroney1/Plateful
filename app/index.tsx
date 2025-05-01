@@ -70,9 +70,9 @@ export default function Homepage() {
             <Text style={styles.header}>Get cooking today!</Text>
 
             <View style={styles.filters}>
-                <Button title="All" onPress={() => setFilter("All")} />
-                <Button title="Mains" onPress={() => setFilter("Mains")} />
-                <Button title="Lunches" onPress={() => setFilter("Lunches")} />
+                <View style={{ marginHorizontal: 5 }}><Button title="All" onPress={() => setFilter("All")} /></View>
+                <View style={{ marginHorizontal: 5 }}><Button title="Mains" onPress={() => setFilter("Mains")} /></View>
+                <View style={{ marginHorizontal: 5 }}><Button title="Lunches" onPress={() => setFilter("Lunches")} /></View>
                 {/* Add more filter buttons as needed */}
             </View>
 
@@ -118,6 +118,7 @@ const styles = StyleSheet.create({
     filters: {
         flexDirection: 'row',
         marginBottom: 10,
+        justifyContent: 'space-between',
     },
     resultsCount: {
         fontSize: 16,

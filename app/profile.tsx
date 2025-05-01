@@ -4,7 +4,7 @@ import { useNavigation, useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 const Level = 1;
-const recipeMadeCount = 3;
+let recipeMadeCount = 0;
 export default function Profile() {
     const navigation = useNavigation();
     const router = useRouter();
@@ -31,6 +31,8 @@ export default function Profile() {
                     });
                     if (response.data) {
                         setName(response.data.userName);
+                        recipeMadeCount = response.data.cookedStat;
+                        console.log("Name: " + response.data.userName + " Cooked: " + response.data.cookedStat)
                     }
                 } else {
                     console.log("No token found");

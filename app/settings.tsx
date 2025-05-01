@@ -22,7 +22,7 @@ export default function Settings() {
                 alignItems: "center",
             }}>
             <View>
-                <Button title="Login" onPress={() => router.push("/loginPage")} />
+                <Button title="Log in" onPress={() => router.push("/loginPage")} />
                 <Button title="Log out" onPress={() => logout()}/>
             </View>
         </View>

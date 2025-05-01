@@ -192,15 +192,33 @@ app.post('/translate', (req, res) => {
     });
 });
 
-app.post('/checkToken', (req, res) => { //validate a jwt token
+app.post('/checkToken', (req, res) => { //validate a jwt token and return the user's name and statistics
+    const token = req.headers['authorization']?.split(' ')[1];
+    if (token) {
+        jwt.verify(token, JWT_SECRET, async (err, decoded) => {
+            if (err) {
+                console.log("JWT VERIFICATION ERROR: ");
+                console.log(err);
+            }
+            let recipeCount = await database.fetchCookedStatistic(decoded.userName)
+            console.log("WEBSERVER has recieved this for count: " + recipeCount)
+            res.json({ userName: decoded.userName, cookedStat: recipeCount });
+        })
+    }
+});
+
+app.post('/addCookedStatistic', (req, res) => { //validate a jwt token and add to that user's recipes cooked total
     const token = req.headers['authorization']?.split(' ')[1];
     if (token) {
         jwt.verify(token, JWT_SECRET, (err, decoded) => {
             if (err) {
-                console.log("JWT VERIFICATION ERROR: ")
-                console.log(err)
+                console.log("JWT VERIFICATION ERROR: ");
+                console.log(err);
             }
-            res.json({ userName: decoded.userName });
+            else {
+                database.addCookedStatistic(decoded.userName);
+                res.json({ userName: decoded.userName });
+            }
         })
     }
 });

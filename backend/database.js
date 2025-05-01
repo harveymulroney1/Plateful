@@ -10,6 +10,18 @@ import { json } from 'stream/consumers';
     
     });
 
+    con.on('error', (err) => {
+        console.error('MySQL connection error event:', err);
+    });
+    
+    con.on('end', () => {
+        console.warn('MySQL connection ended.');
+    });
+    
+    con.on('close', () => {
+        console.warn('MySQL connection closed.');
+    });
+
 export function connectToDB()
 {
     con.connect(function(err) {
@@ -49,7 +61,7 @@ export function createTables() //Creates Recipes, Ingredients and Stats tables
             console.log("Table Ingredients created");
             });
 
-        var sql = "CREATE TABLE IF NOT EXISTS Statistics (UserName VARCHAR(255) PRIMARY KEY, Temp VARCHAR(255), Password VARCHAR(100), FOREIGN KEY (UserName) REFERENCES Account(UserName))";
+        var sql = "CREATE TABLE IF NOT EXISTS Statistics (UserName VARCHAR(255) PRIMARY KEY, Temp VARCHAR(255), Cooked INT, FOREIGN KEY (UserName) REFERENCES Account(UserName))";
             con.query(sql, function (err, result) {
             if (err) throw err;
             console.log("Table Statistics created");
@@ -339,6 +351,41 @@ export function keywordSearch(keyword) {
                     resolve(result);
                 }
             });
+        });
+    });
+}
+
+export function addCookedStatistic(userName) {
+    con.query("SELECT * FROM Statistics WHERE UserName = '" + userName + "'", function (err, result) {
+        if (err) {
+            console.log("Error updating statistics: ");
+            console.log(err);
+        }
+        else if (result) {
+            if (result.length == 0) {
+                con.query("INSERT INTO Statistics (UserName, Temp, Cooked) VALUES (?, ?, ?)", [userName, '0', 0]);
+            }
+            con.query("UPDATE Statistics SET Cooked = Cooked + 1 WHERE UserName = '" + userName + "'");
+            console.log("Statistics update run");
+        }
+    });
+}
+
+export function fetchCookedStatistic(userName) {
+    return new Promise((resolve, reject) => {
+        con.query("SELECT Cooked FROM Statistics WHERE UserName = ?", [userName], function (err, result) {
+            if (err) {
+                console.log("Error fetching statistics:", err);
+                resolve(0); // fallback to 0 if error occurs
+            }
+            else if (result.length === 0) {
+                console.log("No statistics found for user:", userName);
+                resolve(0);
+            }
+            else {
+                console.log("Fetched Cooked stat:", result[0].Cooked);
+                resolve(result[0].Cooked);
+            }
         });
     });
 }
