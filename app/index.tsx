@@ -1,7 +1,10 @@
-import { Image, Text, TextInput, View, Button, FlatList, StyleSheet, TouchableOpacity } from "react-native";
-import { useEffect, useState } from "react";
 import { useNavigation, useRouter } from "expo-router";
-import DropdownMenu from "./dropdownMenu";
+import { useEffect, useState } from "react";
+import { ImageBackground, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+
+// Menu
+import { Ionicons } from '@expo/vector-icons';
+import Menu from "./menu";
 
 const Recipes = [
     { id: "1", title: "Spiced duck breasts with sticky clementine sauce" },
@@ -20,38 +23,48 @@ type ItemProps = { title: string; onPress: () => void };
 
 const Item = ({ title, onPress }: ItemProps) => (
     <TouchableOpacity onPress={onPress} style={styles.item}>
-        <Text style={styles.title}>{title}</Text>
+        <ImageBackground
+            source={require('../assets/images/food-image.png')}
+            style={styles.foodImage}
+            imageStyle={{ borderRadius: 12 }}
+            >
+            <View style={styles.textContainer}>
+                <Text style={styles.recipeTitle}>{title}</Text>
+                <View style={styles.labelsContainer}>
+                <TouchableOpacity style={styles.label}>
+                    <Text style={styles.labelText}>Quick</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.label}>
+                    <Text style={styles.labelText}>Easy</Text>
+                </TouchableOpacity>
+                </View>
+            </View>
+        </ImageBackground>
     </TouchableOpacity>
 );
 
-export default function Homepage() {
+export default function Index() {
+    const [search, setSearch] = useState("");
     const navigation = useNavigation();
     const router = useRouter();
-    const [filter, setFilter] = useState("All");
-    const [resultsCount, setResultsCount] = useState(9);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    const handleMenuToggle = () => {
-        setIsMenuOpen(prev => !prev); // Toggle the menu visibility
-    };
-
-    const handleCloseMenu = () => {
-        setIsMenuOpen(false); // Close the menu when clicking outside
-    };
+    const handleMenuToggle = () => setIsMenuOpen(prev => !prev);
+    const handleCloseMenu = () => setIsMenuOpen(false);
 
     useEffect(() => {
         navigation.setOptions({
-            headerTitle: () => (
-                <Image 
-                    source={require("../assets/images/logo.png")}
-                    style={{ width: 60, height: 60, resizeMode: "contain" }} 
-                />
-            ),
+            headerStyle: { backgroundColor: "#FAFAFC" },
+            headerTitle: "",
             headerLeft: () => (
-                <Button onPress={() => router.push("/profile")} title="Profile" />
+                <TouchableOpacity onPress={handleMenuToggle} style={{ marginLeft: 20 }}>
+                    <Ionicons name="menu" size={24} color="#333333" />
+                </TouchableOpacity>
             ),
             headerRight: () => (
-                <Button title="Menu" onPress={handleMenuToggle} />
+                <TouchableOpacity onPress={() => router.push("/profile")} style={{ marginRight: 20 }}>
+                    <Ionicons name="person-circle-outline" size={28} color="#333333" />
+                </TouchableOpacity>
             ),
         });
     }, [navigation]);
@@ -61,34 +74,50 @@ export default function Homepage() {
     };
 
     const menuItems = [
-        { title: 'Enter Ingredients Page', onPress: () => router.push("/IngredientsInput") },
-        // Add more menu items here
+        { title: 'Enter Ingredients', onPress: () => router.push("/ingredientsInput") },
     ];
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.header}>Get cooking today!</Text>
+        <View style={{ flex: 1 }}>
+            <ScrollView style={styles.container} contentContainerStyle={{ padding: 20 }}>
 
-            <View style={styles.filters}>
-                <View style={{ marginHorizontal: 5 }}><Button title="All" onPress={() => setFilter("All")} /></View>
-                <View style={{ marginHorizontal: 5 }}><Button title="Mains" onPress={() => setFilter("Mains")} /></View>
-                <View style={{ marginHorizontal: 5 }}><Button title="Lunches" onPress={() => setFilter("Lunches")} /></View>
-                {/* Add more filter buttons as needed */}
-            </View>
+                <Text style={styles.mainTitle}>Get cooking today!</Text>
 
-            <Text style={styles.resultsCount}>{resultsCount} results</Text>
+                <View style={styles.searchContainer}>
+                    <Ionicons name="search" size={20} color="gray" style={styles.searchIcon} />
+                    <TextInput
+                        style={styles.searchBar}
+                        placeholder="Search for recipes"
+                        value={search}
+                        onChangeText={(text) => setSearch(text)}
+                        placeholderTextColor="#999"
+                    />
+                </View>
 
-            <FlatList
-                data={Recipes}
-                renderItem={({ item }) => (
-                    <Item title={item.title} onPress={() => handleItemPress(item.title)} />
-                )}
-                keyExtractor={item => item.id}
-                showsVerticalScrollIndicator={false}
-            />
+                <Text style={styles.sectionTitle}>Category</Text>
+                <View style={styles.filters}>
+                    <TouchableOpacity style={[styles.filterButton, styles.selectedFilter]}>
+                        <Text style={styles.filterTextSelected}>All</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.filterButton}>
+                        <Text style={styles.filterText}>Mains</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.filterButton}>
+                        <Text style={styles.filterText}>Lunches</Text>
+                    </TouchableOpacity>
+                </View>
 
-            <DropdownMenu isOpen={isMenuOpen} onClose={handleCloseMenu} menuItems={menuItems} />
+                <Text style={styles.sectionTitle}>Popular</Text>
 
+                <Text style={styles.subText}>{Recipes.length} recipes</Text>
+
+                {Recipes.map((item) => (
+                    <Item key={item.id} title={item.title} onPress={() => handleItemPress(item.title)} />
+                ))}
+
+            </ScrollView>
+
+            <Menu isOpen={isMenuOpen} onClose={handleCloseMenu} menuItems={menuItems} />
         </View>
     );
 }
@@ -96,43 +125,125 @@ export default function Homepage() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: "flex-start",
-        alignItems: "center",
-        padding: 20,
+        backgroundColor: "#FAFAFC",
     },
-    header: {
-        fontSize: 30,
+    mainTitle: {
+        fontSize: 26,
         fontWeight: 'bold',
+        marginTop: 10,
         marginBottom: 20,
-        textAlign: 'left',
+        color: "#333333",
+        fontFamily: "System",
+    },
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: "#FAFAFC",
+        borderRadius: 12,
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+        marginBottom: 20,
+    },
+    searchIcon: {
+        marginLeft: 4,
+        marginRight: 12,
     },
     searchBar: {
+        flex: 1,
         height: 40,
-        width: '100%',
-        borderColor: 'gray',
-        borderWidth: 1,
-        marginBottom: 20,
-        paddingLeft: 10,
-        textAlign: 'left',
+        fontFamily: "System",
+        color: "#333333",
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#333333",
+        marginBottom: 10,
+        fontFamily: "System",
     },
     filters: {
-        flexDirection: 'row',
-        marginBottom: 10,
-        justifyContent: 'space-between',
-    },
-    resultsCount: {
-        fontSize: 16,
+        flexDirection: "row",
+        flexWrap: "wrap",
         marginBottom: 20,
-        textAlign: 'left',
+    },
+    filterButton: {
+        backgroundColor: "#FAFAFC",
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderRadius: 20,
+        marginTop: 4,
+        marginRight: 15,
+        marginBottom: 5,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    selectedFilter: {
+        backgroundColor: "#FA6163",
+    },
+    filterText: {
+        fontFamily: "System",
+        fontSize: 14,
+        color: "#333333",
+    },
+    filterTextSelected: {
+        fontFamily: "System",
+        fontSize: 14,
+        color: "white",
+    },
+    subText: {
+        fontSize: 14,
+        color: "#999999",
+        marginBottom: 20,
+        fontFamily: "System",
     },
     item: {
-        backgroundColor: "#94bdff",
-        padding: 25,
-        marginVertical: 8,
-        marginHorizontal: 16,
-        borderRadius: 10,
+        height: 150,
+        marginBottom: 15,
+        borderRadius: 12,
+        overflow: "hidden",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+        backgroundColor: "#FAFAFC",
     },
-    title: {
-        fontSize: 20,
+    foodImage: {
+        flex: 1,
+        justifyContent: 'flex-end',
+    },
+    textContainer: {
+        padding: 16,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+    },
+    recipeTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#FAFAFC',
+        marginBottom: 8,
+    },
+    labelsContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+    },
+    label: {
+        backgroundColor: "#FA6163",
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+        marginRight: 8,
+        marginTop: 4,
+    },
+    labelText: {
+        color: "white",
+        fontSize: 10,
     },
 });
