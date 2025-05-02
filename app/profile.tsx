@@ -9,7 +9,7 @@ import axios from "axios";
 export default function Profile() {
     const [name,setName] = useState("");
     const Level = 1;
-    let recipeMadeCount = 0;
+    const [recipeMadeCount, setRecipeMadeCount] = useState(0);
     
     const navigation = useNavigation();
     const router = useRouter();
@@ -44,7 +44,7 @@ export default function Profile() {
                     });
                     if (response.data) {
                         setName(response.data.userName);
-                        recipeMadeCount = response.data.cookedStat;
+                        setRecipeMadeCount(response.data.cookedStat);
                         console.log("Name: " + response.data.userName + " Cooked: " + response.data.cookedStat)
                     }
                 } else {
@@ -70,7 +70,12 @@ export default function Profile() {
                 <Text style={styles.profileName}>{name}</Text>
                 <Text style={styles.profileDetail}>Level: {Level}</Text>
                 <Text style={styles.profileDetail}>Recipes Made: {recipeMadeCount}</Text>
-                <Button title="View your badges" onPress={() => router.push("/badges")}/>
+                <TouchableOpacity
+                    style={[styles.button, styles.selectedButton]}
+                    onPress={() => router.push("/badges")}
+                >
+                    <Text style={styles.buttonText}>View your badges</Text>
+                </TouchableOpacity>
             </View>
 
             {/* Badges */}
@@ -150,5 +155,29 @@ const styles = StyleSheet.create({
         color: "#333333",
         marginBottom: 10,
         fontFamily: "System",
+    },
+    button: {
+        backgroundColor: '#FAFAFC',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderRadius: 20,
+        marginTop: 10,
+        marginBottom: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    selectedButton: {
+        backgroundColor: '#FA6163',
+    },
+    buttonText: {
+        fontSize: 16,
+        color: 'white',
+        fontWeight: 'bold',
+        fontFamily: 'System',
     },
 });

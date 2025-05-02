@@ -1,8 +1,9 @@
-import { Text, TextInput, View, Button, StyleSheet} from "react-native";
+import { Text, TextInput, View, Button, StyleSheet, TouchableOpacity } from "react-native";
 import { useEffect, useState } from "react";
 import { useNavigation, useRouter } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from "axios";
+import { Ionicons } from "@expo/vector-icons";
 export default function LoginPage() {
     const navigation = useNavigation();
     const router = useRouter();
@@ -10,7 +11,13 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
     useEffect(() => {
         navigation.setOptions({
-          title: "Login",
+            headerStyle: { backgroundColor: "#FAFAFC" },
+            headerTitle: "",
+            headerLeft: () => (
+                <TouchableOpacity onPress={() => router.back()}>
+                    <Ionicons name="arrow-back" size={24} color="black" style={{ marginLeft: 20 }} />
+                </TouchableOpacity>
+            ),
         });
     }, [navigation]);
     //let username = "";
@@ -36,13 +43,9 @@ export default function LoginPage() {
         axios.post("http://127.0.0.1:3000/createAccount", { u: username, p: password })
     }
     return(
-        <View
-            style={{
-                flex: 1,
-                justifyContent: "flex-start",
-                alignItems: "center",
-            }}>
-            <View>
+        <View style={styles.container}>
+            <View style={styles.box}>
+                <Text style={styles.boxTitle}>Login</Text>
                 <TextInput
                     style = {styles.input}
                     placeholder="Username"
@@ -55,12 +58,19 @@ export default function LoginPage() {
                     placeholder="Password"
                     onChangeText={(password) => setPassword(password)}
                 />
-                <View style = {styles.buttons}>
-                    <Button title="Login" onPress={login}/>
-                </View> 
-                <View style = {styles.buttons}>
-                    <Button title="Create Account" onPress={createAccount} />
-                </View> 
+                <TouchableOpacity
+                    style={[styles.button, styles.selectedButton]}
+                    onPress={login}
+                >
+                    <Text style={styles.buttonText}>Login</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={[styles.button, styles.selectedButton]}
+                    onPress={createAccount}
+                >
+                    <Text style={styles.buttonText}>Create Account</Text>
+                </TouchableOpacity>
             </View>
         </View>
     )
@@ -75,5 +85,60 @@ const styles = StyleSheet.create({
     },
     buttons: {
         padding: 5
+    },
+    container: {
+        flex: 1,
+        paddingVertical: 20,
+        backgroundColor: "#FFFFFF",
+        alignItems: "center",
+        justifyContent: "flex-start",
+    },
+    box: {
+        backgroundColor: "#FAFAFC",
+        width: "70%",
+        flex: 1,
+        borderRadius: 20,
+        padding: 20,
+        marginTop: 15,
+        marginBottom: 20,
+        alignItems: "flex-start",
+        justifyContent: "flex-start",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        elevation: 5,
+    },
+    boxTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#333333",
+        marginBottom: 10,
+        fontFamily: "System",
+    },
+    button: {
+        backgroundColor: '#FAFAFC',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderRadius: 20,
+        marginTop: 10,
+        marginBottom: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+    },
+    selectedButton: {
+        backgroundColor: '#FA6163',
+    },
+    buttonText: {
+        fontSize: 16,
+        color: 'white',
+        fontWeight: 'bold',
+        fontFamily: 'System',
     },
   });

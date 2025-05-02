@@ -1,4 +1,6 @@
-import { Text,Image, View, Button } from "react-native";
+import { Text,Image, View, Button, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { TouchableOpacity } from "react-native";
 import { useState, useEffect } from "react";
 import { useNavigation, useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -9,7 +11,13 @@ export default function Badges() {
     const [recipeMadeCount, setRecipeMadeCount] = useState(0);
     useEffect(() => {
         navigation.setOptions({
-          title: "Badges",
+            headerStyle: { backgroundColor: "#FAFAFC" },
+            headerTitle: "",
+            headerLeft: () => (
+                <TouchableOpacity onPress={() => router.back()}>
+                    <Ionicons name="arrow-back" size={24} color="black" style={{ marginLeft: 20 }} />
+                </TouchableOpacity>
+            ),
         });
         const checkToken = async () => {
             try {
@@ -38,13 +46,9 @@ export default function Badges() {
         checkToken();
       }, [navigation]);
     return(
-        <View
-            style={{
-                flex: 1,
-                justifyContent: "flex-start",
-                alignItems: "center",
-            }}>
-            <View>
+        <View style={styles.container}>
+            <View style={styles.box}>
+                <Text style={styles.boxTitle}>Badges</Text>
                 <Text>Total cooked for debug: {recipeMadeCount}</Text>
                 <Text>Cook 5 recipes: {(recipeMadeCount >= 5).toString() }</Text>
                 <Text>Cook 10 recipes: {(recipeMadeCount >= 10).toString() }</Text>
@@ -56,3 +60,35 @@ export default function Badges() {
         </View>
     )
 }
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        paddingVertical: 20,
+        backgroundColor: "#FFFFFF",
+        alignItems: "center",
+        justifyContent: "flex-start",
+    },
+    box: {
+        backgroundColor: "#FAFAFC",
+        width: "70%",
+        flex: 1,
+        borderRadius: 20,
+        padding: 20,
+        marginTop: 15,
+        marginBottom: 20,
+        alignItems: "flex-start",
+        justifyContent: "flex-start",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        elevation: 5,
+    },
+    boxTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#333333",
+        marginBottom: 10,
+        fontFamily: "System",
+    },
+});
