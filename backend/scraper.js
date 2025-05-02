@@ -51,6 +51,10 @@ export async function scrapeIngrMethod(url) {
         const methodList = document.querySelectorAll('#__next > div.default-layout > main > div.post.recipe > div > div.layout-md-rail > div.layout-md-rail__primary > div.post__content > div:nth-child(2) > div > div > div.js-piano-recipe-method.col-12.pa-reset > section > ul>li')
         return Array.from(methodList).map(li=>li.textContent.trim());
     } )
+    const description = await page.evaluate(()=>{
+        const desc = document.querySelector('#recipe-masthead-description-region > div > p');
+        return desc ? desc.textContent : null;
+    })
     const keyword = await page.evaluate(() => {
         const keywords = [];
         const keywordElements = document.querySelectorAll('div.post-header--masthead__tags > div');
@@ -78,8 +82,9 @@ export async function scrapeIngrMethod(url) {
         // console.log(method);
         //console.log("Nutrition: ",nutrition);
         // console.log(recipeImage);
-        //console.log ("Keywords: ", keyword);
-        insertRecipes(recipeTitle, ingredients, method, recipeImage, nutrition, keyword); //Example: insertRecipes("Salad", ["Lettuce", "Tomato", "Mayo"], "Chop nicely", https://images.immediate.co.uk/production/volatile/sites/30/2020/08/sweetcorn-soup-f432263.jpg?quality=90&resize=440,400);
+        console.log ("Keywords: ", keyword);
+        console.log("Description: ",description);
+        insertRecipes(recipeTitle, ingredients, method, recipeImage, nutrition, keyword,description); //Example: insertRecipes("Salad", ["Lettuce", "Tomato", "Mayo"], "Chop nicely", https://images.immediate.co.uk/production/volatile/sites/30/2020/08/sweetcorn-soup-f432263.jpg?quality=90&resize=440,400);
         
         browser.close();
     

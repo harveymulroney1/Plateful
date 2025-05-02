@@ -15,6 +15,7 @@ export default function Recipe() {
     const [method, setMethod] = useState<string[][]>([]);
     const [nutrition, setNutrition] = useState<string[][]>([]);
     const [img,setIMG] = useState("");
+    const [Description,setDescription] = useState("");
     
     useEffect(() => {
         navigation.setOptions({
@@ -98,7 +99,7 @@ export default function Recipe() {
                     console.error("Expected ingredients to be an array, but got:", response.data[0].Ingredients);
                     setIngredients([]); // Fallback to empty array
                 }
-                
+                setDescription(response.data[0].Description);
                 formatMethod(JSON.parse(response.data[0].Method));
                 formatNutrition(JSON.parse(response.data[0].Nutrition));
                 //setMethod(JSON.parse(response.data[0].Method) || "Error fetching method");
@@ -129,7 +130,11 @@ export default function Recipe() {
 
                 <View style={styles.descriptionContainer}>
                     <Text style={styles.sectionTitle}>Description</Text>
+                    {Description ? (
+                        <Text style={styles.listItem}>{Description}</Text>
+                    ):(
                     <Text style={styles.loadingText}>Loading description...</Text>
+                    )}
                 </View>
 
                 <View style={styles.labelContainer}>

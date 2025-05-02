@@ -182,6 +182,10 @@ function extractProductNames(receiptLines) {
       })
       .filter(product => product !== null); // Remove null values
 }
+// Suggests similar recipes based off what they like
+function SimilarRecipes(){
+
+}
 //const recipeIngr = await scrapeIngrMethod("https://www.bbcgoodfood.com/recipes/easy-teriyaki-chicken");
 //console.log(recipeIngr);
 //findRecipeMatches(recipeIngr,cleanedProducts);

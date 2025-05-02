@@ -2,11 +2,11 @@ import { Text, Image, View, Button, TouchableOpacity, StyleSheet} from "react-na
 import { useState, useEffect } from "react";
 import { useNavigation, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 export default function Profile() {
+    
     const [name,setName] = useState("");
     const Level = 1;
     let recipeMadeCount = 0;
