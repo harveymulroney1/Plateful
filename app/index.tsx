@@ -43,14 +43,33 @@ const Item = ({ title, onPress }: ItemProps) => (
     </TouchableOpacity>
 );
 
+const filters = ["Chinese", "Italian", "Indian", "Thai", "Mexican", "American", "French", "Mediterranean", "Japanese", "Korean", "Vegetarian", "Vegan", "Gluten Free", "Dairy Free", "Nut Free", "Low Carb", "Low Fat", "High Protein", "Low Sugar", "Quick", "Easy"];
+
 export default function Index() {
     const [search, setSearch] = useState("");
     const navigation = useNavigation();
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
 
     const handleMenuToggle = () => setIsMenuOpen(prev => !prev);
     const handleCloseMenu = () => setIsMenuOpen(false);
+
+    const toggleFilter = (filter: string) => {
+        setSelectedFilters(prev =>
+            prev.includes(filter)
+                ? prev.filter(f => f !== filter) // Remove filter if already selected
+                : [...prev, filter] // Add filter if not selected
+        );
+    };
+
+    const filteredRecipes = Recipes.filter(recipe => {
+        const matchesFilters =
+            selectedFilters.length === 0 || // Show all recipes if no filters are selected
+            selectedFilters.some(filter => recipe.title.toLowerCase().includes(filter.toLowerCase()));
+        const matchesSearch = recipe.title.toLowerCase().includes(search.toLowerCase());
+        return matchesFilters && matchesSearch;
+    });
 
     useEffect(() => {
         navigation.setOptions({
@@ -96,22 +115,32 @@ export default function Index() {
 
                 <Text style={styles.sectionTitle}>Category</Text>
                 <View style={styles.filters}>
-                    <TouchableOpacity style={[styles.filterButton, styles.selectedFilter]}>
-                        <Text style={styles.filterTextSelected}>All</Text>
+                    <TouchableOpacity
+                        style={[styles.filterButton, selectedFilters.includes("All") && styles.selectedFilter]}
+                        onPress={() => toggleFilter("All")}
+                    >
+                        <Text style={selectedFilters.includes("All") ? styles.filterTextSelected : styles.filterText}>
+                            All
+                        </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.filterButton}>
-                        <Text style={styles.filterText}>Mains</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.filterButton}>
-                        <Text style={styles.filterText}>Lunches</Text>
-                    </TouchableOpacity>
+                    {filters.map((filter: string, index: number) => (
+                        <TouchableOpacity
+                            key={index}
+                            style={[styles.filterButton, selectedFilters.includes(filter) && styles.selectedFilter]}
+                            onPress={() => toggleFilter(filter)}
+                        >
+                            <Text style={selectedFilters.includes(filter) ? styles.filterTextSelected : styles.filterText}>
+                                {filter}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
                 </View>
 
                 <Text style={styles.sectionTitle}>Popular</Text>
 
                 <Text style={styles.subText}>{Recipes.length} recipes</Text>
 
-                {Recipes.map((item) => (
+                {filteredRecipes.map((item) => (
                     <Item key={item.id} title={item.title} onPress={() => handleItemPress(item.title)} />
                 ))}
 
