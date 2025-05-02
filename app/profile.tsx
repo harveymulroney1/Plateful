@@ -81,6 +81,12 @@ export default function Profile() {
             {/* Badges */}
             <View style={styles.box}>
                 <Text style={styles.boxTitle}>Badges</Text>
+                <Text>Cook 5 recipes: {(recipeMadeCount >= 5).toString() }</Text>
+                <Text>Cook 10 recipes: {(recipeMadeCount >= 10).toString() }</Text>
+                <Text>Cook 20 recipes: {(recipeMadeCount >= 20).toString() }</Text>
+                <Text>Cook 50 recipes: {(recipeMadeCount >= 50).toString() }</Text>
+                <Text>Cook a vegitarian recipe: </Text>
+                <Text>Cook an Italian recipe: </Text>
             </View>
 
             {/* Streaks */}
