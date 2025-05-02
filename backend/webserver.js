@@ -204,9 +204,11 @@ app.post('/checkToken', (req, res) => { //validate a jwt token and return the us
                 console.log("JWT VERIFICATION ERROR: ");
                 console.log(err);
             }
-            let recipeCount = await database.fetchCookedStatistic(decoded.userName)
-            console.log("WEBSERVER has recieved this for count: " + recipeCount)
-            res.json({ userName: decoded.userName, cookedStat: recipeCount });
+            else {
+                let recipeCount = await database.fetchCookedStatistic(decoded.userName)
+                console.log("WEBSERVER has recieved this for count: " + recipeCount)
+                res.json({ userName: decoded.userName, cookedStat: recipeCount });
+            }
         })
     }
 });
