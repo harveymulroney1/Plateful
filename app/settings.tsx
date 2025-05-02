@@ -20,18 +20,18 @@ export default function Settings() {
             ),
         });
 
-        const logout = async () => {
-            await AsyncStorage.removeItem("userToken");
-            console.log("removed token");
-        }
-
     }, [navigation]);
+
+    const logout = async () => {
+        await AsyncStorage.removeItem("userToken");
+        console.log("removed token");
+    }
 
     return(
         <View style={styles.container}>
             <View style={styles.box}>
                 <Text style={styles.boxTitle}>Settings</Text>
-                <Button title="Login" onPress={() => router.push("/login")} />
+                <Button title="Login" onPress={() => router.push("/loginPage")} />
                 <Button title="Log out" onPress={() => logout()}/>
             </View>
         </View>

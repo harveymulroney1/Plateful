@@ -6,7 +6,7 @@ import { json } from 'stream/consumers';
     host: "localhost",
     user: "root",
     password:"",
-    database: "PlatefulDB",
+    //database: "PlatefulDB",
     
     });
 
@@ -30,6 +30,7 @@ export function connectToDB()
         con.query("CREATE DATABASE IF NOT EXISTS PlatefulDB", function (err, result) {
         if (err) {throw err;}
         else {
+            con.query("USE PlatefulDB");
             console.log("Plateful Database created/connected");
             createTables();
         }
@@ -378,7 +379,6 @@ export function keywordSearch(keyword) {
         });
     });
 }
-<<<<<<< HEAD
 
 export function addCookedStatistic(userName) {
     con.query("SELECT * FROM Statistics WHERE UserName = '" + userName + "'", function (err, result) {
@@ -415,8 +415,6 @@ export function fetchCookedStatistic(userName) {
     });
 }
 // Testing keywordSearch
-=======
->>>>>>> e3b66ca (start of the recommendation stuff)
 
 function createUsersTable() {
     const sql = `
