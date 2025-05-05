@@ -6,7 +6,7 @@ import { json } from 'stream/consumers';
     host: "localhost",
     user: "root",
     password:"",
-    database: "PlatefulDB",
+    //database: "PlatefulDB",
     
     });
 
@@ -30,6 +30,7 @@ export function connectToDB()
         con.query("CREATE DATABASE IF NOT EXISTS PlatefulDB", function (err, result) {
         if (err) {throw err;}
         else {
+            con.query("USE PlatefulDB");
             console.log("Plateful Database created/connected");
             createTables();
         }
@@ -43,7 +44,15 @@ export function createTables() //Creates Recipes, Ingredients and Stats tables
     con.query("USE PlatefulDB", function (err, result) {
         if (err) throw err;
         console.log("Using PlatefulDB");
-        var sql = "CREATE TABLE IF NOT EXISTS Recipe (RecipeName VARCHAR(255) PRIMARY KEY, Ingredients VARCHAR(5000), Method VARCHAR(5000), Image Varchar(1000),Nutrition VARCHAR(1000), Keywords VARCHAR(1000),Description VARCHAR(1000))";
+        var sql = "CREATE TABLE IF NOT EXISTS Recipe (" +
+                  "id INT AUTO_INCREMENT PRIMARY KEY, " +  
+                  "RecipeName VARCHAR(255) UNIQUE, " + 
+                  "Ingredients VARCHAR(5000), " + 
+                  "Method VARCHAR(5000), " + 
+                  "Image VARCHAR(1000), " + 
+                  "Nutrition VARCHAR(1000), " +
+                  "Keywords VARCHAR(1000), " +
+                  "Description VARCHAR(1000))";
         con.query(sql, function (err, result) {
         if (err) throw err;
         console.log("Table Recipe created");
@@ -66,6 +75,8 @@ export function createTables() //Creates Recipes, Ingredients and Stats tables
             if (err) throw err;
             console.log("Table Statistics created");
             });    
+            createUsersTable();
+            createUserRecipesTable();
     });
 }
 
@@ -110,36 +121,41 @@ export async function insertRecipes (recipeName, ingredients, method, url,Nutrit
     });
 }
 
-export function logIn(userName, password)
-{
+export function logIn(userName, password) {
     return new Promise((resolve, reject) => {
-        var sql = "SELECT Salt FROM Account WHERE UserName='" + userName + "'";
-        con.query(sql, function (err, salt) {
+        const sqlSalt = "SELECT Salt FROM Account WHERE UserName = ?";
+        con.query(sqlSalt, [userName], (err, saltResult) => {
             if (err) {
+                console.error("Error fetching salt:", err);
                 return reject(err);
             }
-            if (salt != undefined && salt.length >= 1) {
-                salt = JSON.stringify(salt).replace("[{\"Salt\":\"", "").replace("\"}]", "");
-                password = password + salt//Salting
-                password = createhash.createHash('sha256').update(password).digest('hex'); //Hashing
-                var sql = "SELECT UserName FROM Account WHERE UserName= '" + userName + "' AND Password= '" + password + "'";
-                con.query(sql, function (err, result) {
-                    if (result.length >= 1) {
-                        result = JSON.stringify(result[0]).replace("{\"UserName\":\"", "").replace("\"}", "");
-                        if (result == userName) {
-                            console.log("Successful log in")
-                            resolve(true);
-                            return "Successful log in";
-                        }
-                    }
-                    else {
-                        console.log("Incorrect password")
-                        resolve(false);
-                        return "Incorrect password";
-                    }
-                    if (err) throw err;
-                });
+
+            if (!saltResult || saltResult.length === 0) {
+                console.log("No user found");
+                return resolve(false);
             }
+
+            const salt = saltResult[0].Salt;
+            const hashedPassword = createhash
+                .createHash('sha256')
+                .update(password + salt)
+                .digest('hex');
+
+            const sqlLogin = "SELECT UserName FROM Account WHERE UserName = ? AND Password = ?";
+            con.query(sqlLogin, [userName, hashedPassword], (err, result) => {
+                if (err) {
+                    console.error("Error during login check:", err);
+                    return reject(err);
+                }
+
+                if (result.length > 0 && result[0].UserName === userName) {
+                    console.log(" Successful login for", userName);
+                    return resolve(true);
+                } else {
+                    console.log(" Incorrect password for", userName);
+                    return resolve(false);
+                }
+            });
         });
     });
 }
@@ -218,28 +234,38 @@ export function selectBookmarksByName(userName){
         });
     });
 }
-export async function bookmarkRecipeByName(userName,recipeName)
-{
-    return new Promise((resolve,reject) => {
-    const bookmarkList = [];
-    selectBookmarksByName(userName)
-        .then(result=>{
-            console.log("Select result:",result);
-            if(result.length>1){
-                bookmarkList = result.split(",").map(b=>b.trim()); // puts into list & trims recipeName - csv it too
+export async function bookmarkRecipeByName(userName, recipeName) {
+    return new Promise((resolve, reject) => {
+        const sql = "SELECT id FROM Recipe WHERE RecipeName = ?";
+        con.query(sql, [recipeName], function (err, result) {
+            if (err) {
+                reject(err);
+            } else {
+                const recipeId = result[0]?.id;
+                if (recipeId) {
+                    // Find the user_id based on the userName
+                    const sqlUser = "SELECT id FROM Users WHERE username = ?";
+                    con.query(sqlUser, [userName], function (err, userResult) {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            const userId = userResult[0]?.id;
+                            if (userId) {
+                                // Insert into UserRecipes
+                                const sqlInsert = "INSERT INTO UserRecipes (user_id, recipe_id) VALUES (?, ?)";
+                                con.query(sqlInsert, [userId, recipeId], function (err, insertResult) {
+                                    if (err) {
+                                        reject(err);
+                                    } else {
+                                        resolve(insertResult);
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
             }
-            if(!bookmarkList.includes(recipeName)){
-                bookmarkList.push(recipeName);
-            }
-            const updatedBookMarks = bookmarkList.join(", ");
-            console.log(updatedBookMarks);
-            con.query(
-                "UPDATE Account SET Bookmarks = ? WHERE UserName = ?",[updatedBookMarks,userName], function (err, result) 
-                {
-                    if (err) reject(err);
-                    console.log("1 record updated");
-                });
-        })
+        });
     });
 }
 export function getRecipe(recipeName) //Returns the recipes name, ingredients and method
@@ -392,6 +418,35 @@ export function fetchCookedStatistic(userName) {
 }
 // Testing keywordSearch
 
+function createUsersTable() {
+    const sql = `
+    CREATE TABLE IF NOT EXISTS Users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(255) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL
+    );
+    `;
+    con.query(sql, function (err, result) {
+        if (err) throw err;
+        console.log("Users table created!");
+    });
+}
+
+function createUserRecipesTable() {
+    const sql = `
+    CREATE TABLE IF NOT EXISTS UserRecipes (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        recipe_id INT NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES Users(id),
+        FOREIGN KEY (recipe_id) REFERENCES Recipe(id)
+    );
+    `;
+    con.query(sql, function (err, result) {
+        if (err) throw err;
+        console.log("UserRecipes table created!");
+    });
+}
 
 //Testing functions
 

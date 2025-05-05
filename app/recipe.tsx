@@ -16,7 +16,32 @@ export default function Recipe() {
     const [nutrition, setNutrition] = useState<string[][]>([]);
     const [img,setIMG] = useState("");
     const [Description,setDescription] = useState("");
-    
+
+    const addCount = async () => {
+        try {
+            const token = await AsyncStorage.getItem("userToken");
+            if (!token) {
+                console.log("!token")
+            }
+            if (token) {
+                const response = await axios.post('http://127.0.0.1:3000/addCookedStatistic', null, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                });
+                if (response.data) {
+                    let username = response.data;
+                    
+                }
+            } else {
+                console.log("No token found");
+            }
+        } catch (error) {
+            console.log("caught an error: ");
+            console.log(error);
+        }
+    }
+
     useEffect(() => {
         navigation.setOptions({
             headerStyle: { backgroundColor: "#FAFAFC" },
@@ -28,30 +53,6 @@ export default function Recipe() {
             ),
         });
         
-        const addCount = async () => {
-            try {
-                const token = await AsyncStorage.getItem("userToken");
-                if (!token) {
-                    console.log("!token")
-                }
-                if (token) {
-                    const response = await axios.post('http://127.0.0.1:3000/addCookedStatistic', null, {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        }
-                    });
-                    if (response.data) {
-                        let username = response.data;
-                        
-                    }
-                } else {
-                    console.log("No token found");
-                }
-            } catch (error) {
-                console.log("caught an error: ");
-                console.log(error);
-            }
-        }
 
         if (!recipeTitle) return; // Ensure title exists before proceeding
         
@@ -183,6 +184,10 @@ export default function Recipe() {
                         <Text style={styles.loadingText}>Loading nutritional values...</Text>
                     )}
                 </View>
+
+                <TouchableOpacity style={styles.label} onPress={addCount}>
+                    <Text style={styles.label}>Complete</Text>
+                </TouchableOpacity>
 
             </View>
 

@@ -45,20 +45,24 @@ app.post('/logIn', async (req, res) => {
     //Recieves user data
     const userName = req.body.u;
     const password = req.body.p;
-    const success = await database.logIn(userName, password); //Layout: insertingredients("Rebecca", "mypassword")
+    try {
+    const success = await database.logIn(userName, password);//Layout: insertingredients("Rebecca", "mypassword")
+    console.log("Login success:", success);
     if (success) {
         const token = jwt.sign({ userName }, JWT_SECRET, { expiresIn: '1h' });
         res.json({ token });
     }
     else {
-        res.status(401).send("Invalid login");
+        res.status(401).json({ error: "Invalid username or password" });
     }
     // .then(result => {
     //     res.end(result);
     // }) //commented out to stop error
-    // .catch(err => {
-    //     console.error(err);
-    // });
+    } catch(err) {
+        console.error("Login error:", err);
+        res.status(500).json({ error: "Internal server error during login" });
+    }
+    
 })
 
 //Handle Post request on /insert ingredient
@@ -200,9 +204,11 @@ app.post('/checkToken', (req, res) => { //validate a jwt token and return the us
                 console.log("JWT VERIFICATION ERROR: ");
                 console.log(err);
             }
-            let recipeCount = await database.fetchCookedStatistic(decoded.userName)
-            console.log("WEBSERVER has recieved this for count: " + recipeCount)
-            res.json({ userName: decoded.userName, cookedStat: recipeCount });
+            else {
+                let recipeCount = await database.fetchCookedStatistic(decoded.userName)
+                console.log("WEBSERVER has recieved this for count: " + recipeCount)
+                res.json({ userName: decoded.userName, cookedStat: recipeCount });
+            }
         })
     }
 });
@@ -221,4 +227,34 @@ app.post('/addCookedStatistic', (req, res) => { //validate a jwt token and add t
             }
         })
     }
+});
+
+// Get Recommended Recipes for User based on saved recipes
+app.get('/getRecommendations', (req, res) => {
+    const token = req.headers['authorization']?.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).send('Token required');
+    }
+
+    jwt.verify(token, JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return res.status(403).send('Invalid token');
+        }
+
+        const userId = decoded.userId;
+
+        // Fetch recipes saved by the user
+        const sql = `
+            SELECT r.id, r.RecipeName FROM Recipe r
+            JOIN UserRecipes ur ON r.id = ur.recipe_id
+            WHERE ur.user_id = ?`;
+
+        con.query(sql, [userId], function (err, result) {
+            if (err) throw err;
+
+            // This is a simplified recommendation approach — here we just return saved recipes
+            res.json({ recommendations: result });
+        });
+    });
 });

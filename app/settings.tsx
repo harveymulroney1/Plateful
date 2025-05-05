@@ -20,19 +20,30 @@ export default function Settings() {
             ),
         });
 
-        const logout = async () => {
-            await AsyncStorage.removeItem("userToken");
-            console.log("removed token");
-        }
-
     }, [navigation]);
+
+    const logout = async () => {
+        await AsyncStorage.removeItem("userToken");
+        console.log("removed token");
+    }
 
     return(
         <View style={styles.container}>
             <View style={styles.box}>
                 <Text style={styles.boxTitle}>Settings</Text>
-                <Button title="Login" onPress={() => router.push("/login")} />
-                <Button title="Log out" onPress={() => logout()}/>
+                <TouchableOpacity
+                    style={[styles.button, styles.selectedButton]}
+                    onPress={() => router.push("/loginPage")}
+                >
+                    <Text style={styles.buttonText}>Login</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={[styles.button, styles.selectedButton]}
+                    onPress={() => logout()}
+                >
+                    <Text style={styles.buttonText}>Log out</Text>
+                </TouchableOpacity>
             </View>
         </View>
     )
@@ -68,5 +79,30 @@ const styles = StyleSheet.create({
         color: "#333333",
         marginBottom: 10,
         fontFamily: "System",
+    },
+    button: {
+        backgroundColor: '#FAFAFC',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderRadius: 20,
+        marginTop: 10,
+        marginBottom: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+    },
+    selectedButton: {
+        backgroundColor: '#FA6163',
+    },
+    buttonText: {
+        fontSize: 16,
+        color: 'white',
+        fontWeight: 'bold',
+        fontFamily: 'System',
     },
 });
