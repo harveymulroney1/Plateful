@@ -62,7 +62,7 @@ export default function LoginPage() {
                     style={[styles.button, styles.selectedButton]}
                     onPress={login}
                 >
-                    <Text style={styles.buttonText}>Login</Text>
+                    <Text style={styles.buttonText}>Log in</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity

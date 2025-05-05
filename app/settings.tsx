@@ -58,7 +58,7 @@ export default function Settings() {
                     style={[styles.button, styles.selectedButton]}
                     onPress={() => router.push("/loginPage")}
                 >
-                    <Text style={styles.buttonText}>Login</Text>
+                    <Text style={styles.buttonText}>Log in</Text>
                 </TouchableOpacity>
                 }
 
