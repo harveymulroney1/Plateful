@@ -4,6 +4,10 @@ import * as ImagePicker from 'expo-image-picker';
 import { useNavigation, useRouter } from "expo-router";
 import { useState } from 'react';
 import { Button, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useEffect } from 'react';
+import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 const PlaceholderImage = require('@/assets/images/background-image.png');
 const receiptIngrList = [];
 let username = "test1";
@@ -25,6 +29,7 @@ export default function Index() {
         setInputText("");
         }
     }
+
     const navigation = useNavigation();
     const router = useRouter();
   const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
@@ -44,6 +49,19 @@ export default function Index() {
       alert('You didnt select an image.');
     }
   }
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerStyle: { backgroundColor: "#FAFAFC" },
+      headerTitle: "",
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => router.push("/")}>
+          <Ionicons name="arrow-back" size={24} color="black" style={{ marginLeft: 20 }} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
+  
   function imageToIngredient(imgURI:string)
   {
     // selected img not updated
@@ -141,41 +159,58 @@ const Item = ({ title, onPress }: ItemProps) => (
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Find Tailored Recipes!</Text>
-      
-      <Button onPress={pickImageAsync} title="Scan Ingredients"/>
+      <Text style={styles.header}>Find tailored recipes!</Text>
 
       {/* <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} /> */}
       {/* <CustomButton theme="primary" label="Upload Receipt" onPress={pickImageAsync} /> */}
       
-      <TextInput
-          style={styles.searchBar}
+      <View style={styles.inputContainer}>
+        <Ionicons name="add" size={20} color="gray" style={styles.inputIcon} />
+        <TextInput
+          style={styles.inputBox}
           defaultValue={inputText}
           value={inputText}
           onChangeText={(inputText) => setInputText(inputText)}
           onSubmitEditing={handleAddItem}
-          placeholder="Add Ingredients!"
-      />
-      <CustomButton theme="primary" label = "Find Recipes!" onPress={getRecipes}></CustomButton>
+          placeholder="Enter ingredient"
+          placeholderTextColor="#999"
+        />
+      </View>
+
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+            style={[styles.button, styles.selectedButton]}
+            onPress={pickImageAsync}
+        >
+            <Text style={styles.buttonText}>Scan Ingredients</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+            style={[styles.button, styles.selectedButton]}
+            onPress={() => setingrList([])} // Clear Ingredients
+        >
+            <Text style={styles.buttonText}>Clear Ingredients</Text>
+        </TouchableOpacity>
+      </View>
 
       <FlatList
-          data={ingrList}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item,index }) => (
-            <View>
-              {/* <Text>{item}</Text> */}
-              <TextInput
-                style={styles.searchBar}
-                value={item}
-                onChangeText={(item) => updateIngredient(item, index)}
-                
-                
-              />
-              <Button title="X" onPress={()=> removeIngredient(index)}></Button>
-            </View>
-          )}
+        data={ingrList}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item, index }) => (
+          <View style={styles.ingredientItem}>
+            <TouchableOpacity onPress={() => removeIngredient(index)} style={styles.removeButton}>
+              <Ionicons name="remove" size={20} color="gray" />
+            </TouchableOpacity>
+            <TextInput
+              value={item}
+              onChangeText={(item) => updateIngredient(item, index)}
+            />
+          </View>
+        )}
       />
-      <FlatList
+
+
+    <FlatList
         data={recipes}
         renderItem={({ item }) => (
           
@@ -183,78 +218,133 @@ const Item = ({ title, onPress }: ItemProps) => (
         )}
         showsVerticalScrollIndicator={false}
     />
-      <Button title="Clear Ingredients" color="red" onPress={() => setingrList([])} />
 
-      
+    <View style={styles.findRecipesButtonContainer}>
+        <TouchableOpacity
+            style={[styles.findRecipesButton]}
+            onPress={getRecipes}
+        >
+            <Text style={styles.buttonText}>Find Recipes</Text>
+        </TouchableOpacity>
+      </View>
 
-      
-    
     </View>
   );
 }
 const styles = StyleSheet.create({
   container: {
-      flex: 1,
-      padding: 20,
-      backgroundColor: "#fff",
+    flex: 1,
+    padding: 20,
+    backgroundColor: "#FAFAFC",
+    justifyContent: 'space-between',
   },
   header: {
-    fontSize: 30,
+    fontSize: 26,
     fontWeight: 'bold',
+    marginTop: 10,
     marginBottom: 20,
-    textAlign: 'left',
+    color: "#333333",
+    fontFamily: "System",
   },
-  searchContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      borderBottomWidth: 1,
-      borderColor: "gray",
-      paddingBottom: 10,
-      marginBottom: 20,
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: "#FAFAFC",
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    marginBottom: 20,
   },
-  searchInput: {
-      flex: 1,
-      height: 40,
-      borderWidth: 1,
-      borderColor: "gray",
-      borderRadius: 5,
-      paddingHorizontal: 10,
-      marginRight: 10,
+  inputIcon: {
+    marginLeft: 4,
+    marginRight: 12,
   },
-  searchBar: {
+  inputBox: {
+    flex: 1,
     height: 40,
-    width: '100%',
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 20,
-    paddingLeft: 10,
-    textAlign: 'left',
+    fontFamily: "System",
+    color: "#333333",
   },
-  ingredientItem: {
-      padding: 10,
-      borderBottomWidth: 1,
-      borderColor: "#ccc",
+  buttonContainer: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between',
+    marginTop: 0,
+  },
+  button: {
+      backgroundColor: '#FAFAFC',
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      borderRadius: 20,
+      marginBottom: 20,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '48%',
+  },
+  selectedButton: {
+      backgroundColor: '#FA6163',
+  },
+  buttonText: {
+      fontSize: 16,
+      color: 'white',
+      fontWeight: 'bold',
+      fontFamily: 'System',
+  },
+  findRecipesButtonContainer: {
+    marginTop: 20,
+    alignItems: 'center',
   },
   findRecipesButton: {
-      backgroundColor: "#ff6347",
-      padding: 15,
+    backgroundColor: '#FA6163',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  findRecipesButtonText: {
+    fontSize: 16,
+    color: 'white',
+    fontWeight: 'bold',
+    fontFamily: 'System',
+  },
+    item: {
+      backgroundColor: "#94bdff",
+      padding: 25,
+      marginVertical: 8,
+      marginHorizontal: 16,
       borderRadius: 10,
-      alignItems: "center",
-      marginTop: 20,
-  },
-  findRecipesText: {
-      color: "#fff",
-      fontSize: 18,
-      fontWeight: "bold",
-  },
-  item: {
-    backgroundColor: "#94bdff",
-    padding: 25,
-    marginVertical: 8,
-    marginHorizontal: 16,
-    borderRadius: 10,
-},
-title: {
-    fontSize: 20,
-},
+    },
+    title: {
+      fontSize: 20,
+    },
+    ingredientItem: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: "#F0F0F0", // Light gray background
+      borderRadius: 12,
+      marginBottom: 10,
+      paddingHorizontal: 10,
+      paddingVertical: 10,
+    },
+    removeButton: {
+      paddingRight: 10,
+    },
 });

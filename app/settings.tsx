@@ -45,20 +45,20 @@ export default function Settings() {
         <View style={styles.container}>
             <View style={styles.box}>
                 <Text style={styles.boxTitle}>Settings</Text>
-                {isAuthed ?      
+                {isAuthed ?
                 <TouchableOpacity
                     style={[styles.button, styles.selectedButton]}
                     onPress={() => logout()}
                 >
                     <Text style={styles.buttonText}>Log out</Text>
-                </TouchableOpacity>           
+                </TouchableOpacity>
 
-                : 
+                :
                 <TouchableOpacity
                     style={[styles.button, styles.selectedButton]}
                     onPress={() => router.push("/loginPage")}
                 >
-                    <Text style={styles.buttonText}>Log in</Text>
+                    <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>
                 }
 
@@ -73,13 +73,13 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingVertical: 20,
-        backgroundColor: "#FFFFFF",
+        backgroundColor: "#FAFAFC",
         alignItems: "center",
         justifyContent: "flex-start",
     },
     box: {
         backgroundColor: "#FAFAFC",
-        width: "70%",
+        width: "80%",
         flex: 1,
         borderRadius: 20,
         padding: 20,
