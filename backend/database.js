@@ -219,6 +219,27 @@ export function getAllRecipeNames(){
     )
     });
 }
+// only fetches the info needed for front cover display
+export function getDisplayRecipes(){
+    return new Promise((resolve,reject) => {
+    con.query("SELECT RecipeName,Image,Keywords FROM Recipe",function(err,result){
+        if (err){
+            console.error("Error on DB fetch getDisplayInfo: ",err);
+            reject(err);
+        }
+        else{
+            console.log("Fetch all displayInfo from DB: ",result);
+            const recipes = result.map(row => ({
+                recipeName: row.RecipeName,
+                img: row.Image,
+                keywords: JSON.stringify(row.Keywords)
+            }));
+            resolve(recipes);
+        }
+    }
+    )
+    });
+}
 export function selectBookmarksByName(userName){
     return new Promise((resolve, reject) => {
     con.query(
@@ -383,7 +404,7 @@ export function keywordSearch(keyword) {
 }
 
 export function addCookedStatistic(userName) {
-    con.query("SELECT * FROM Statistics WHERE UserName = '" + userName + "'", function (err, result) {
+    con.query("SELECT * FROM Statistics WHERE UserName = ?",[userName], function (err, result) {
         if (err) {
             console.log("Error updating statistics: ");
             console.log(err);

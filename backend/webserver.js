@@ -129,7 +129,12 @@ app.post('/getRecipesToDisplay',(req,res)=>{
         console.error(err);
     })
 })
-
+app.post('/exploreRecipesToDisplay',(req,res)=>{
+    console.log("Explore post rec");
+    database.getDisplayRecipes()
+    .then(result=>{res.json(result)})
+    .catch(err=>{console.error("Error on Explore Recipe Display: ");})
+})
 app.post('/bookmarkRecipe',(req,res)=>{
     console.log("Bookmark req Received");
     const recipeName = req.body.RecipeName;

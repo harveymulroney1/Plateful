@@ -1,12 +1,12 @@
 import { useNavigation, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { ImageBackground, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-
+import axios from "axios";
 // Menu
 import { Ionicons } from '@expo/vector-icons';
 import Menu from "./menu";
 
-const Recipes = [
+/* const Recipes = [
     { id: "1", title: "Spiced duck breasts with sticky clementine sauce" },
     { id: "2", title: "Spicy peanut butter & corn ramen" },
     { id: "3", title: "Air fryer quesadillas" },
@@ -17,14 +17,14 @@ const Recipes = [
     { id: "8", title: "Quick & spicy chicken noodles" },
     { id: "9", title: "Burger bowl" },
     { id: "10", title: "Rib-eye with cacio e pepe butter" },
-];
+]; */
 
-type ItemProps = { title: string; onPress: () => void };
+type ItemProps = { title: string; img?:string; keywords?:string[]; onPress: () => void };
 
-const Item = ({ title, onPress }: ItemProps) => (
+const Item = ({ title,img,keywords, onPress }: ItemProps) => (
     <TouchableOpacity onPress={onPress} style={styles.item}>
         <ImageBackground
-            source={require('../assets/images/food-image.png')}
+            source= {img ? {uri:img}: require('../assets/images/food-image.png')}
             style={styles.foodImage}
             imageStyle={{ borderRadius: 12 }}
             >
@@ -42,10 +42,16 @@ const Item = ({ title, onPress }: ItemProps) => (
         </ImageBackground>
     </TouchableOpacity>
 );
-
 const filters = ["Chinese", "Italian", "Indian", "Thai", "Mexican", "American", "French", "Mediterranean", "Japanese", "Korean", "Vegetarian", "Vegan", "Gluten Free", "Dairy Free", "Nut Free", "Low Carb", "Low Fat", "High Protein", "Low Sugar", "Quick", "Easy"];
 
-export default function Index() {
+
+    export default function Index() {
+        type Recipe={
+            recipeName:string;
+            img?:string
+            keywords?:string[]
+        }
+        const [Recipes,setRecipes] = useState<Recipe[]>([]);
     const [search, setSearch] = useState("");
     const navigation = useNavigation();
     const router = useRouter();
@@ -54,7 +60,14 @@ export default function Index() {
 
     const handleMenuToggle = () => setIsMenuOpen(prev => !prev);
     const handleCloseMenu = () => setIsMenuOpen(false);
-
+    useEffect((()=> {
+        axios.post("http://127.0.0.1:3000/exploreRecipesToDisplay")
+        .then(response => {
+            console.log("RESPONSE.DATA:", JSON.stringify(response.data, null, 2));
+            
+            setRecipes(response.data);
+        }).catch(err=>{console.error("Error on getExplore: ",err);});
+    }),[]);
     const toggleFilter = (filter: string) => {
         setSelectedFilters(prev =>
             prev.includes(filter)
@@ -63,13 +76,15 @@ export default function Index() {
         );
     };
 
-    const filteredRecipes = Recipes.filter(recipe => {
+    const filteredRecipes = 
+        Recipes ? 
+            Recipes.filter(recipe => {
         const matchesFilters =
             selectedFilters.length === 0 || // Show all recipes if no filters are selected
-            selectedFilters.some(filter => recipe.title.toLowerCase().includes(filter.toLowerCase()));
-        const matchesSearch = recipe.title.toLowerCase().includes(search.toLowerCase());
+            selectedFilters.some(filter => recipe.recipeName.toLowerCase().includes(filter.toLowerCase()));
+        const matchesSearch = recipe.recipeName.toLowerCase().includes(search.toLowerCase());
         return matchesFilters && matchesSearch;
-    });
+    }) : [];
 
     useEffect(() => {
         navigation.setOptions({
@@ -138,10 +153,15 @@ export default function Index() {
 
                 <Text style={styles.sectionTitle}>Popular</Text>
 
-                <Text style={styles.subText}>{Recipes.length} recipes</Text>
+                {Recipes ? <Text style={styles.subText}>{Recipes.length} recipes</Text> :  <Text style={styles.subText}>Loading...</Text>}
 
                 {filteredRecipes.map((item) => (
-                    <Item key={item.id} title={item.title} onPress={() => handleItemPress(item.title)} />
+                    <View>
+                        <Item title={item.recipeName} img={item.img} keywords={item.keywords} onPress={() => handleItemPress(item.recipeName)} />
+
+
+                    </View>
+
                 ))}
 
             </ScrollView>
