@@ -106,6 +106,7 @@ app.post('/getRecipe', (req, res) => {
                 console.error(err);
             });
 })
+
 app.post('/loadAllRecipeNames',(req,res)=>{
     console.log("Post req to load all received");
     database.getAllRecipeNames()
@@ -134,6 +135,18 @@ app.post('/exploreRecipesToDisplay',(req,res)=>{
     database.getDisplayRecipes()
     .then(result=>{res.json(result)})
     .catch(err=>{console.error("Error on Explore Recipe Display: ");})
+})
+app.post('/getBookmarks',(req,res)=>{
+    console.log("(DEBUG) Getting bookmarks");
+    const userName = req.body.uName;
+    database.selectBookmarksByName(userName)
+    .then(result=>{
+        console.log("Fetched Bmarks");
+        res.json(result);
+    })
+    .catch(err=>{
+        console.error(err);
+    })
 })
 app.post('/bookmarkRecipe',(req,res)=>{
     console.log("Bookmark req Received");

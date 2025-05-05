@@ -73,7 +73,7 @@ export default function Recipe() {
         function formatNutrition(nutritionToFormat:string[]){
             const formattedNutrition = [];
             for(const el of nutritionToFormat){
-                const match = el.match(/^([a-z]+)([\d.]+g)/i) // skips spaces, grabs number & instruction
+                const match = el.match(/^([a-z]+)([\d.]+(?:g|kcal)?)/i) // skips spaces, grabs number & instruction
                 if(match){
                     const nutrType = match[1];
                     const nutrVal = match[2];

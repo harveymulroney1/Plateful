@@ -6,14 +6,34 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 export default function Profile() {
-    
+    type bookmark={
+        recipeName:string;
+        img?:string
+        keywords?:string[]
+    }
     const [name,setName] = useState("");
     const Level = 1;
     const [recipeMadeCount, setRecipeMadeCount] = useState(0);
     const [isAuthed,setIsAuthed] = useState(Boolean);
+    const [bookmarks,setBookmarks] = useState<bookmark[]>([])
     const navigation = useNavigation();
     const router = useRouter();
+
+    const fetchBookMarks = async () =>{
+        await axios.post('http://127.0.0.1:3000/getBookmarks',{uName:name})
+        .then(response=> {
+            console.log("Bookmarks: ",response.data);
+            setBookmarks(response.data);
+        })
+        .catch(err=>{
+            console.error("Error Getting bookmarks:",err);
+        })
+
     
+        
+
+
+    }
     
     useEffect(() => {
         navigation.setOptions({
@@ -30,7 +50,6 @@ export default function Profile() {
                 </TouchableOpacity>
             ),
         });
-
         const checkToken = async () => {
             try {
                 const token = await AsyncStorage.getItem("userToken");
@@ -93,7 +112,12 @@ export default function Profile() {
                 <Text>Cook a vegitarian recipe: </Text>
                 <Text>Cook an Italian recipe: </Text>
             </View>
-
+            <TouchableOpacity
+            style={[styles.button, styles.selectedButton]}
+            onPress={(fetchBookMarks)}
+            >
+            <Text style={styles.buttonText}>Fetch Bookmarks</Text>
+            </TouchableOpacity>
             {/* Streaks */}
             <View style={styles.box}>
                 <Text style={styles.boxTitle}>Streaks</Text>

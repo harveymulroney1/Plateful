@@ -240,7 +240,8 @@ export function getDisplayRecipes(){
     )
     });
 }
-export function selectBookmarksByName(userName){
+
+export function OLDselectBookmarksByName(userName){
     return new Promise((resolve, reject) => {
     con.query(
         "SELECT Bookmarks FROM Account WHERE UserName=(?)",[userName], function (err, result) {
@@ -254,6 +255,60 @@ export function selectBookmarksByName(userName){
             }
         });
     });
+}
+export function getRecipeByID(recipeID)
+{
+    return new Promise((resolve,reject)=>{
+        const sql = "SELECT * FROM Recipe WHERE id = ?";
+        con.query(sql,[recipeID],function(err,result){
+            if (err){reject(err);}
+            else{
+                console.log("Recipe Name: ",result[0].RecipeName);
+                resolve(result[0]);
+            }
+        })
+    })
+}
+export function selectBookmarksByName(userName){
+    return new Promise((resolve, reject) => {
+        const sqlUser = "SELECT id FROM Users WHERE username = ?";
+        con.query(sqlUser, [userName], function (err, res) {
+            if (err) {
+                reject(err);
+            } 
+            else 
+                {
+                const userID = res[0]?.id;
+                if (userID) {
+                    con.query(
+                    "SELECT recipe_id FROM UserRecipes WHERE user_id=(?)",[userID], async function (err, result) {
+                        if (err) {
+                            reject(err);
+                        }
+                        else{
+                            console.log(`Selecting bookmarks for ${userName}`);
+                            console.log("Result:",result)
+                           
+                            const recipeIDs = result.map(row => row.recipe_id);
+                            console.log("recipeIDS: ",recipeIDs);
+                            try{
+                                const bookmarks = await Promise.all(recipeIDs.map(id => getRecipeByID(id)));
+                                console.log("After promise:",bookmarks);
+                                const recipes = bookmarks.map(row => ({
+                                    recipeName: row.RecipeName,
+                                    img: row.Image}))
+                                resolve(recipes);
+                            }
+                            catch{
+                                reject(err);
+                            }
+
+                        }
+                    });
+                }
+               }
+    });
+})
 }
 export async function bookmarkRecipeByName(userName, recipeName) {
     return new Promise((resolve, reject) => {
@@ -364,8 +419,8 @@ export function createAccount(userName, password)
             var salt=createhash.randomBytes(16).toString('hex'); //Creating Salt
             password=password+salt //Salting
             password=createhash.createHash('sha256').update(password).digest('hex'); //Hashing
-            var sql = "INSERT INTO Account (UserName, Password, Salt) VALUES ('"+userName+"', '"+password+"', '"+salt+"')";
-                con.query(sql, function (err, result) {
+            var sql = "INSERT INTO Account (UserName, Password, Salt,Bookmarks) VALUES (?,?,?,?)";
+                con.query(sql,[userName,password,salt,null], function (err, result) {
                 if (err) throw err;
                 });
 
