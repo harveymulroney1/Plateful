@@ -1,4 +1,4 @@
-import { Text, Image, View, Button, TouchableOpacity, StyleSheet} from "react-native";
+import { Text, Image, View, Button, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
 import { useState, useEffect } from "react";
 import { useNavigation, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -37,7 +37,7 @@ export default function Profile() {
     
     useEffect(() => {
         navigation.setOptions({
-          headerStyle: { backgroundColor: "#FAFAFC" },
+            headerStyle: { backgroundColor: "#FAFAFC" },
             headerTitle: "",
             headerLeft: () => (
                 <TouchableOpacity onPress={() => router.push("/")}>
@@ -54,7 +54,6 @@ export default function Profile() {
             try {
                 const token = await AsyncStorage.getItem("userToken");
                 if (!token) {
-                    console.log("!token")
                     setIsAuthed(false);
                 }
                 if (token) {
@@ -67,14 +66,11 @@ export default function Profile() {
                         setIsAuthed(true);
                         setName(response.data.userName);
                         setRecipeMadeCount(response.data.cookedStat);
-                        console.log("Name: " + response.data.userName + " Cooked: " + response.data.cookedStat)
                     }
                 } else {
-                    console.log("No token found");
                     setIsAuthed(false);
                 }
             } catch (error) {
-                console.log("caught an error: ");
                 setIsAuthed(false);
                 console.log(error);
             }
@@ -83,6 +79,7 @@ export default function Profile() {
       }, [navigation]);
     return(
         isAuthed ? (
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={styles.container}>
 
             {/* Profile Info */}
@@ -123,6 +120,7 @@ export default function Profile() {
                 <Text style={styles.boxTitle}>Streaks</Text>
             </View>
         </View>
+        </ScrollView>
     ): 
     <View>
         <Text>Not Authed Login Now!</Text>
@@ -141,17 +139,18 @@ export default function Profile() {
 
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
+    scrollContainer: {
         paddingVertical: 20,
-        backgroundColor: "#FFFFFF",
         alignItems: "center",
-        justifyContent: "flex-start",
+        backgroundColor: "#FAFAFC",
+    },
+    container: {
+        width: "100%",
+        alignItems: "center",
     },
     profileBox: {
         backgroundColor: "#FAFAFC",
         width: "80%",
-        height: 260,
         borderRadius: 20,
         padding: 20,
         marginTop: 15,
@@ -175,18 +174,15 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 10,
         color: "#333333",
-        fontFamily: "System",
     },
     profileDetail: {
         fontSize: 14,
         color: "#999999",
         marginBottom: 5,
-        fontFamily: "System",
     },
     box: {
         backgroundColor: "#FAFAFC",
-        width: "70%",
-        flex: 1,
+        width: "80%",
         borderRadius: 20,
         padding: 20,
         marginBottom: 20,
@@ -203,7 +199,6 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         color: "#333333",
         marginBottom: 10,
-        fontFamily: "System",
     },
     button: {
         backgroundColor: '#FAFAFC',
@@ -227,6 +222,5 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: 'white',
         fontWeight: 'bold',
-        fontFamily: 'System',
     },
 });

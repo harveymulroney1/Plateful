@@ -2,6 +2,8 @@ import { useNavigation, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { ImageBackground, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import axios from "axios";
+import Fuse from 'fuse.js';
+
 // Menu
 import { Ionicons } from '@expo/vector-icons';
 import Menu from "./menu";
@@ -20,6 +22,12 @@ import Menu from "./menu";
 ]; */
 
 type ItemProps = { title: string; img?:string; keywords?:string[]; onPress: () => void };
+
+type Recipe={
+    recipeName:string;
+    img?:string
+    keywords?:string[]
+}
 
 const Item = ({ title, img, keywords, onPress }: ItemProps) => (
     <TouchableOpacity onPress={onPress} style={styles.item}>
@@ -46,21 +54,25 @@ const Item = ({ title, img, keywords, onPress }: ItemProps) => (
 const filters = ["Chinese", "Italian", "Indian", "Thai", "Mexican", "American", "French", "Mediterranean", "Japanese", "Korean", "Vegetarian", "Vegan", "Gluten-Free", "Dairy-Free", "Nut-Free", "Low Carb", "Low Fat", "High Protein", "Low Sugar", "Quick", "Easy", "Healthy"];
 
 
-    export default function Index() {
-        type Recipe={
-            recipeName:string;
-            img?:string
-            keywords?:string[]
-        }
-        const [Recipes,setRecipes] = useState<Recipe[]>([]);
+export default function Index() {
+    const [Recipes,setRecipes] = useState<Recipe[]>([]);
     const [search, setSearch] = useState("");
     const navigation = useNavigation();
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
 
+    const [allRecipeNames, setAllRecipeNames] = useState<string[]>([]);
+    const [searchResults, setSearchResults] = useState<string[]>([]);
+
     const handleMenuToggle = () => setIsMenuOpen(prev => !prev);
     const handleCloseMenu = () => setIsMenuOpen(false);
+    
+    const fuse = new Fuse(allRecipeNames, {
+        includeScore: true,
+        threshold: 0.4,
+    });
+
     useEffect(() => {
         axios.post("http://127.0.0.1:3000/exploreRecipesToDisplay")
             .then(response => {
@@ -77,7 +89,16 @@ const filters = ["Chinese", "Italian", "Indian", "Thai", "Mexican", "American", 
             .catch(err => {
                 console.error("Error on getExplore: ", err);
             });
-    }, []);
+
+            axios.post("http://127.0.0.1:3000/loadAllRecipeNames")
+            .then(response => {
+                const names = response.data.map((r: { RecipeName: string }) => r.RecipeName);
+                setAllRecipeNames(names);
+            })
+            .catch(err => {
+                console.error("Error fetching recipe names:", err);
+            });
+        }, []);
     
 
     const cleanKeywords = (keywords: any): string[] => {
@@ -87,7 +108,7 @@ const filters = ["Chinese", "Italian", "Indian", "Thai", "Mexican", "American", 
             return keywords
                 .split(",")
                 .map(k => k.trim())
-                .filter(k => k.length > 0); 
+                .filter(k => k.length > 0);
         } else {
             return [];
         }
@@ -96,26 +117,40 @@ const filters = ["Chinese", "Italian", "Indian", "Thai", "Mexican", "American", 
     const toggleFilter = (filter: string) => {
         setSelectedFilters(prev =>
             prev.includes(filter)
-                ? prev.filter(f => f !== filter) 
-                : [...prev, filter] 
+                ? prev.filter(f => f !== filter)
+                : [...prev, filter]
         );
     };
 
-    const filteredRecipes = Recipes
-    ? Recipes.filter(recipe => {
+    const handleSearch = (text: string) => {
+        setSearch(text);
+        if (!text.trim()) {
+            setSearchResults([]);
+            return;
+        }
+    
+    const result = fuse.search(text);
+    const resultTitles = result.map(r => r.item.toLowerCase());
+    setSearchResults(resultTitles);
+    };
+
+    const filteredRecipes = Recipes.filter(recipe => {
+        const titleLower = recipe.recipeName.toLowerCase();
+    
         const matchesFilters =
             selectedFilters.length === 0 ||
             selectedFilters.some(filter =>
-                recipe.recipeName.toLowerCase().includes(filter.toLowerCase()) ||
-                (Array.isArray(recipe.keywords) && recipe.keywords.some(keyword =>
-                    keyword.toLowerCase() === filter.toLowerCase()
-                ))
-            );
-        const matchesSearch = recipe.recipeName.toLowerCase().includes(search.toLowerCase());
+                titleLower.includes(filter.toLowerCase()) ||
+                (Array.isArray(recipe.keywords) &&
+                    recipe.keywords.some(keyword => keyword.toLowerCase() === filter.toLowerCase()))
+        );
+    
+        const matchesSearch =
+            search.trim() === "" || searchResults.includes(titleLower);
+    
         return matchesFilters && matchesSearch;
-    })
-    : [];
-
+    });
+    
 
 
     useEffect(() => {
@@ -155,21 +190,22 @@ const filters = ["Chinese", "Italian", "Indian", "Thai", "Mexican", "American", 
                         style={styles.searchBar}
                         placeholder="Search for recipes"
                         value={search}
-                        onChangeText={(text) => setSearch(text)}
+                        //onChangeText={(text) => setSearch(text)}
+                        onChangeText={handleSearch}
                         placeholderTextColor="#999"
                     />
                 </View>
 
                 <Text style={styles.sectionTitle}>Category</Text>
                 <View style={styles.filters}>
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                         style={[styles.filterButton, selectedFilters.includes("All") && styles.selectedFilter]}
                         onPress={() => toggleFilter("All")}
                     >
                         <Text style={selectedFilters.includes("All") ? styles.filterTextSelected : styles.filterText}>
                             All
                         </Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                     {filters.map((filter: string, index: number) => (
                         <TouchableOpacity
                             key={index}
@@ -184,6 +220,29 @@ const filters = ["Chinese", "Italian", "Indian", "Thai", "Mexican", "American", 
                 </View>
 
                 <Text style={styles.sectionTitle}>Popular</Text>
+
+                {searchResults.length > 0 && (
+                    <View style={{ backgroundColor: "white", padding: 10, borderRadius: 8, elevation: 2 }}>
+                        {searchResults.map((item, index) => (
+                            <Text
+                                key={index}
+                                onPress={() => {
+                                    setSearch("");
+                                    setSearchResults([]);
+                                    router.push(`/recipe?title=${encodeURIComponent(item)}`);
+                                }}
+                                style={{
+                                    paddingVertical: 8,
+                                    borderBottomWidth: 1,
+                                    borderBottomColor: "#eee",
+                                    color: "#333",
+                                }}
+                            >
+                                {item}
+                            </Text>
+                        ))}
+                    </View>
+                )}
 
                 {Recipes ? <Text style={styles.subText}>{Recipes.length} recipes</Text> :  <Text style={styles.subText}>Loading...</Text>}
 
