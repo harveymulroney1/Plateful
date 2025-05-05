@@ -174,11 +174,11 @@ app.post('/scan', (req, res) => {
 
 app.post('/translate', (req, res) => {
     //Recieves user data
-    const input =req.body.i //Input language
+    const input =req.body.i //Input
     const flang=req.body.f //First langauge (probs english) = 'en'
     const slang=req.body.s //Second language (What we translate to) = 'fr' , 'gr' etc
     new Promise((resolve, reject) => {
-        const py = spawn('python3', ['translator_code.py']);
+        const py = spawn('python', ['translator_code.py']);
     
         let data=''
         py.stdout.on('data', (chunk) => {

@@ -16,7 +16,13 @@ export default function Recipe() {
     const [nutrition, setNutrition] = useState<string[][]>([]);
     const [img,setIMG] = useState("");
     const [Description,setDescription] = useState("");
-
+    const translate = async () => {
+        
+        axios.post('http://127.0.0.1:3000/translate',{i:Description,f:'en',s:'fr'})
+        .then(response=> {console.log("Translated: ",response.data);
+            setDescription(response.data);})
+        .catch(err=>{console.error("ERROR on translation: ",err);})
+    }
     const addCount = async () => {
         try {
             const token = await AsyncStorage.getItem("userToken");
@@ -189,6 +195,9 @@ export default function Recipe() {
                     <Text style={styles.label}>Complete</Text>
                 </TouchableOpacity>
 
+                <TouchableOpacity style={styles.label} onPress={translate}>
+                    <Text style={styles.label}>Translate Me!</Text>
+                </TouchableOpacity>
             </View>
 
         </ScrollView>
