@@ -232,7 +232,7 @@ export function getDisplayRecipes(){
             const recipes = result.map(row => ({
                 recipeName: row.RecipeName,
                 img: row.Image,
-                keywords: JSON.stringify(row.Keywords)
+                keywords: JSON.parse(row.Keywords || "[]")
             }));
             resolve(recipes);
         }

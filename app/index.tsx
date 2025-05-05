@@ -21,28 +21,29 @@ import Menu from "./menu";
 
 type ItemProps = { title: string; img?:string; keywords?:string[]; onPress: () => void };
 
-const Item = ({ title,img,keywords, onPress }: ItemProps) => (
+const Item = ({ title, img, keywords, onPress }: ItemProps) => (
     <TouchableOpacity onPress={onPress} style={styles.item}>
         <ImageBackground
-            source= {img ? {uri:img}: require('../assets/images/food-image.png')}
+            source={img ? { uri: img } : require('../assets/images/food-image.png')}
             style={styles.foodImage}
             imageStyle={{ borderRadius: 12 }}
-            >
+        >
             <View style={styles.textContainer}>
                 <Text style={styles.recipeTitle}>{title}</Text>
                 <View style={styles.labelsContainer}>
-                <TouchableOpacity style={styles.label}>
-                    <Text style={styles.labelText}>Quick</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.label}>
-                    <Text style={styles.labelText}>Easy</Text>
-                </TouchableOpacity>
+                    {Array.isArray(keywords) && keywords.slice(0, 3).map((kw, index) => (
+                        <TouchableOpacity key={index} style={styles.label}>
+                            <Text style={styles.labelText}>{kw}</Text>
+                        </TouchableOpacity>
+                    ))}
                 </View>
             </View>
         </ImageBackground>
     </TouchableOpacity>
 );
-const filters = ["Chinese", "Italian", "Indian", "Thai", "Mexican", "American", "French", "Mediterranean", "Japanese", "Korean", "Vegetarian", "Vegan", "Gluten Free", "Dairy Free", "Nut Free", "Low Carb", "Low Fat", "High Protein", "Low Sugar", "Quick", "Easy"];
+
+
+const filters = ["Chinese", "Italian", "Indian", "Thai", "Mexican", "American", "French", "Mediterranean", "Japanese", "Korean", "Vegetarian", "Vegan", "Gluten-Free", "Dairy-Free", "Nut-Free", "Low Carb", "Low Fat", "High Protein", "Low Sugar", "Quick", "Easy", "Healthy"];
 
 
     export default function Index() {
@@ -60,31 +61,62 @@ const filters = ["Chinese", "Italian", "Indian", "Thai", "Mexican", "American", 
 
     const handleMenuToggle = () => setIsMenuOpen(prev => !prev);
     const handleCloseMenu = () => setIsMenuOpen(false);
-    useEffect((()=> {
+    useEffect(() => {
         axios.post("http://127.0.0.1:3000/exploreRecipesToDisplay")
-        .then(response => {
-            console.log("RESPONSE.DATA:", JSON.stringify(response.data, null, 2));
-            
-            setRecipes(response.data);
-        }).catch(err=>{console.error("Error on getExplore: ",err);});
-    }),[]);
+            .then(response => {
+                console.log("RESPONSE.DATA:", JSON.stringify(response.data, null, 2));
+    
+                // Ensure each recipe's keywords is an array of strings
+                const cleaned = response.data.map((recipe: any) => ({
+                    ...recipe,
+                    keywords: cleanKeywords(recipe.keywords)
+                }));
+    
+                setRecipes(cleaned);
+            })
+            .catch(err => {
+                console.error("Error on getExplore: ", err);
+            });
+    }, []);
+    
+
+    const cleanKeywords = (keywords: any): string[] => {
+        if (Array.isArray(keywords)) {
+            return keywords.map((k: any) => (typeof k === "string" ? k.trim() : String(k).trim()));
+        } else if (typeof keywords === "string") {
+            return keywords
+                .split(",")
+                .map(k => k.trim())
+                .filter(k => k.length > 0); 
+        } else {
+            return [];
+        }
+    };
+    
     const toggleFilter = (filter: string) => {
         setSelectedFilters(prev =>
             prev.includes(filter)
-                ? prev.filter(f => f !== filter) // Remove filter if already selected
-                : [...prev, filter] // Add filter if not selected
+                ? prev.filter(f => f !== filter) 
+                : [...prev, filter] 
         );
     };
 
-    const filteredRecipes = 
-        Recipes ? 
-            Recipes.filter(recipe => {
+    const filteredRecipes = Recipes
+    ? Recipes.filter(recipe => {
         const matchesFilters =
-            selectedFilters.length === 0 || // Show all recipes if no filters are selected
-            selectedFilters.some(filter => recipe.recipeName.toLowerCase().includes(filter.toLowerCase()));
+            selectedFilters.length === 0 ||
+            selectedFilters.some(filter =>
+                recipe.recipeName.toLowerCase().includes(filter.toLowerCase()) ||
+                (Array.isArray(recipe.keywords) && recipe.keywords.some(keyword =>
+                    keyword.toLowerCase() === filter.toLowerCase()
+                ))
+            );
         const matchesSearch = recipe.recipeName.toLowerCase().includes(search.toLowerCase());
         return matchesFilters && matchesSearch;
-    }) : [];
+    })
+    : [];
+
+
 
     useEffect(() => {
         navigation.setOptions({
