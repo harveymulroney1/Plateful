@@ -10,9 +10,10 @@ export default function Profile() {
     const [name,setName] = useState("");
     const Level = 1;
     const [recipeMadeCount, setRecipeMadeCount] = useState(0);
-    
+    const [isAuthed,setIsAuthed] = useState(Boolean);
     const navigation = useNavigation();
     const router = useRouter();
+    
     
     useEffect(() => {
         navigation.setOptions({
@@ -35,6 +36,7 @@ export default function Profile() {
                 const token = await AsyncStorage.getItem("userToken");
                 if (!token) {
                     console.log("!token")
+                    setIsAuthed(false);
                 }
                 if (token) {
                     const response = await axios.post('http://127.0.0.1:3000/checkToken', null, {
@@ -43,23 +45,26 @@ export default function Profile() {
                         }
                     });
                     if (response.data) {
+                        setIsAuthed(true);
                         setName(response.data.userName);
                         setRecipeMadeCount(response.data.cookedStat);
                         console.log("Name: " + response.data.userName + " Cooked: " + response.data.cookedStat)
                     }
                 } else {
                     console.log("No token found");
+                    setIsAuthed(false);
                 }
             } catch (error) {
                 console.log("caught an error: ");
+                setIsAuthed(false);
                 console.log(error);
             }
         }
         checkToken();
       }, [navigation]);
-    
     return(
-        <View style={styles.container}>
+        isAuthed ? (
+            <View style={styles.container}>
 
             {/* Profile Info */}
             <View style={styles.profileBox}>
@@ -94,8 +99,22 @@ export default function Profile() {
                 <Text style={styles.boxTitle}>Streaks</Text>
             </View>
         </View>
-    );
-}
+    ): 
+    <View>
+        <Text>Not Authed Login Now!</Text>
+        <TouchableOpacity
+            style={[styles.button, styles.selectedButton]}
+            onPress={() => router.push("/loginPage")}
+        >
+            <Text style={styles.buttonText}>Login/Register Now</Text>
+        </TouchableOpacity>
+    </View>
+
+                )};
+    
+    
+        
+
 
 const styles = StyleSheet.create({
     container: {

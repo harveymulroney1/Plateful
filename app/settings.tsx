@@ -1,5 +1,5 @@
 import { Text, Image, View, Button, TouchableOpacity, StyleSheet } from "react-native";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigation, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -8,7 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function Settings() {
     const navigation = useNavigation();
     const router = useRouter();
-
+    const [isAuthed,setIsAuthed] = useState(Boolean);
     useEffect(() => {
         navigation.setOptions({
             headerStyle: { backgroundColor: "#FAFAFC" },
@@ -19,10 +19,24 @@ export default function Settings() {
                 </TouchableOpacity>
             ),
         });
+        checkIsAuthed();
 
     }, [navigation]);
+    useEffect(()=>{
+        checkIsAuthed();
+    }
+    );
+    const checkIsAuthed = async () => {
+        const token = await AsyncStorage.getItem("userToken");
+        if(token)
+        {
+            setIsAuthed(true);
+        }
+        else{setIsAuthed(false);}
+    }
 
     const logout = async () => {
+        setIsAuthed(false);
         await AsyncStorage.removeItem("userToken");
         console.log("removed token");
     }
@@ -31,19 +45,25 @@ export default function Settings() {
         <View style={styles.container}>
             <View style={styles.box}>
                 <Text style={styles.boxTitle}>Settings</Text>
+                {isAuthed ?      
+                <TouchableOpacity
+                    style={[styles.button, styles.selectedButton]}
+                    onPress={() => logout()}
+                >
+                    <Text style={styles.buttonText}>Log out</Text>
+                </TouchableOpacity>           
+
+                : 
                 <TouchableOpacity
                     style={[styles.button, styles.selectedButton]}
                     onPress={() => router.push("/loginPage")}
                 >
                     <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>
+                }
 
-                <TouchableOpacity
-                    style={[styles.button, styles.selectedButton]}
-                    onPress={() => logout()}
-                >
-                    <Text style={styles.buttonText}>Log out</Text>
-                </TouchableOpacity>
+
+                
             </View>
         </View>
     )
