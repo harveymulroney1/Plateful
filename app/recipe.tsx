@@ -73,7 +73,7 @@ export default function Recipe() {
         function formatNutrition(nutritionToFormat:string[]){
             const formattedNutrition = [];
             for(const el of nutritionToFormat){
-                const match = el.match(/^([a-z]+)([\d.]+(?:g|kcal)?)/i) // skips spaces, grabs number & instruction
+                const match = el.match(/^([a-z]+)([\d.]+g)/i) // skips spaces, grabs number & instruction
                 if(match){
                     const nutrType = match[1];
                     const nutrVal = match[2];
@@ -83,7 +83,7 @@ export default function Recipe() {
             }
             
             //console.log("Formatted Nutrition: ",formattedNutrition);
-            setNutrition(formattedNutrition);           
+            setNutrition(formattedNutrition);
         }
         
         axios.post("http://127.0.0.1:3000/getRecipe", { n: recipeTitle })
@@ -138,19 +138,19 @@ export default function Recipe() {
                     )}
                 </View>
 
-                <View style={styles.labelContainer}>
+                {/* <View style={styles.labelContainer}>
                         <Text style={styles.label}>Servings</Text>
                         <Text style={styles.label}>Prep Time</Text>
                         <Text style={styles.label}>Cook Time</Text>
-                    </View>
+                </View> */}
 
                 <View style={styles.sectionContainer}>
                     <Text style={styles.sectionTitle}>Ingredients</Text>
                     {ingredients.length > 0 ? (
                         ingredients.map((item, index) => (
-                            <Text key={index} style={styles.listItem}>
-                                • {item}
-                            </Text>
+                            <View key={index} style={styles.ingredientContainer}>
+                                <Text style={styles.ingredientText}>{item}</Text>
+                            </View>
                         ))
                     ) : (
                         <Text style={styles.loadingText}>Loading ingredients...</Text>
@@ -162,7 +162,7 @@ export default function Recipe() {
                     {method.length > 0 ? (
                         method.map(([step, instruction], index) => (
                             <View key={index} style={styles.stepContainer}>
-                                <Text style={styles.stepLabel}>• {step}:</Text>
+                                <Text style={styles.stepLabel}>{step}</Text>
                                 <Text style={styles.stepText}>{instruction}</Text>
                             </View>
                         ))
@@ -173,21 +173,28 @@ export default function Recipe() {
 
                 <View style={styles.sectionContainer}>
                     <Text style={styles.sectionTitle}>Nutrition</Text>
-                    {nutrition.length > 0 ? (
-                        nutrition.map(([nutrType, nutrVal], index) => (
-                            <View key={index} style={styles.stepContainer}>
-                                <Text style={styles.stepLabel}>• {nutrType}:</Text>
-                                <Text style={styles.stepText}>{nutrVal}</Text>
-                            </View>
-                        ))
-                    ) : (
-                        <Text style={styles.loadingText}>Loading nutritional values...</Text>
-                    )}
+                    <View style={styles.nutritionWrapper}>
+                        {nutrition.length > 0 ? (
+                            nutrition.map(([nutrType, nutrVal], index) => (
+                                <View key={index} style={styles.nutritionBox}>
+                                    <Text style={styles.nutrType}>{nutrType}</Text>
+                                    <Text style={styles.nutrVal}>{nutrVal}</Text>
+                                </View>
+                            ))
+                        ) : (
+                            <Text style={styles.loadingText}>Loading nutritional values...</Text>
+                        )}
+                    </View>
                 </View>
-
-                <TouchableOpacity style={styles.label} onPress={addCount}>
-                    <Text style={styles.label}>Complete</Text>
-                </TouchableOpacity>
+                
+                <View style={styles.completeButtonContainer}>
+                    <TouchableOpacity
+                        style={[styles.completeButton]}
+                        onPress={addCount}
+                    >
+                        <Text style={styles.completeButtonText}>Complete</Text>
+                    </TouchableOpacity>
+                </View>
 
             </View>
 
@@ -245,7 +252,8 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "bold",
         color: "#333333",
-        marginBottom: 10,
+        marginTop: 10,
+        marginBottom: 15,
         fontFamily: "System",
     },
     listItem: {
@@ -254,17 +262,28 @@ const styles = StyleSheet.create({
     stepContainer: {
         flexDirection: "row",
         alignItems: "flex-start",
-        marginBottom: 8,
+        marginBottom: 12,
+        backgroundColor: "#f2f2f2",
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 10,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+        elevation: 1,
     },
     stepLabel: {
-        width: 80,
-        color: "#3366cc",
+        width: 60,
+        fontSize: 14,
         fontWeight: "bold",
+        color: "#FA6163",
+        marginBottom: 4,
     },
     stepText: {
         color: "#333",
         flex: 1,
-        fontSize: 16,
+        fontSize: 14,
     },
     descriptionContainer: {
         marginTop: 10,
@@ -300,5 +319,81 @@ const styles = StyleSheet.create({
         fontFamily: "System",
         fontSize: 14,
         color: "white",
+    },
+    ingredientContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        width: "100%",
+        backgroundColor: "#f2f2f2",
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        marginRight: 80,
+        borderRadius: 10,
+        marginBottom: 10,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+        elevation: 1,
+    },
+    ingredientText: {
+        fontSize: 14,
+        color: "#333",
+        flexShrink: 1,
+    },
+    nutritionWrapper: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 10,
+    },
+    nutritionBox: {
+        backgroundColor: "#f2f2f2",
+        paddingVertical: 6,
+        paddingHorizontal: 14,
+        borderRadius: 10,
+        marginBottom: 10,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+        elevation: 1,
+        minWidth: 80,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    nutrType: {
+        fontWeight: "bold",
+        color: "#FA6163",
+        fontSize: 14,
+        textTransform: "capitalize",
+    },
+    nutrVal: {
+        fontSize: 14,
+        color: "#333",
+    },
+    completeButtonContainer: {
+        marginTop: 15,
+        alignItems: 'center',
+        width: "100%",
+    },
+    completeButton: {
+        backgroundColor: '#FA6163',
+        width: "90%",
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderRadius: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    completeButtonText: {
+        fontSize: 16,
+        color: 'white',
+        fontWeight: 'bold',
+        fontFamily: 'System',
     },
 });
