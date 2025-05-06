@@ -244,7 +244,7 @@ export default function Index() {
                     </View>
                 )}
 
-                {Recipes ? <Text style={styles.subText}>{Recipes.length} recipes</Text> :  <Text style={styles.subText}>Loading...</Text>}
+                {Recipes ? <Text style={styles.subText}>{filteredRecipes.length} recipes</Text> :  <Text style={styles.subText}>Loading...</Text>}
 
                 {filteredRecipes.map((item) => (
                     <View>

@@ -70,7 +70,7 @@ export function createTables() //Creates Recipes, Ingredients and Stats tables
             console.log("Table Ingredients created");
             });
 
-        var sql = "CREATE TABLE IF NOT EXISTS Statistics (UserName VARCHAR(255) PRIMARY KEY, Temp VARCHAR(255), Cooked INT, FOREIGN KEY (UserName) REFERENCES Account(UserName))";
+        var sql = "CREATE TABLE IF NOT EXISTS Statistics (UserName VARCHAR(255) PRIMARY KEY, Temp VARCHAR(255), Cooked INT, Streak INT, LastCooked DATE, FOREIGN KEY (UserName) REFERENCES Account(UserName))";
             con.query(sql, function (err, result) {
             if (err) throw err;
             console.log("Table Statistics created");
@@ -429,6 +429,7 @@ export function createAccount(userName, password)
                 if (err) throw err;
                 console.log("1 record inserted");
                 });
+            con.query("INSERT INTO Statistics (UserName, Temp, Cooked, LastCooked) VALUES (?, ?, ?, ?)", [userName, '0', 0, '2000-01-01']);
 }
 
 export function keywordSearch(keyword) {
@@ -466,9 +467,26 @@ export function addCookedStatistic(userName) {
         }
         else if (result) {
             if (result.length == 0) {
-                con.query("INSERT INTO Statistics (UserName, Temp, Cooked) VALUES (?, ?, ?)", [userName, '0', 0]);
+                con.query("INSERT INTO Statistics (UserName, Temp, Cooked, LastCooked) VALUES (?, ?, ?, ?)", [userName, '0', 0, '2000-01-01']);
             }
             con.query("UPDATE Statistics SET Cooked = Cooked + 1 WHERE UserName = '" + userName + "'");
+            console.log("Statistics update run");
+        }
+    });
+}
+
+export function addLastCookedDate(userName) {
+    con.query("SELECT * FROM Statistics WHERE UserName = ?",[userName], function (err, result) {
+        if (err) {
+            console.log("Error updating statistics: ");
+            console.log(err);
+        }
+        else if (result) {
+            if (result.length == 0) {
+                con.query("INSERT INTO Statistics (UserName, Temp, Cooked, LastCooked) VALUES (?, ?, ?, ?)", [userName, '0', 0, '2000-01-01']);
+            }
+            let todaysDate = new Date().toISOString().split('T')[0];
+            con.query("UPDATE Statistics SET LastCooked = '" + todaysDate+ "' WHERE UserName = '" + userName + "'");
             console.log("Statistics update run");
         }
     });
@@ -479,7 +497,7 @@ export function fetchCookedStatistic(userName) {
         con.query("SELECT Cooked FROM Statistics WHERE UserName = ?", [userName], function (err, result) {
             if (err) {
                 console.log("Error fetching statistics:", err);
-                resolve(0); // fallback to 0 if error occurs
+                resolve(0); //default to 0 if error occurs
             }
             else if (result.length === 0) {
                 console.log("No statistics found for user:", userName);
@@ -488,6 +506,26 @@ export function fetchCookedStatistic(userName) {
             else {
                 console.log("Fetched Cooked stat:", result[0].Cooked);
                 resolve(result[0].Cooked);
+            }
+        });
+    });
+}
+
+
+export function fetchLastCookedDate(userName) {
+    return new Promise((resolve, reject) => {
+        con.query("SELECT LastCooked FROM Statistics WHERE UserName = ?", [userName], function (err, result) {
+            if (err) {
+                console.log("Error fetching statistics:", err);
+                resolve(0);
+            }
+            else if (result.length === 0) {
+                console.log("No statistics found for user:", userName);
+                resolve(0);
+            }
+            else {
+                console.log("Fetched LastCooked date:", result[0].LastCooked);
+                resolve(result[0].LastCooked);
             }
         });
     });

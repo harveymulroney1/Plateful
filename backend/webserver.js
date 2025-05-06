@@ -223,9 +223,10 @@ app.post('/checkToken', (req, res) => { //validate a jwt token and return the us
                 console.log(err);
             }
             else {
-                let recipeCount = await database.fetchCookedStatistic(decoded.userName)
-                console.log("WEBSERVER has recieved this for count: " + recipeCount)
-                res.json({ userName: decoded.userName, cookedStat: recipeCount });
+                let recipeCount = await database.fetchCookedStatistic(decoded.userName);
+                console.log("WEBSERVER has recieved this for count: " + recipeCount);
+                let lastCookedDate = await database.fetchLastCookedDate(decoded.userName);
+                res.json({ userName: decoded.userName, cookedStat: recipeCount, cookedDate: lastCookedDate });
             }
         })
     }
@@ -241,6 +242,7 @@ app.post('/addCookedStatistic', (req, res) => { //validate a jwt token and add t
             }
             else {
                 database.addCookedStatistic(decoded.userName);
+                database.addLastCookedDate(decoded.userName);
                 res.json({ userName: decoded.userName });
             }
         })

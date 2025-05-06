@@ -15,7 +15,8 @@ export default function Profile() {
     const Level = 1;
     const [recipeMadeCount, setRecipeMadeCount] = useState(0);
     const [isAuthed,setIsAuthed] = useState(Boolean);
-    const [bookmarks,setBookmarks] = useState<bookmark[]>([])
+    const [bookmarks, setBookmarks] = useState<bookmark[]>([])
+    const [lastCooked, setLastCooked] = useState(0);
     const navigation = useNavigation();
     const router = useRouter();
 
@@ -66,6 +67,12 @@ export default function Profile() {
                         setIsAuthed(true);
                         setName(response.data.userName);
                         setRecipeMadeCount(response.data.cookedStat);
+                        if (response.data.cookedDate.split('T')[0] == "2000-01-01") {
+                            setLastCooked(0);
+                        }
+                        else {
+                            setLastCooked(response.data.cookedDate.split('T')[0]);
+                        }
                     }
                 } else {
                     setIsAuthed(false);
@@ -76,7 +83,12 @@ export default function Profile() {
             }
         }
         checkToken();
-      }, [navigation]);
+    }, [navigation]);
+    //probably unnecessary but keep it until i know
+    function formatDateForSQL(date: Date){
+        return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+    }
+
     return(
         isAuthed ? (
             <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -117,7 +129,8 @@ export default function Profile() {
             </TouchableOpacity>
             {/* Streaks */}
             <View style={styles.box}>
-                <Text style={styles.boxTitle}>Streaks</Text>
+                        <Text style={styles.boxTitle}>Streaks</Text>
+                        <Text>Last Cooked Date: {lastCooked}</Text>
             </View>
         </View>
         </ScrollView>
