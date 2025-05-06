@@ -52,7 +52,9 @@ const Item = ({ title, img, keywords, onPress }: ItemProps) => (
 
 
 const filters = ["Chinese", "Italian", "Indian", "Thai", "Mexican", "American", "French", "Mediterranean", "Japanese", "Korean", "Vegetarian", "Vegan", "Gluten-Free", "Dairy-Free", "Nut-Free", "Low Carb", "Low Fat", "High Protein", "Low Sugar", "Quick", "Easy", "Healthy"];
-
+const cuisineFilters = ["Chinese", "Italian", "Indian", "Thai", "Mexican", "American", "French", "Mediterranean", "Japanese", "Korean"];
+const dietaryFilters = ["Vegetarian", "Vegan", "Gluten-free", "Dairy-free", "Nut-free"];
+const otherFilters = ["Quick", "Easy", "Healthy", "Low carb", "Low fat", "High protein", "Low sugar"];
 
 export default function Index() {
     const [Recipes,setRecipes] = useState<Recipe[]>([]);
@@ -62,6 +64,9 @@ export default function Index() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
 
+    const [searchInput, setSearchInput] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
+    
     const [allRecipeNames, setAllRecipeNames] = useState<string[]>([]);
     const [searchResults, setSearchResults] = useState<string[]>([]);
 
@@ -123,15 +128,15 @@ export default function Index() {
     };
 
     const handleSearch = (text: string) => {
-        setSearch(text);
+        setSearchQuery(text);
         if (!text.trim()) {
             setSearchResults([]);
             return;
         }
     
-    const result = fuse.search(text);
-    const resultTitles = result.map(r => r.item.toLowerCase());
-    setSearchResults(resultTitles);
+        const result = fuse.search(text);
+        const resultTitles = result.map(r => r.item.toLowerCase());
+        setSearchResults(resultTitles);
     };
 
     const filteredRecipes = Recipes.filter(recipe => {
@@ -145,8 +150,8 @@ export default function Index() {
                     recipe.keywords.some(keyword => keyword.toLowerCase() === filter.toLowerCase()))
         );
     
-        const matchesSearch =
-            search.trim() === "" || searchResults.includes(titleLower);
+        const matchesSearch = searchQuery.trim() === "" ||
+            searchResults.some(result => result.toLowerCase() === titleLower);
     
         return matchesFilters && matchesSearch;
     });
@@ -159,12 +164,12 @@ export default function Index() {
             headerTitle: "",
             headerLeft: () => (
                 <TouchableOpacity onPress={handleMenuToggle} style={{ marginLeft: 20 }}>
-                    <Ionicons name="menu" size={24} color="#333333" />
+                    <Ionicons name="menu" size={22} color="#333333" />
                 </TouchableOpacity>
             ),
             headerRight: () => (
                 <TouchableOpacity onPress={() => router.push("/profile")} style={{ marginRight: 20 }}>
-                    <Ionicons name="person-circle-outline" size={28} color="#333333" />
+                    <Ionicons name="person-circle-outline" size={25} color="#333333" />
                 </TouchableOpacity>
             ),
         });
@@ -179,34 +184,33 @@ export default function Index() {
     ];
 
     return (
-        <View style={{ flex: 1 }}>
-            <ScrollView style={styles.container} contentContainerStyle={{ padding: 20 }}>
+<ScrollView style={styles.container} contentContainerStyle={{ padding: 20 }}>
 
                 <Text style={styles.mainTitle}>Get cooking today!</Text>
 
                 <View style={styles.searchContainer}>
-                    <Ionicons name="search" size={20} color="gray" style={styles.searchIcon} />
+                    <TouchableOpacity onPress={() => handleSearch(searchInput)}>
+                        <Ionicons name="search" size={18} color="gray" style={styles.searchIcon} />
+                    </TouchableOpacity>
                     <TextInput
                         style={styles.searchBar}
                         placeholder="Search for recipes"
-                        value={search}
-                        //onChangeText={(text) => setSearch(text)}
-                        onChangeText={handleSearch}
+                        value={searchInput}
+                        onChangeText={setSearchInput}
+                        onSubmitEditing={() => handleSearch(searchInput)} // Pressing Enter
                         placeholderTextColor="#999"
+                        returnKeyType="search"
                     />
                 </View>
 
-                <Text style={styles.sectionTitle}>Category</Text>
-                <View style={styles.filters}>
-                    {/* <TouchableOpacity
-                        style={[styles.filterButton, selectedFilters.includes("All") && styles.selectedFilter]}
-                        onPress={() => toggleFilter("All")}
-                    >
-                        <Text style={selectedFilters.includes("All") ? styles.filterTextSelected : styles.filterText}>
-                            All
-                        </Text>
-                    </TouchableOpacity> */}
-                    {filters.map((filter: string, index: number) => (
+                <Text style={styles.sectionTitle}>Cuisine</Text>
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={styles.filterScrollView}
+                    contentContainerStyle={styles.filterContainer}
+                >
+                    {cuisineFilters.map((filter: string, index: number) => (
                         <TouchableOpacity
                             key={index}
                             style={[styles.filterButton, selectedFilters.includes(filter) && styles.selectedFilter]}
@@ -217,11 +221,52 @@ export default function Index() {
                             </Text>
                         </TouchableOpacity>
                     ))}
-                </View>
+                </ScrollView>
 
-                <Text style={styles.sectionTitle}>Popular</Text>
+                <Text style={styles.sectionTitle}>Dietary Requirements</Text>
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={styles.filterScrollView}
+                    contentContainerStyle={styles.filterContainer}
+                >
+                    {dietaryFilters.map((filter: string, index: number) => (
+                        <TouchableOpacity
+                            key={index}
+                            style={[styles.filterButton, selectedFilters.includes(filter) && styles.selectedFilter]}
+                            onPress={() => toggleFilter(filter)}
+                        >
+                            <Text style={selectedFilters.includes(filter) ? styles.filterTextSelected : styles.filterText}>
+                                {filter}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
 
-                {searchResults.length > 0 && (
+                <Text style={styles.sectionTitle}>Other</Text>
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={styles.filterScrollView}
+                    contentContainerStyle={styles.filterContainer}
+                >
+                    {otherFilters.map((filter: string, index: number) => (
+                        <TouchableOpacity
+                            key={index}
+                            style={[styles.filterButton, selectedFilters.includes(filter) && styles.selectedFilter]}
+                            onPress={() => toggleFilter(filter)}
+                        >
+                            <Text style={selectedFilters.includes(filter) ? styles.filterTextSelected : styles.filterText}>
+                                {filter}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
+
+
+                <Text style={styles.popularTitle}>Popular</Text>
+
+                {/* {searchResults.length > 0 && (
                     <View style={{ backgroundColor: "white", padding: 10, borderRadius: 8, elevation: 2 }}>
                         {searchResults.map((item, index) => (
                             <Text
@@ -242,18 +287,23 @@ export default function Index() {
                             </Text>
                         ))}
                     </View>
-                )}
+                )} */}
 
-                {Recipes ? <Text style={styles.subText}>{filteredRecipes.length} recipes</Text> :  <Text style={styles.subText}>Loading...</Text>}
+                <Text style={styles.subText}>
+                {filteredRecipes.length} {filteredRecipes.length === 1 ? "recipe" : "recipes"}
+                </Text>
 
                 {filteredRecipes.map((item) => (
-                    <View>
-                        <Item title={item.recipeName} img={item.img} keywords={item.keywords} onPress={() => handleItemPress(item.recipeName)} />
-
-
+                    <View key={item.recipeName}>
+                        <Item
+                            title={item.recipeName}
+                            img={item.img}
+                            keywords={item.keywords.map(keyword => keyword.charAt(0).toUpperCase() + keyword.slice(1))}
+                            onPress={() => handleItemPress(item.recipeName)}
+                        />
                     </View>
-
                 ))}
+
 
             </ScrollView>
 
@@ -275,6 +325,14 @@ const styles = StyleSheet.create({
         color: "#333333",
         fontFamily: "System",
     },
+    popularTitle: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        marginTop: 10,
+        marginBottom: 5,
+        color: "#333333",
+        fontFamily: "System",
+    },
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -291,19 +349,22 @@ const styles = StyleSheet.create({
     },
     searchIcon: {
         marginLeft: 4,
-        marginRight: 12,
+        marginRight: 4,
     },
     searchBar: {
         flex: 1,
         height: 40,
         fontFamily: "System",
         color: "#333333",
+        borderWidth: 1,
+        borderColor: "#FAFAFC",
+        borderRadius: 8,
+        paddingHorizontal: 10,
     },
     sectionTitle: {
         fontSize: 18,
         fontWeight: "bold",
         color: "#333333",
-        marginBottom: 10,
         fontFamily: "System",
     },
     filters: {
@@ -311,12 +372,19 @@ const styles = StyleSheet.create({
         flexWrap: "wrap",
         marginBottom: 20,
     },
+    filterScrollView: {
+        paddingVertical: 10, // Optional: Add padding at the top and bottom of the scrollable area
+    },
+    filterContainer: {
+        flexDirection: 'row',  // Stack items horizontally
+        paddingHorizontal: 5,  // Optional: Add horizontal padding between items
+    },
     filterButton: {
         backgroundColor: "#FAFAFC",
         paddingHorizontal: 16,
         paddingVertical: 12,
         borderRadius: 20,
-        marginTop: 4,
+        marginTop: 2,
         marginRight: 15,
         marginBottom: 5,
         shadowColor: "#000",
