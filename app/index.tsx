@@ -184,7 +184,8 @@ export default function Index() {
     ];
 
     return (
-<ScrollView style={styles.container} contentContainerStyle={{ padding: 20 }}>
+    <View>
+        <ScrollView style={styles.container} contentContainerStyle={{ padding: 20 }}>
 
                 <Text style={styles.mainTitle}>Get cooking today!</Text>
 
