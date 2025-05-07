@@ -400,9 +400,31 @@ export function getXRecipes(limit,offset)
         });
     });
 }
+export function checkUserNameDuplicates(wantedUN)
+{
+    return new Promise((resolve, reject) => {
+    var sql = "SELECT * FROM Account WHERE UserName = ?";
+    con.query(sql,[wantedUN],function(err,result){
+        if(result.length>0){
+            // UserName Taken
+            return true;
+        }
+        else if(err)
+            {
+                console.error("Error on duplicates:",err);
+                return true;
+            };
+
+            return false;
+    })
+    })
+
+}
 export function createAccount(userName, password)
 {
     var ingredients=""
+        if(!checkUserNameDuplicates(userName)){
+
         
             var salt=createhash.randomBytes(16).toString('hex'); //Creating Salt
             password=password+salt //Salting
@@ -418,7 +440,13 @@ export function createAccount(userName, password)
                 console.log("1 record inserted");
                 });
             con.query("INSERT INTO Statistics (UserName, Temp, Cooked, LastCooked) VALUES (?, ?, ?, ?)", [userName, '0', 0, '2000-01-01']);
-}
+            }
+        else
+        {
+            console.log("Error creating account - Username already exists");
+            
+        }
+        }
 
 export function keywordSearch(keyword) {
     console.log("Keyword requested: " + keyword);
