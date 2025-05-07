@@ -237,7 +237,11 @@ app.post('/checkToken', (req, res) => { //validate a jwt token and return the us
                 let recipeCount = await database.fetchCookedStatistic(decoded.userName);
                 console.log("WEBSERVER has recieved this for count: " + recipeCount);
                 let lastCookedDate = await database.fetchLastCookedDate(decoded.userName);
-                res.json({ userName: decoded.userName, cookedStat: recipeCount, cookedDate: lastCookedDate });
+                let vBadge = await database.getVeganBadge(decoded.userName);
+                let sBadge = await database.getSweetBadge(decoded.userName);
+                let mBadge = await database.getMeatBadge(decoded.userName);
+                console.log("vegan badge data fetched: " + vBadge);
+                res.json({ userName: decoded.userName, cookedStat: recipeCount, cookedDate: lastCookedDate, veganBadge: vBadge, meatBadge: mBadge, sweetBadge: sBadge });
             }
         })
     }
@@ -259,6 +263,25 @@ app.post('/addCookedStatistic', (req, res) => { //validate a jwt token and add t
         })
     }
 });
+
+
+app.post('/addVeganBadge', (req, res) => {
+    const token = req.headers['authorization']?.split(' ')[1];
+    if (token) {
+        jwt.verify(token, JWT_SECRET, (err, decoded) => {
+            if (err) {
+                console.log("JWT VERIFICATION ERROR: ");
+                console.log(err);
+            }
+            else {
+                database.addVeganBadge(decoded.userName);
+                res.json({ userName: decoded.userName });
+            }
+        })
+    }
+});
+
+
 
 // Get Recommended Recipes for User based on saved recipes
 app.get('/getRecommendations', (req, res) => {

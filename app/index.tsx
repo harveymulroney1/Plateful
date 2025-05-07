@@ -175,8 +175,9 @@ export default function Index() {
         });
     }, [navigation]);
 
-    const handleItemPress = (recipeTitle: string) => {
-        router.push(`/recipe?title=${encodeURIComponent(recipeTitle)}`);
+    const handleItemPress = (recipeTitle: string, keywords?: string[]) => {
+        const keywordsParam = keywords ? encodeURIComponent(JSON.stringify(keywords)) : "";
+        router.push(`/recipe?title=${encodeURIComponent(recipeTitle)}&keywords=${keywordsParam}`);
     };
 
     const menuItems = [
@@ -300,7 +301,7 @@ export default function Index() {
                             title={item.recipeName}
                             img={item.img}
                             keywords={item.keywords.map(keyword => keyword.charAt(0).toUpperCase() + keyword.slice(1))}
-                            onPress={() => handleItemPress(item.recipeName)}
+                            onPress={() => handleItemPress(item.recipeName, item.keywords)}
                         />
                     </View>
                 ))}

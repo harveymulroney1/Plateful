@@ -17,6 +17,9 @@ export default function Profile() {
     const [isAuthed,setIsAuthed] = useState(Boolean);
     const [bookmarks, setBookmarks] = useState<bookmark[]>([])
     const [lastCooked, setLastCooked] = useState(0);
+    const [veganBadgeUnlocked, setVeganBadgeUnlocked] = useState(0);
+    const [meatBadgeUnlocked, setMeatBadgeUnlocked] = useState(0);
+    const [sweetBadgeUnlocked, setSweetBadgeUnlocked] = useState(0);
     const navigation = useNavigation();
     const router = useRouter();
 
@@ -67,6 +70,10 @@ export default function Profile() {
                         setIsAuthed(true);
                         setName(response.data.userName);
                         setRecipeMadeCount(response.data.cookedStat);
+                        setVeganBadgeUnlocked(response.data.veganBadge);
+                        setMeatBadgeUnlocked(response.data.meatBadge);
+                        setSweetBadgeUnlocked(response.data.sweetBadge);
+                        console.log("VEGAN BADGE:" + response.data.veganBadge);
                         if (response.data.cookedDate.split('T')[0] == "2000-01-01") {
                             setLastCooked(0);
                         }
@@ -84,10 +91,7 @@ export default function Profile() {
         }
         checkToken();
     }, [navigation]);
-    //probably unnecessary but keep it until i know
-    function formatDateForSQL(date: Date){
-        return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
-    }
+
 
     return(
         isAuthed ? (
@@ -114,12 +118,15 @@ export default function Profile() {
             {/* Badges */}
             <View style={styles.box}>
                 <Text style={styles.boxTitle}>Badges</Text>
-                <Text>Cook 5 recipes: {(recipeMadeCount >= 5).toString() }</Text>
-                <Text>Cook 10 recipes: {(recipeMadeCount >= 10).toString() }</Text>
-                <Text>Cook 20 recipes: {(recipeMadeCount >= 20).toString() }</Text>
-                <Text>Cook 50 recipes: {(recipeMadeCount >= 50).toString() }</Text>
-                <Text>Cook a vegetarian recipe: </Text>
-                <Text>Cook an Italian recipe: </Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ width: '100%' }}>
+                    <Image source={recipeMadeCount >= 1 ? require("@/assets/images/badges/first-dish.png") : require("@/assets/images/badges/first-dish-locked.png")} style={{ width: 200, height: 200, marginRight: 10 }}/>
+                    <Image source={recipeMadeCount >= 10 ? require("@/assets/images/badges/10.png") : require("@/assets/images/badges/10-locked.png")} style={{ width: 200, height: 200, marginRight: 10 }} />
+                    <Image source={recipeMadeCount >= 30 ? require("@/assets/images/badges/30.png") : require("@/assets/images/badges/30-locked.png")} style={{ width: 200, height: 200, marginRight: 10 }}/>
+                    <Image source={meatBadgeUnlocked ? require("@/assets/images/badges/meat.png") : require("@/assets/images/badges/meat-locked.png")} style={{ width: 200, height: 200, marginRight: 10 }}/>
+                    <Image source={sweetBadgeUnlocked ? require("@/assets/images/badges/sweet.png") : require("@/assets/images/badges/sweet-locked.png")} style={{ width: 200, height: 200, marginRight: 10 }}/>
+                    <Image source={veganBadgeUnlocked ? require("@/assets/images/badges/vegan.png") : require("@/assets/images/badges/vegan-locked.png")} style={{ width: 200, height: 200, marginRight: 10 }}/>
+                    <Image source={require("@/assets/images/badges/international.png")} style={{ width: 200, height: 200, marginRight: 10 }}/>
+                </ScrollView>
             </View>
             <TouchableOpacity
             style={[styles.button, styles.selectedButton]}
@@ -132,6 +139,9 @@ export default function Profile() {
                         <Text style={styles.boxTitle}>Streaks</Text>
                         <Text>Last Cooked Date: {lastCooked}</Text>
             </View>
+                    <View style={styles.box}>
+                        <Text style={styles.boxTitle}>Bookmarks</Text>
+                    </View>
         </View>
         </ScrollView>
     ): 
@@ -154,7 +164,6 @@ export default function Profile() {
 const styles = StyleSheet.create({
     scrollContainer: {
         paddingVertical: 20,
-        alignItems: "center",
         backgroundColor: "#FAFAFC",
     },
     container: {

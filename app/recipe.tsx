@@ -8,7 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function Recipe() {
     const navigation = useNavigation();
     const router = useRouter();
-    const { title: recipeTitle } = useLocalSearchParams();
+    const { title: recipeTitle, keywords } = useLocalSearchParams();
     const [recipeID,setRecipeID] = useState();
     const [ingredients, setIngredients] = useState<string[]>([]);
     const [method, setMethod] = useState<string[][]>([]);
@@ -16,6 +16,7 @@ export default function Recipe() {
     const [img,setIMG] = useState("");
     const [Description,setDescription] = useState("");
     const [isAuthed,setIsAuthed] = useState(Boolean);
+    const [recipeKeywords, setRecipeKeywords] = useState<string[]>([]);
     const checkIsAuthed = async () => {
         const token = await AsyncStorage.getItem("userToken");
         if(token)
@@ -62,6 +63,14 @@ export default function Recipe() {
                     let username = response.data;
                     
                 }
+                if (recipeKeywords.includes("Vegan")) {
+                    console.log("VEGAN")
+                    const response = await axios.post('http://127.0.0.1:3000/addVeganBadge', null, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        }
+                    });
+                }
             } else {
                 console.log("No token found");
             }
@@ -105,48 +114,50 @@ export default function Recipe() {
                 </TouchableOpacity>
             ),
         });
-        
+
+        if (keywords) {
+            try {
+                const parsedKeywords = JSON.parse(keywords as string);
+                setRecipeKeywords(parsedKeywords);
+            } catch (err) {
+                console.error("Failed to parse keywords:", err);
+            }
+        }
 
         if (!recipeTitle) return; // Ensure title exists before proceeding
-        
-        function formatMethod(methodToFormat:string[]){
+
+        function formatMethod(methodToFormat: string[]) {
             const formattedMethod = [];
-            for(const el of methodToFormat){
-                const match = el.match(/step\s*(\d+)\s*(.+)/i) // skips spaces, grabs number & instruction
-                if(match){
+            for (const el of methodToFormat) {
+                const match = el.match(/step\s*(\d+)\s*(.+)/i); // skips spaces, grabs number & instruction
+                if (match) {
                     const stepNum = match[1];
                     const instruction = match[2];
-                    formattedMethod.push([`Step ${stepNum}`,instruction.trim()]);
+                    formattedMethod.push([`Step ${stepNum}`, instruction.trim()]);
                 }
             }
-            //console.log("Formatted method: ",formattedMethod);
-            setMethod(formattedMethod);           
+            setMethod(formattedMethod);
         }
-        
-        function formatNutrition(nutritionToFormat:string[]){
+
+        function formatNutrition(nutritionToFormat: string[]) {
             const formattedNutrition = [];
-            for(const el of nutritionToFormat){
-                const match = el.match(/^([a-z]+)([\d.]+(?:kcal|g)?)/i) // skips spaces, grabs number & instruction
-                if(match){
+            for (const el of nutritionToFormat) {
+                const match = el.match(/^([a-z]+)([\d.]+(?:kcal|g)?)/i); // skips spaces, grabs number & instruction
+                if (match) {
                     const nutrType = match[1];
                     const nutrVal = match[2];
-                    console.log(`${nutrType} : ${nutrVal}`)
-                    formattedNutrition.push([nutrType,nutrVal.trim()]);
+                    console.log(`${nutrType} : ${nutrVal}`);
+                    formattedNutrition.push([nutrType, nutrVal.trim()]);
                 }
             }
-            
-            //console.log("Formatted Nutrition: ",formattedNutrition);
             setNutrition(formattedNutrition);
         }
-        
+
         axios.post("http://127.0.0.1:3000/getRecipe", { n: recipeTitle })
             .then(response => {
                 console.log("RESPONSE.DATA:", JSON.stringify(response.data, null, 2));
-                //console.log("Raw Ingredients Data:", response.data[0].Ingredients);
                 setRecipeID(response.data[0].id);
                 const parsedIngredients = JSON.parse(response.data[0].Ingredients);
-                //console.log("Full Ingredients Array:", JSON.stringify(response.data[0].Ingredients, null, 2));
-                //console.log("Image Data Received:",response.data[0].Image);
                 setIMG(response.data[0].Image);
                 if (Array.isArray(parsedIngredients)) {
                     setIngredients(parsedIngredients);
@@ -157,7 +168,6 @@ export default function Recipe() {
                 setDescription(response.data[0].Description);
                 formatMethod(JSON.parse(response.data[0].Method));
                 formatNutrition(JSON.parse(response.data[0].Nutrition));
-                //setMethod(JSON.parse(response.data[0].Method) || "Error fetching method");
             })
             .catch(error => console.error("Error fetching recipe:", error));
     }, [navigation, recipeTitle]);
@@ -169,11 +179,20 @@ export default function Recipe() {
     },[]);
 
     return (
-                <ScrollView>
-
+        <ScrollView>
             <View style={styles.container}>
-
                 <Text style={styles.titleText}>{recipeTitle}</Text>
+                <View style={styles.sectionContainer}>
+                    {recipeKeywords.length > 0 ? (
+                        <View style={styles.labelContainer}>
+                            {recipeKeywords.map((keyword, index) => (
+                                <Text key={index} style={styles.label}>{keyword}</Text>
+                            ))}
+                        </View>
+                    ) : (
+                        <Text/>
+                    )}
+                </View>
 
                 <View style={styles.imageContainer}>
                     <View style={styles.imageShadow}>
