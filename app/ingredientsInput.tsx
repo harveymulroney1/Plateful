@@ -16,6 +16,7 @@ export default function Index() {
     const [ingrList,setingrList] = useState<string[]>([]);
     const [receiptLines, setReceiptLines] = useState<string[]>([]);
     const [inputText, setInputText] = useState("");
+    
     type Recipe = {
       RecipeName:string;
       Ingredients:string[];
@@ -108,6 +109,10 @@ export default function Index() {
         //console.log("Recipes Received: ",response.data);
         console.log("Formatted recipes: ",formatted);
         setRecipes(formatted);
+        if(formatted.length==0)
+        {
+          alert("No Recipes Found!");
+        }
       })
       .catch(function (error) {
         console.log(error);
@@ -209,15 +214,19 @@ const Item = ({ title, onPress }: ItemProps) => (
         )}
       />
 
+    {recipes.length>0 ?
+          <FlatList
+          data={recipes}
+          renderItem={({ item }) => (
+            
+              <Item title={item.RecipeName} onPress={() => handleItemPress(item.RecipeName)} />
+          )}
+          showsVerticalScrollIndicator={false}
+      />
+      : 
+      <Text>test</Text>
+    }
 
-    <FlatList
-        data={recipes}
-        renderItem={({ item }) => (
-          
-            <Item title={item.RecipeName} onPress={() => handleItemPress(item.RecipeName)} />
-        )}
-        showsVerticalScrollIndicator={false}
-    />
 
     <View style={styles.findRecipesButtonContainer}>
         <TouchableOpacity
