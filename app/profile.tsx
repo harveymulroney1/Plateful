@@ -15,7 +15,8 @@ export default function Profile() {
     const Level = 1;
     const [recipeMadeCount, setRecipeMadeCount] = useState(0);
     const [isAuthed,setIsAuthed] = useState(Boolean);
-    const [bookmarks,setBookmarks] = useState<bookmark[]>([])
+    const [bookmarks, setBookmarks] = useState<bookmark[]>([])
+    const [lastCooked, setLastCooked] = useState(0);
     const navigation = useNavigation();
     const router = useRouter();
 
@@ -41,12 +42,12 @@ export default function Profile() {
             headerTitle: "",
             headerLeft: () => (
                 <TouchableOpacity onPress={() => router.push("/")}>
-                    <Ionicons name="arrow-back" size={24} color="black" style={{ marginLeft: 20 }} />
+                    <Ionicons name="arrow-back" size={22} color="#333333" style={{ marginLeft: 20 }} />
                 </TouchableOpacity>
             ),
             headerRight: () => (
                 <TouchableOpacity onPress={() => router.push("/settings")}>
-                    <Ionicons name="settings-sharp" size={24} color="black" style={{ marginRight: 20 }} />
+                    <Ionicons name="settings-sharp" size={22} color="#333333" style={{ marginRight: 20 }} />
                 </TouchableOpacity>
             ),
         });
@@ -66,6 +67,12 @@ export default function Profile() {
                         setIsAuthed(true);
                         setName(response.data.userName);
                         setRecipeMadeCount(response.data.cookedStat);
+                        if (response.data.cookedDate.split('T')[0] == "2000-01-01") {
+                            setLastCooked(0);
+                        }
+                        else {
+                            setLastCooked(response.data.cookedDate.split('T')[0]);
+                        }
                     }
                 } else {
                     setIsAuthed(false);
@@ -76,7 +83,12 @@ export default function Profile() {
             }
         }
         checkToken();
-      }, [navigation]);
+    }, [navigation]);
+    //probably unnecessary but keep it until i know
+    function formatDateForSQL(date: Date){
+        return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+    }
+
     return(
         isAuthed ? (
             <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -91,12 +103,12 @@ export default function Profile() {
                 <Text style={styles.profileName}>{name}</Text>
                 <Text style={styles.profileDetail}>Level: {Level}</Text>
                 <Text style={styles.profileDetail}>Recipes Made: {recipeMadeCount}</Text>
-                <TouchableOpacity
+{/*                 <TouchableOpacity
                     style={[styles.button, styles.selectedButton]}
                     onPress={() => router.push("/badges")}
                 >
                     <Text style={styles.buttonText}>View your badges</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </View>
 
             {/* Badges */}
@@ -106,7 +118,7 @@ export default function Profile() {
                 <Text>Cook 10 recipes: {(recipeMadeCount >= 10).toString() }</Text>
                 <Text>Cook 20 recipes: {(recipeMadeCount >= 20).toString() }</Text>
                 <Text>Cook 50 recipes: {(recipeMadeCount >= 50).toString() }</Text>
-                <Text>Cook a vegitarian recipe: </Text>
+                <Text>Cook a vegetarian recipe: </Text>
                 <Text>Cook an Italian recipe: </Text>
             </View>
             <TouchableOpacity
@@ -117,7 +129,8 @@ export default function Profile() {
             </TouchableOpacity>
             {/* Streaks */}
             <View style={styles.box}>
-                <Text style={styles.boxTitle}>Streaks</Text>
+                        <Text style={styles.boxTitle}>Streaks</Text>
+                        <Text>Last Cooked Date: {lastCooked}</Text>
             </View>
         </View>
         </ScrollView>

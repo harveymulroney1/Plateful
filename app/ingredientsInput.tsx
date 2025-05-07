@@ -57,7 +57,7 @@ export default function Index() {
       headerTitle: "",
       headerLeft: () => (
         <TouchableOpacity onPress={() => router.push("/")}>
-          <Ionicons name="arrow-back" size={24} color="black" style={{ marginLeft: 20 }} />
+          <Ionicons name="arrow-back" size={22} color="#333333" style={{ marginLeft: 20 }} />
         </TouchableOpacity>
       ),
     });
@@ -89,7 +89,7 @@ export default function Index() {
     {
       console.log("Selected img is undefined");
     }
-  } 
+  }
   async function getRecipes () {
     console.log("Getting Post for Recipes. Ingr List Length: ",ingrList.length);
     if(ingrList.length>0){
@@ -170,7 +170,9 @@ const Item = ({ title, onPress }: ItemProps) => (
       {/* <CustomButton theme="primary" label="Upload Receipt" onPress={pickImageAsync} /> */}
       
       <View style={styles.inputContainer}>
-        <Ionicons name="add" size={20} color="gray" style={styles.inputIcon} />
+        <TouchableOpacity onPress={handleAddItem}>
+          <Ionicons name="add" size={20} color="gray" style={styles.inputIcon} />
+        </TouchableOpacity>
         <TextInput
           style={styles.inputBox}
           defaultValue={inputText}
@@ -179,6 +181,7 @@ const Item = ({ title, onPress }: ItemProps) => (
           onSubmitEditing={handleAddItem}
           placeholder="Enter ingredient"
           placeholderTextColor="#999"
+          returnKeyType="done"
         />
       </View>
 
@@ -233,7 +236,7 @@ const Item = ({ title, onPress }: ItemProps) => (
             style={[styles.findRecipesButton]}
             onPress={getRecipes}
         >
-            <Text style={styles.buttonText}>Find Recipes</Text>
+          <Text style={styles.findRecipesButtonText}>Find Recipes</Text>
         </TouchableOpacity>
       </View>
 
@@ -270,14 +273,18 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   inputIcon: {
-    marginLeft: 4,
-    marginRight: 12,
+    marginLeft: 3,
+    marginRight: 3,
   },
   inputBox: {
     flex: 1,
     height: 40,
     fontFamily: "System",
     color: "#333333",
+    borderWidth: 1,
+    borderColor: "#FAFAFC",
+    borderRadius: 8,
+    paddingHorizontal: 10,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -304,7 +311,7 @@ const styles = StyleSheet.create({
       backgroundColor: '#FA6163',
   },
   buttonText: {
-      fontSize: 16,
+      fontSize: 14,
       color: 'white',
       fontWeight: 'bold',
       fontFamily: 'System',

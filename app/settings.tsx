@@ -15,7 +15,7 @@ export default function Settings() {
             headerTitle: "",
             headerLeft: () => (
                 <TouchableOpacity onPress={() => router.push("/profile")}>
-                    <Ionicons name="arrow-back" size={24} color="black" style={{ marginLeft: 20 }} />
+                    <Ionicons name="arrow-back" size={22} color="#333333" style={{ marginLeft: 20 }} />
                 </TouchableOpacity>
             ),
         });

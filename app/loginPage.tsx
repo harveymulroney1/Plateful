@@ -15,7 +15,7 @@ export default function LoginPage() {
             headerTitle: "",
             headerLeft: () => (
                 <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color="black" style={{ marginLeft: 20 }} />
+                    <Ionicons name="arrow-back" size={22} color="#333333" style={{ marginLeft: 20 }} />
                 </TouchableOpacity>
             ),
         });
@@ -62,7 +62,7 @@ export default function LoginPage() {
                     style={[styles.button, styles.selectedButton]}
                     onPress={login}
                 >
-                    <Text style={styles.buttonText}>Log in</Text>
+                    <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -78,10 +78,17 @@ export default function LoginPage() {
 
 const styles = StyleSheet.create({
     input: {
-      height: 40,
-      margin: 12,
-      borderWidth: 1,
-      padding: 10,
+        height: 40,
+        borderWidth: 1,
+        padding: 10,
+        fontFamily: "System",
+        color: "#333333",
+        borderColor: "#999999",
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        width: "100%",
+        marginTop: 10,
+        marginBottom: 10,
     },
     buttons: {
         padding: 5
@@ -89,13 +96,13 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingVertical: 20,
-        backgroundColor: "#FFFFFF",
+        backgroundColor: "#FAFAFC",
         alignItems: "center",
         justifyContent: "flex-start",
     },
     box: {
         backgroundColor: "#FAFAFC",
-        width: "70%",
+        width: "80%",
         flex: 1,
         borderRadius: 20,
         padding: 20,
@@ -122,7 +129,7 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         borderRadius: 20,
         marginTop: 10,
-        marginBottom: 10,
+        marginBottom: 8,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
@@ -141,4 +148,4 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontFamily: 'System',
     },
-  });
+});
