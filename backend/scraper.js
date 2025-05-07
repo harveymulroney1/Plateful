@@ -38,9 +38,18 @@ export async function scrapeIngrMethod(url) {
     });
     const recipeImage = await page.evaluate(()=> {
         //const imgElement = document.querySelector('#__next > div.default-layout > main > div.post.recipe > section > div > div.post-header__image-container > div > div > div > picture > img');
-        const imgElement = document.querySelector(`#__next > div.default-layout > main > div.post.recipe > section > div.container.post-header__container.post-header__container--masthead-layout.post-header__container--new-masthead > div:nth-child(1) > div > div > div > div.image.chromatic-ignore.bg-regular.image--fluid.image--reserved-space-fallback > button > picture > img`)
+        const imgElement = document.querySelector('#__next > div.default-layout > main > div.post.recipe > section > div.container.post-header__container.post-header__container--masthead-layout.post-header__container--masthead > div:nth-child(1) > div > div > div > div > picture > img')
         //console.log("Img El Scraped: ",imgElement);
-        return imgElement ? imgElement.src :null ;
+        const vidElement = document.querySelector('#__next > div.default-layout > main > div.post.recipe > section > div.container.post-header__container.post-header__container--masthead-layout.post-header__container--masthead > div:nth-child(1) > div > div > div > div.image.chromatic-ignore.bg-regular.image--fluid.image--reserved-space-fallback > button > picture > img')
+        if (imgElement && imgElement.src) {
+            return imgElement.src;
+        } else if (vidElement && vidElement.src) {
+            return vidElement.src;
+        } else {
+            return null;
+        }
+        // return imgElement ? imgElement.src :null ;
+
     });
     const nutrition = await page.evaluate(()=>{
         const nutritionList = document.querySelectorAll('#__next > div.default-layout > main > div.post.recipe > div > div.layout-md-rail > div.layout-md-rail__primary > div.post__content > div:nth-child(2) > div > div > div.tabbed-list > div.tabbed-list__content > div.d-none > ul >li');
