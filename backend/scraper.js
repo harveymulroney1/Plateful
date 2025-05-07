@@ -140,7 +140,7 @@ export async function getRecipeURLs()
     console.log("Count: "+ recipeURL.length);
     //await scrapeIngrMethod(recipeURL[0]);
 
-    for (let i = 0; i < 5 && i < recipeURL.length; i++) {
+    for (let i = 0; i < 20 && i < recipeURL.length; i++) {
         console.log(recipeURL[i]);
         await scrapeIngrMethod(recipeURL[i]);
     }

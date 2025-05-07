@@ -39,7 +39,7 @@ const Item = ({ title, img, keywords, onPress }: ItemProps) => (
             <View style={styles.textContainer}>
                 <Text style={styles.recipeTitle}>{title}</Text>
                 <View style={styles.labelsContainer}>
-                    {Array.isArray(keywords) && keywords.slice(0, 3).map((kw, index) => (
+                    {Array.isArray(keywords) && keywords.slice(0, 10).map((kw, index) => (
                         <TouchableOpacity key={index} style={styles.label}>
                             <Text style={styles.labelText}>{kw}</Text>
                         </TouchableOpacity>
