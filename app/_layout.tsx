@@ -1,5 +1,5 @@
 import { Stack, useRouter } from "expo-router";
-// import { SearchBar } from "@rneui/themed";
+
 import { Text, View } from "react-native";
 import { useState, useEffect } from "react";
 import axios from "axios";

@@ -1,8 +1,7 @@
-import { Image, Text, View, Button, StyleSheet, TouchableOpacity, ScrollView} from "react-native";
+import { Image, Text, View, Button, StyleSheet, TouchableOpacity, ScrollView,Alert} from "react-native";
 import { useEffect, useState } from "react";
 import { useNavigation, useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -10,13 +9,43 @@ export default function Recipe() {
     const navigation = useNavigation();
     const router = useRouter();
     const { title: recipeTitle } = useLocalSearchParams();
-
+    const [recipeID,setRecipeID] = useState();
     const [ingredients, setIngredients] = useState<string[]>([]);
     const [method, setMethod] = useState<string[][]>([]);
     const [nutrition, setNutrition] = useState<string[][]>([]);
     const [img,setIMG] = useState("");
     const [Description,setDescription] = useState("");
-
+    const [isAuthed,setIsAuthed] = useState(Boolean);
+    const checkIsAuthed = async () => {
+        const token = await AsyncStorage.getItem("userToken");
+        if(token)
+        {
+            await axios.post('http://127.0.0.1:3000/checkToken', null, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            }).then(response=>{
+                
+                setIsAuthed(true);
+            })
+            .catch(
+                err=>{
+                    setIsAuthed(false);
+                    console.log("User Token Not Valid");
+                    Alert.alert(
+                        "Authentication Failed",
+                        "Your session has expired. Please log in again.",
+                        [
+                          { text: "OK", onPress: () => router.push("/loginPage") }
+                        ]
+                      );
+                    
+                }
+            )
+            
+        }
+        else{setIsAuthed(false);}
+    }
     const addCount = async () => {
         try {
             const token = await AsyncStorage.getItem("userToken");
@@ -41,7 +70,31 @@ export default function Recipe() {
             console.log(error);
         }
     }
-
+    const bookmarkRecipe = async () => {
+        console.log("Trying to boomark");
+        try {
+            const token = await AsyncStorage.getItem("userToken");
+            if (!token) {
+                console.log("!token")
+            }
+            if (token) {
+                console.log("token:",token)
+                await axios.post('http://127.0.0.1:3000/bookmarkRecipe',{RecipeID:recipeID},{headers: {
+                    Authorization: `Bearer ${token}`,
+                },})
+                .then(response=>{
+                    console.log("Bookmark Added Successfully");
+                    console.log("(DEBUG) username used:",response.data)
+                }
+                )
+                .catch(err=>{
+                    console.error("Error bookmarking: ",err);
+                })
+            }
+        } catch (error) {
+            
+        }
+    }
     useEffect(() => {
         navigation.setOptions({
             headerStyle: { backgroundColor: "#FAFAFC" },
@@ -73,7 +126,7 @@ export default function Recipe() {
         function formatNutrition(nutritionToFormat:string[]){
             const formattedNutrition = [];
             for(const el of nutritionToFormat){
-                const match = el.match(/^([a-z]+)([\d.]+g)/i) // skips spaces, grabs number & instruction
+                const match = el.match(/^([a-z]+)([\d.]+(?:kcal|g)?)/i) // skips spaces, grabs number & instruction
                 if(match){
                     const nutrType = match[1];
                     const nutrVal = match[2];
@@ -90,6 +143,7 @@ export default function Recipe() {
             .then(response => {
                 console.log("RESPONSE.DATA:", JSON.stringify(response.data, null, 2));
                 //console.log("Raw Ingredients Data:", response.data[0].Ingredients);
+                setRecipeID(response.data[0].id);
                 const parsedIngredients = JSON.parse(response.data[0].Ingredients);
                 //console.log("Full Ingredients Array:", JSON.stringify(response.data[0].Ingredients, null, 2));
                 //console.log("Image Data Received:",response.data[0].Image);
@@ -107,10 +161,12 @@ export default function Recipe() {
             })
             .catch(error => console.error("Error fetching recipe:", error));
     }, [navigation, recipeTitle]);
-
+    
     useEffect(() => {
+        checkIsAuthed();
+
         //console.log("Updated method:", method);
-    }, [method]);
+    },[]);
 
     return (
                 <ScrollView>
@@ -186,7 +242,14 @@ export default function Recipe() {
                         )}
                     </View>
                 </View>
-                
+                <View style={styles.completeButtonContainer}>
+                    <TouchableOpacity
+                        style={[styles.completeButton]}
+                        onPress={bookmarkRecipe}
+                    >
+                        <Text style={styles.completeButtonText}>Bookmark</Text>
+                    </TouchableOpacity>
+                </View>
                 <View style={styles.completeButtonContainer}>
                     <TouchableOpacity
                         style={[styles.completeButton]}

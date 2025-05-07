@@ -26,6 +26,7 @@ export default function Settings() {
         checkIsAuthed();
     }
     );
+    
     const checkIsAuthed = async () => {
         const token = await AsyncStorage.getItem("userToken");
         if(token)

@@ -150,15 +150,26 @@ app.post('/getBookmarks',(req,res)=>{
 })
 app.post('/bookmarkRecipe',(req,res)=>{
     console.log("Bookmark req Received");
-    const recipeName = req.body.RecipeName;
-    const userName = req.body.UserName;
-    database.bookmarkRecipeByName(userName,recipeName)
-    .then(result=> {
-       // console.log("GetDisplayRecipes Result: ",result);
-        res.json(result)
-    })
-    .catch(err => {
-        console.error(err);
+    console.log('Authorization header:', req.headers['authorization']);
+
+    const token = req.headers['authorization']?.split(' ')[1];
+    
+    const RecipeID = req.body.RecipeID;
+    jwt.verify(token, JWT_SECRET, (err, decoded) => { // check JWT before inserting
+        if (err) {
+            console.log("JWT VERIFICATION ERROR: ");
+            console.log(err);
+            
+        }
+        else {
+            console.log(decoded);
+            if(decoded.userName){
+                const response = database.bookmarkRecipeByName(decoded.userName,RecipeID);
+                console.log("Response from insert: ",response.data);
+                res.json({ userName: decoded.userName });
+            }
+
+        }
     })
 })
 

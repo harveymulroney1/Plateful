@@ -2,6 +2,7 @@ import mysql from'mysql2'; //Creates Database
 import createhash from 'crypto';
 import { json } from 'stream/consumers';
 
+
     var con = mysql.createConnection({
     host: "localhost",
     user: "root",
@@ -77,6 +78,11 @@ export function createTables() //Creates Recipes, Ingredients and Stats tables
             });    
             createUsersTable();
             createUserRecipesTable();
+        var bookmarksSQL = "CREATE TABLE IF NOT EXISTS Bookmarks (bookmarkID INT AUTO_INCREMENT PRIMARY KEY, UserName VARCHAR(255) NOT NULL, recipeID INT NOT NULL,FOREIGN KEY (UserName) REFERENCES Account(UserName) ON DELETE CASCADE, FOREIGN KEY (recipeID) REFERENCES Recipe(id) ON DELETE CASCADE)"
+            con.query(bookmarksSQL,function(err,result){
+                if(err) throw err;
+                console.log("Bookmarks Table Created");
+            })
     });
 }
 
@@ -310,45 +316,27 @@ export function selectBookmarksByName(userName){
     });
 })
 }
-export async function bookmarkRecipeByName(userName, recipeName) {
+export async function bookmarkRecipeByName(userName, recipeID) {
     return new Promise((resolve, reject) => {
-        const sql = "SELECT id FROM Recipe WHERE RecipeName = ?";
-        con.query(sql, [recipeName], function (err, result) {
-            if (err) {
-                reject(err);
-            } else {
-                const recipeId = result[0]?.id;
-                if (recipeId) {
-                    // Find the user_id based on the userName
-                    const sqlUser = "SELECT id FROM Users WHERE username = ?";
-                    con.query(sqlUser, [userName], function (err, userResult) {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            const userId = userResult[0]?.id;
-                            if (userId) {
-                                // Insert into UserRecipes
-                                const sqlInsert = "INSERT INTO UserRecipes (user_id, recipe_id) VALUES (?, ?)";
-                                con.query(sqlInsert, [userId, recipeId], function (err, insertResult) {
-                                    if (err) {
-                                        reject(err);
-                                    } else {
-                                        resolve(insertResult);
-                                    }
-                                });
-                            }
+        console.log("(DEBUG) RecipeID:",recipeID);
+            if (recipeID && userName) {
+                const sqlInsert = "INSERT INTO Bookmarks (UserName, recipeID) VALUES (?, ?)";
+                con.query(sqlInsert, [userName, recipeID], function (err, insertResult) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        console.log("Inserted");
+                        resolve(insertResult);
                         }
                     });
-                }
-            }
-        });
+            }   
     });
 }
 export function getRecipe(recipeName) //Returns the recipes name, ingredients and method
 {   
     console.log("Recipe name requested: " + recipeName)
     return new Promise((resolve, reject) => {
-        con.query("SELECT * FROM Recipe WHERE RecipeName='"+recipeName+"'", function (err, result) {
+        con.query("SELECT * FROM Recipe WHERE RecipeName= ?",[recipeName], function (err, result) {
             if (err) {
                 reject(err);
             } else {
