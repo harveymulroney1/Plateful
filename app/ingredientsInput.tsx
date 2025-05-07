@@ -3,7 +3,7 @@ import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation, useRouter } from "expo-router";
 import { useState } from 'react';
-import { Button, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Button,Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useEffect } from 'react';
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -111,7 +111,14 @@ export default function Index() {
         setRecipes(formatted);
         if(formatted.length==0)
         {
-          alert("No Recipes Found!");
+          console.log("No Recipes found")
+          Alert.alert(
+            "No Recipes Found",
+            "Please add some more ingredients.",
+            [
+              { text: "OK"}
+            ]
+          );
         }
       })
       .catch(function (error) {
