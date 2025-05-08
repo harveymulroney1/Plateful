@@ -20,6 +20,7 @@ export default function Profile() {
     const [veganBadgeUnlocked, setVeganBadgeUnlocked] = useState(0);
     const [meatBadgeUnlocked, setMeatBadgeUnlocked] = useState(0);
     const [sweetBadgeUnlocked, setSweetBadgeUnlocked] = useState(0);
+    const [streak, setStreak] = useState(0);
     const navigation = useNavigation();
     const router = useRouter();
 
@@ -73,6 +74,7 @@ export default function Profile() {
                         setVeganBadgeUnlocked(response.data.veganBadge);
                         setMeatBadgeUnlocked(response.data.meatBadge);
                         setSweetBadgeUnlocked(response.data.sweetBadge);
+                        setStreak(response.data.streak);
                         console.log("VEGAN BADGE:" + response.data.veganBadge);
                         if (response.data.cookedDate.split('T')[0] == "2000-01-01") {
                             setLastCooked(0);
@@ -138,6 +140,7 @@ export default function Profile() {
             <View style={styles.box}>
                         <Text style={styles.boxTitle}>Streaks</Text>
                         <Text>Last Cooked Date: {lastCooked}</Text>
+                        <Text>Streak: {streak}</Text>
             </View>
                     <View style={styles.box}>
                         <Text style={styles.boxTitle}>Bookmarks</Text>

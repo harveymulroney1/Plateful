@@ -203,6 +203,7 @@ app.post('/translate', (req, res) => {
     const slang=req.body.s //Second language (What we translate to) = 'fr' , 'gr' etc
     new Promise((resolve, reject) => {
         const py = spawn('python3', ['translator_code.py']);
+        //const py = spawn('/usr/bin/python3', ['translator_code.py']); //CHANGE BACK BEFORE COMMIT
     
         let data=''
         py.stdout.on('data', (chunk) => {
@@ -240,8 +241,10 @@ app.post('/checkToken', (req, res) => { //validate a jwt token and return the us
                 let vBadge = await database.getVeganBadge(decoded.userName);
                 let sBadge = await database.getSweetBadge(decoded.userName);
                 let mBadge = await database.getMeatBadge(decoded.userName);
+                let streakCount = await database.fetchStreak(decoded.userName);
                 console.log("vegan badge data fetched: " + vBadge);
-                res.json({ userName: decoded.userName, cookedStat: recipeCount, cookedDate: lastCookedDate, veganBadge: vBadge, meatBadge: mBadge, sweetBadge: sBadge });
+                console.log("Streak data fetched: " + streakCount)
+                res.json({ userName: decoded.userName, cookedStat: recipeCount, cookedDate: lastCookedDate, veganBadge: vBadge, meatBadge: mBadge, sweetBadge: sBadge, streak: streakCount });
             }
         })
     }
@@ -343,6 +346,7 @@ app.post('/getAIRecommendations', (req, res) => {
 
 new Promise((resolve, reject) => {
     const py = spawn('python3', ['translator_code.py']);
+    //const py = spawn('/usr/bin/python3', ['translator_code.py']); //CHANGE BACK BEFORE COMMIT
 
     let data=''
     py.stdout.on('data', (chunk) => {

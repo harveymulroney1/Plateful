@@ -71,7 +71,7 @@ export function createTables() //Creates Recipes, Ingredients and Stats tables
             console.log("Table Ingredients created");
             });
 
-        var sql = "CREATE TABLE IF NOT EXISTS Statistics (UserName VARCHAR(255) PRIMARY KEY, Temp VARCHAR(255), Cooked INT, Streak INT, LastCooked DATE, VeganBadge INT DEFAULT 0, MeatBadge INT DEFAULT 0, SweetBadge INT DEFAULT 0, FOREIGN KEY (UserName) REFERENCES Account(UserName))";
+        var sql = "CREATE TABLE IF NOT EXISTS Statistics (UserName VARCHAR(255) PRIMARY KEY, Temp VARCHAR(255), Cooked INT, Streak INT DEFAULT 0, LastCooked DATE, VeganBadge INT DEFAULT 0, MeatBadge INT DEFAULT 0, SweetBadge INT DEFAULT 0, FOREIGN KEY (UserName) REFERENCES Account(UserName))";
             con.query(sql, function (err, result) {
             if (err) throw err;
             console.log("Table Statistics created");
@@ -400,30 +400,27 @@ export function getXRecipes(limit,offset)
         });
     });
 }
-export function checkUserNameDuplicates(wantedUN)
-{
+export function checkUserNameDuplicates(wantedUN) {
     return new Promise((resolve, reject) => {
-    var sql = "SELECT * FROM Account WHERE UserName = ?";
-    con.query(sql,[wantedUN],function(err,result){
-        if(result.length>0){
-            // UserName Taken
-            return true;
-        }
-        else if(err)
-            {
-                console.error("Error on duplicates:",err);
-                return true;
-            };
-
-            return false;
-    })
-    })
-
+        var sql = "SELECT * FROM Account WHERE UserName = ?";
+        con.query(sql, [wantedUN], function (err, result) {
+            if (err) {
+                console.error("Error on duplicates:", err);
+                return reject(err);
+            }
+            if (result.length > 0) {
+                resolve(true);  // Username exists
+            } else {
+                resolve(false); // Username available
+            }
+        });
+    });
 }
-export function createAccount(userName, password)
+export async function createAccount(userName, password)
 {
-    var ingredients=""
-        if(!checkUserNameDuplicates(userName)){
+    var ingredients = "";
+    let duplicateExists = await checkUserNameDuplicates(userName);
+        if(!duplicateExists){
 
         
             var salt=createhash.randomBytes(16).toString('hex'); //Creating Salt
@@ -439,7 +436,7 @@ export function createAccount(userName, password)
                 if (err) throw err;
                 console.log("1 record inserted");
                 });
-            con.query("INSERT INTO Statistics (UserName, Temp, Cooked, LastCooked) VALUES (?, ?, ?, ?)", [userName, '0', 0, '2000-01-01']);
+            con.query("INSERT INTO Statistics (UserName, Temp, Cooked, LastCooked, Streak) VALUES (?, ?, ?, ?, ?)", [userName, '0', 0, '2000-01-01', 0]);
             }
         else
         {
@@ -565,8 +562,8 @@ export function getSweetBadge(userName) {
     });
 }
 
-export function addLastCookedDate(userName) {
-    con.query("SELECT * FROM Statistics WHERE UserName = ?",[userName], function (err, result) {
+export async function addLastCookedDate(userName) {
+    con.query("SELECT * FROM Statistics WHERE UserName = ?",[userName], async function (err, result) {
         if (err) {
             console.log("Error updating statistics: ");
             console.log(err);
@@ -576,7 +573,46 @@ export function addLastCookedDate(userName) {
                 con.query("INSERT INTO Statistics (UserName, Temp, Cooked, LastCooked) VALUES (?, ?, ?, ?)", [userName, '0', 0, '2000-01-01']);
             }
             let todaysDate = new Date().toISOString().split('T')[0];
-            con.query("UPDATE Statistics SET LastCooked = '" + todaysDate+ "' WHERE UserName = '" + userName + "'");
+            let previousDate = result[0].LastCooked;
+            console.log("Previous date fetched from database:" + previousDate);
+            let streak = 0;
+            console.log("fetched cooked date in streak function" + previousDate);
+            try {
+                function formatDateToLocalString(date) {
+                    return date.getFullYear() + '-' +
+                        String(date.getMonth() + 1).padStart(2, '0') + '-' +
+                        String(date.getDate()).padStart(2, '0');
+                }
+                let previousDateObject = new Date(previousDate);
+                let todaysDateObject = new Date(todaysDate);
+                console.log("Previous date object before modification: " + previousDateObject);
+                previousDateObject.setDate(previousDateObject.getDate() + 1);
+                console.log("Previous date object after modification: " + previousDateObject);
+                let todaysDateComparison = formatDateToLocalString(todaysDateObject);
+                let previousDateComparison = formatDateToLocalString(previousDateObject);
+                console.log("Today's date for comparison: " + todaysDateComparison);
+                console.log("Previous date for comparison: " + previousDateComparison);
+                if (todaysDateComparison == previousDateComparison) {
+                    streak = 1;
+                }
+                else if (previousDateComparison > todaysDateComparison) {
+                    streak = -1;
+                }
+            } catch (error) {
+                console.log("Error with date comparison: " + error)
+            }
+            con.query("UPDATE Statistics SET LastCooked = '" + todaysDate + "' WHERE UserName = '" + userName + "'");
+            if (streak > 0) {
+                con.query("UPDATE Statistics SET Streak = Streak + 1 WHERE UserName = '" + userName + "'");
+                console.log("1 added to streak");
+            }
+            else if (streak < 0) {
+                console.log("Streak untouched");
+            }
+            else {
+                con.query("UPDATE Statistics SET Streak = 1 WHERE UserName = '" + userName + "'");
+                console.log("streak set to 1")
+            }
             console.log("Statistics update run");
         }
     });
@@ -616,6 +652,25 @@ export function fetchLastCookedDate(userName) {
             else {
                 console.log("Fetched LastCooked date:", result[0].LastCooked);
                 resolve(result[0].LastCooked);
+            }
+        });
+    });
+}
+
+export function fetchStreak(userName) {
+    return new Promise((resolve, reject) => {
+        con.query("SELECT Streak FROM Statistics WHERE UserName = ?", [userName], function (err, result) {
+            if (err) {
+                console.log("Error fetching statistics:", err);
+                resolve(0);
+            }
+            else if (result.length === 0) {
+                console.log("No statistics found for user:", userName);
+                resolve(0);
+            }
+            else {
+                console.log("Fetched Streak:", result[0].Streak);
+                resolve(result[0].Streak);
             }
         });
     });
