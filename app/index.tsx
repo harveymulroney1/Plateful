@@ -163,8 +163,8 @@ export default function Index() {
             headerStyle: { backgroundColor: "#FAFAFC" },
             headerTitle: "",
             headerLeft: () => (
-                <TouchableOpacity onPress={handleMenuToggle} style={{ marginLeft: 20 }}>
-                    <Ionicons name="menu" size={22} color="#333333" />
+                <TouchableOpacity onPress={() => router.push("/ingredientsInput")} style={{ marginLeft: 20 }}>
+                    <Ionicons name="restaurant-outline" size={20} color="#333333" />
                 </TouchableOpacity>
             ),
             headerRight: () => (
