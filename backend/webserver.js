@@ -344,7 +344,7 @@ app.post('/getAIRecommendations', (req, res) => {
     });
 });
 
-new Promise((resolve, reject) => {
+/* new Promise((resolve, reject) => {
     const py = spawn('python3', ['translator_code.py']);
     //const py = spawn('/usr/bin/python3', ['translator_code.py']); //CHANGE BACK BEFORE COMMIT
 
@@ -369,4 +369,4 @@ new Promise((resolve, reject) => {
 
     py.stdin.write(JSON.stringify({ input, flang, slang }));
     py.stdin.end();
-});
+}); */
