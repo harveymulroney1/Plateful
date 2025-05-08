@@ -269,7 +269,7 @@ export function getRecipeByID(recipeID)
         con.query(sql,[recipeID],function(err,result){
             if (err){reject(err);}
             else{
-                console.log("Recipe Name: ",result[0].RecipeName);
+                console.log("Recipe Name: ",result[0]?.RecipeName);
                 resolve(result[0]);
             }
         })
@@ -277,17 +277,8 @@ export function getRecipeByID(recipeID)
 }
 export function selectBookmarksByName(userName){
     return new Promise((resolve, reject) => {
-        const sqlUser = "SELECT id FROM Users WHERE username = ?";
-        con.query(sqlUser, [userName], function (err, res) {
-            if (err) {
-                reject(err);
-            } 
-            else 
-                {
-                const userID = res[0]?.id;
-                if (userID) {
-                    con.query(
-                    "SELECT recipe_id FROM UserRecipes WHERE user_id=(?)",[userID], async function (err, result) {
+        con.query(
+            "SELECT * FROM Bookmarks WHERE UserName = ?",[userName], async function (err, result) {
                         if (err) {
                             reject(err);
                         }
@@ -295,11 +286,11 @@ export function selectBookmarksByName(userName){
                             console.log(`Selecting bookmarks for ${userName}`);
                             console.log("Result:",result)
                            
-                            const recipeIDs = result.map(row => row.recipe_id);
+                            const recipeIDs = result.map(row => row.recipeID);
                             console.log("recipeIDS: ",recipeIDs);
                             try{
                                 const bookmarks = await Promise.all(recipeIDs.map(id => getRecipeByID(id)));
-                                console.log("After promise:",bookmarks);
+                                //console.log("After promise:",bookmarks);
                                 const recipes = bookmarks.map(row => ({
                                     recipeName: row.RecipeName,
                                     img: row.Image}))
@@ -311,11 +302,8 @@ export function selectBookmarksByName(userName){
 
                         }
                     });
-                }
-               }
-    });
-})
-}
+                });
+    }
 export async function bookmarkRecipeByName(userName, recipeID) {
     return new Promise((resolve, reject) => {
         console.log("(DEBUG) RecipeID:",recipeID);

@@ -139,6 +139,7 @@ app.post('/exploreRecipesToDisplay',(req,res)=>{
 app.post('/getBookmarks',(req,res)=>{
     console.log("(DEBUG) Getting bookmarks");
     const userName = req.body.uName;
+    console.log("user name - fetch bookmarks: ",userName);
     database.selectBookmarksByName(userName)
     .then(result=>{
         console.log("Fetched Bmarks");

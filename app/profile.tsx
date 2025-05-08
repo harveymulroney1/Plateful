@@ -1,4 +1,4 @@
-import { Text, Image, View, Button, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { ImageBackground, Text, Image, View, Button, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
 import { useState, useEffect } from "react";
 import { useNavigation, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -102,8 +102,25 @@ export default function Profile() {
         }
         checkToken();
     }, [navigation]);
-
-
+    function navToRecipe(recipeTitle:string){
+        router.push(`/recipe?title=${encodeURIComponent(recipeTitle)}`);
+    }
+    type ItemProps = { title: string; img?:string; onPress: () => void };
+const Item = ({ title, img, onPress }: ItemProps) => (
+    <TouchableOpacity onPress={onPress} style={styles.item}>
+        <ImageBackground
+            source={img ? { uri: img } : require('../assets/images/food-image.png')}
+            style={styles.foodImage}
+            imageStyle={{ borderRadius: 12 }}
+        >
+            <View style={styles.textContainer}>
+                <Text style={styles.recipeTitle}>{title}</Text>
+                
+                
+            </View>
+        </ImageBackground>
+    </TouchableOpacity>
+);
     return(
         isAuthed ? (
             <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -144,7 +161,7 @@ export default function Profile() {
             onPress={(fetchBookMarks)}
             >
             <Text style={styles.buttonText}>Fetch Bookmarks</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> 
             {/* Streaks */}
             <View style={styles.box}>
                         <Text style={styles.boxTitle}>Streaks</Text>
@@ -153,6 +170,15 @@ export default function Profile() {
             </View>
                     <View style={styles.box}>
                         <Text style={styles.boxTitle}>Bookmarks</Text>
+                                        {bookmarks.map((item) => (
+                                            <View key={item.recipeName}>
+                                                <Item
+                                                    title={item.recipeName}
+                                                    img={item.img}
+                                                    onPress={() => navToRecipe(item.recipeName)}
+                                                />
+                                            </View>
+                                        ))}
                     </View>
         </View>
         </ScrollView>
@@ -177,6 +203,10 @@ const styles = StyleSheet.create({
     scrollContainer: {
         paddingVertical: 20,
         backgroundColor: "#FAFAFC",
+    },
+    textContainer: {
+        padding: 16,
+        backgroundColor: 'rgba(0,0,0,0.4)',
     },
     container: {
         width: "100%",
@@ -203,6 +233,18 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         marginBottom: 15,
     },
+    item: {
+        height: 150,
+        marginBottom: 15,
+        borderRadius: 12,
+        overflow: "hidden",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+        backgroundColor: "#FAFAFC",
+    },
     profileName: {
         fontSize: 26,
         fontWeight: 'bold',
@@ -213,6 +255,12 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: "#999999",
         marginBottom: 5,
+    },
+    recipeTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#FAFAFC',
+        marginBottom: 8,
     },
     box: {
         backgroundColor: "#FAFAFC",
@@ -233,6 +281,10 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         color: "#333333",
         marginBottom: 10,
+    },
+    foodImage: {
+        flex: 1,
+        justifyContent: 'flex-end',
     },
     button: {
         backgroundColor: '#FAFAFC',
