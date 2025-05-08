@@ -1,21 +1,17 @@
 {
-  "name": "plateful",
-  "main": "expo-router/entry",
+  "name": "backend",
   "version": "1.0.0",
   "type": "module",
+  "main": "MatchreceiptToRecipes.js",
   "scripts": {
-    "start": "expo start",
-    "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web",
-    "test": "jest --watchAll",
-    "lint": "expo lint"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "jest": {
-    "preset": "jest-expo"
-  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
   "dependencies": {
+<<<<<<< HEAD
     "@expo/vector-icons": "^14.0.2",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-native-picker/picker": "^2.11.0",
@@ -40,10 +36,11 @@
     "expo-symbols": "~0.2.1",
     "expo-system-ui": "~4.0.7",
     "expo-web-browser": "~14.0.2",
+=======
+>>>>>>> 8794b63e2a77d6ead6d68a9e10ecd8fe33c3d1eb
     "express": "^5.1.0",
-    "fuse": "^0.4.0",
-    "fuse.js": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
+<<<<<<< HEAD
     "metro": "^0.82.3",
     "mysql2": "^3.12.0",
     "puppeteer": "^24.8.2",
@@ -76,4 +73,9 @@
     "typescript": "^5.3.3"
   },
   "private": true
+=======
+    "mysql2": "^3.14.1",
+    "python-shell": "^5.0.0"
+  }
+>>>>>>> 8794b63e2a77d6ead6d68a9e10ecd8fe33c3d1eb
 }
