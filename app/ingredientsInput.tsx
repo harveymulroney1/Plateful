@@ -3,7 +3,7 @@ import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation, useRouter } from "expo-router";
 import { useState } from 'react';
-import { Button,Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Button,Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView, ImageBackground } from 'react-native';
 import { useEffect } from 'react';
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -12,16 +12,43 @@ const PlaceholderImage = require('@/assets/images/background-image.png');
 const receiptIngrList = [];
 let username = "test1";
 let password = "test1";
+
+type ItemProps = { title: string; img?:string; keywords?:string[]; onPress: () => void };
+
+const Item = ({ title, img, keywords, onPress }: ItemProps) => (
+    <TouchableOpacity onPress={onPress} style={styles.item}>
+        <ImageBackground
+            source={img ? { uri: img } : require('../assets/images/food-image.png')}
+            style={styles.foodImage}
+            imageStyle={{ borderRadius: 12 }}
+        >
+            <View style={styles.textContainer}>
+                <Text style={styles.recipeTitle}>{title}</Text>
+                <View style={styles.labelsContainer}>
+                    {Array.isArray(keywords) && keywords.slice(0, 10).map((kw, index) => (
+                        <TouchableOpacity key={index} style={styles.label}>
+                            <Text style={styles.labelText}>{kw}</Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+            </View>
+        </ImageBackground>
+    </TouchableOpacity>
+);
+
 export default function Index() {
     const [ingrList,setingrList] = useState<string[]>([]);
     const [receiptLines, setReceiptLines] = useState<string[]>([]);
     const [inputText, setInputText] = useState("");
+
+    const [showOverlay, setShowOverlay] = useState(false);
     
     type Recipe = {
-      RecipeName:string;
-      Ingredients:string[];
-      Method:string[];
-      Image:string;
+        RecipeName: string;
+        Ingredients: string[];
+        Method: string[];
+        Image: string;
+        keywords: string[];    
     }
     const [recipes,setRecipes] = useState<Recipe[]>([]);
     const handleAddItem = () => {
@@ -40,12 +67,11 @@ export default function Index() {
       allowsEditing: true,
       quality:0.5
     });
-    if (!result.canceled){
-      setSelectedImage(result.assets[0].uri);
-      console.log("Selected img set",selectedImage);
-      
-      imageToIngredient(result.assets[0].uri);
-      console.log(result);
+    if (!result.canceled) {
+      const uri = result.assets[0].uri;
+      setSelectedImage(uri);
+      console.log("Selected img set", uri); // log URI directly
+      imageToIngredient(uri); // pass directly
     } else{
       alert('You didnt select an image.');
     }
@@ -90,45 +116,45 @@ export default function Index() {
       console.log("Selected img is undefined");
     }
   }
+
   async function getRecipes () {
-    console.log("Getting Post for Recipes. Ingr List Length: ",ingrList.length);
-    if(ingrList.length>0){
-      console.log("Sending Post");
-      axios.post("http://127.0.0.1:3000/getRecipesToDisplay", 
-        { ingredients:ingrList })
-        
-      .then(function (response) {
-        const formatted = response.data.map((r: any): Recipe => ({
-          RecipeName: r[0],
-          Ingredients: r[1],
-          //Ingredients: typeof r.Ingredients === 'string' ? JSON.parse(r.Ingredients) : r.Ingredients,
-          //Method: typeof r.Method === 'string' ? JSON.parse(r.Method) : r.Method,
-          Method: r[2],
-          Image: r.Image || ""
-        }));
-        //console.log("Recipes Received: ",response.data);
-        console.log("Formatted recipes: ",formatted);
-        setRecipes(formatted);
-        if(formatted.length==0)
-        {
-          console.log("No Recipes found")
-          Alert.alert(
-            "No Recipes Found",
-            "Please add some more ingredients.",
-            [
-              { text: "OK"}
-            ]
-          );
-        }
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+    console.log("Getting Post for Recipes. Ingr List Length: ", ingrList.length);
+    if (ingrList.length > 0) {
+      axios.post("http://127.0.0.1:3000/getRecipesToDisplay", { ingredients: ingrList })
+        .then((response) => {
+          const formatted = response.data.map((r: any): Recipe => ({
+            RecipeName: r[0],
+            Ingredients: r[1],
+            Method: r[2],
+            Image: r.Image || "",
+            keywords: cleanKeywords(r.keywords),
+          }));
+          setRecipes(formatted);
+          if (formatted.length === 0) {
+            Alert.alert("No Recipes Found", "Please add some more ingredients.");
+          } else {
+            setShowOverlay(true); // Show the overlay
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     }
-    
-    
-    
   }
+  
+  const cleanKeywords = (keywords: any): string[] => {
+    if (Array.isArray(keywords)) {
+      return keywords.map((k: any) => (typeof k === "string" ? k.trim() : String(k).trim()));
+    } else if (typeof keywords === "string") {
+      return keywords
+        .split(",")
+        .map(k => k.trim())
+        .filter(k => k.length > 0);
+    } else {
+      return [];
+    }
+  };
+
   const updateIngredient = (text:string, index: number) => {
     const updated = [...ingrList];
     updated[index] = text;
@@ -162,15 +188,11 @@ function removeIngredient(index:number)
   const handleItemPress = (recipeTitle: string) => {
     router.push(`/recipe?title=${encodeURIComponent(recipeTitle)}`);
 };
-  type ItemProps = { title: string; onPress: () => void };
-const Item = ({ title, onPress }: ItemProps) => (
-    <TouchableOpacity onPress={onPress} style={styles.item}>
-        <Text style={styles.title}>{title}</Text>
-    </TouchableOpacity>
-);
 
   return (
-    <View style={styles.container}>
+    <>
+    <ScrollView contentContainerStyle={[styles.container, { flexGrow: 1 }]}>
+
       <Text style={styles.header}>Find tailored recipes!</Text>
 
       {/* <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} /> */}
@@ -182,7 +204,6 @@ const Item = ({ title, onPress }: ItemProps) => (
         </TouchableOpacity>
         <TextInput
           style={styles.inputBox}
-          defaultValue={inputText}
           value={inputText}
           onChangeText={(inputText) => setInputText(inputText)}
           onSubmitEditing={handleAddItem}
@@ -224,21 +245,7 @@ const Item = ({ title, onPress }: ItemProps) => (
         )}
       />
 
-    {recipes.length>0 ?
-          <FlatList
-          data={recipes}
-          renderItem={({ item }) => (
-            
-              <Item title={item.RecipeName} onPress={() => handleItemPress(item.RecipeName)} />
-          )}
-          showsVerticalScrollIndicator={false}
-      />
-      : 
-      <Text>test</Text>
-    }
-
-
-    <View style={styles.findRecipesButtonContainer}>
+      <View style={styles.findRecipesButtonContainer}>
         <TouchableOpacity
             style={[styles.findRecipesButton]}
             onPress={getRecipes}
@@ -247,10 +254,59 @@ const Item = ({ title, onPress }: ItemProps) => (
         </TouchableOpacity>
       </View>
 
-    </View>
+    </ScrollView>
+    
+    {showOverlay && (
+      <View style={styles.overlay}>
+        <View style={styles.overlayHeader}>
+          <Text style={styles.overlayTitle}>Tailored recipes</Text>
+          <TouchableOpacity onPress={() => setShowOverlay(false)}>
+            <Ionicons name="close" size={24} color="#FAFAFC" />
+          </TouchableOpacity>
+        </View>
+        <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+          {recipes.map((item, index) => (
+            <Item
+              key={index}
+              title={item.RecipeName}
+              img={item.Image}
+              keywords={item.keywords?.map(k => k.charAt(0).toUpperCase() + k.slice(1))}
+              onPress={() => {
+                setShowOverlay(false);
+                handleItemPress(item.RecipeName);
+              }}
+            />
+          ))}
+        </ScrollView>
+      </View>
+    )}
+  </>
   );
 }
+
 const styles = StyleSheet.create({
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.85)',
+    padding: 20,
+    zIndex: 1000,
+  },
+  overlayHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  overlayTitle: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#FAFAFC',
+  }, 
   container: {
     flex: 1,
     padding: 20,
@@ -347,27 +403,65 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontFamily: 'System',
   },
+  title: {
+    fontSize: 20,
+  },
+  ingredientItem: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: "#F0F0F0", // Light gray background
+    borderRadius: 12,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+  },
+  removeButton: {
+    paddingRight: 10,
+  },
+
+    // STYLES FOR RECIPE TILES
+
     item: {
-      backgroundColor: "#94bdff",
-      padding: 25,
-      marginVertical: 8,
-      marginHorizontal: 16,
-      borderRadius: 10,
-    },
-    title: {
-      fontSize: 20,
-    },
-    ingredientItem: {
-      flex: 1,
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: "#F0F0F0", // Light gray background
+      height: 150,
+      marginBottom: 20,
       borderRadius: 12,
-      marginBottom: 10,
-      paddingHorizontal: 10,
-      paddingVertical: 10,
+      overflow: "hidden",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+      backgroundColor: "#FAFAFC",
     },
-    removeButton: {
-      paddingRight: 10,
+    foodImage: {
+        flex: 1,
+        justifyContent: 'flex-end',
+    },
+    textContainer: {
+        padding: 16,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+    },
+    recipeTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#FAFAFC',
+        marginBottom: 8,
+    },
+    labelsContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+    },
+    label: {
+        backgroundColor: "#FA6163",
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+        marginRight: 8,
+        marginTop: 4,
+    },
+    labelText: {
+        color: "white",
+        fontSize: 10,
     },
 });
