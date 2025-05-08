@@ -17,15 +17,15 @@ export default function Profile() {
     const [isAuthed,setIsAuthed] = useState(Boolean);
     const [bookmarks, setBookmarks] = useState<bookmark[]>([])
     const [lastCooked, setLastCooked] = useState(0);
-    const [veganBadgeUnlocked, setVeganBadgeUnlocked] = useState(0);
-    const [meatBadgeUnlocked, setMeatBadgeUnlocked] = useState(0);
-    const [sweetBadgeUnlocked, setSweetBadgeUnlocked] = useState(0);
+    const [veganBadgeUnlocked, setVeganBadgeUnlocked] = useState(Boolean);
+    const [meatBadgeUnlocked, setMeatBadgeUnlocked] = useState(Boolean);
+    const [sweetBadgeUnlocked, setSweetBadgeUnlocked] = useState(Boolean);
     const [streak, setStreak] = useState(0);
     const navigation = useNavigation();
     const router = useRouter();
 
     const fetchBookMarks = async () =>{
-        await axios.post('http://127.0.0.1:3000/getBookmarks',{uName:name})
+        await axios.post<bookmark[]>('http://127.0.0.1:3000/getBookmarks',{uName:name})
         .then(response=> {
             console.log("Bookmarks: ",response.data);
             setBookmarks(response.data);
@@ -39,7 +39,16 @@ export default function Profile() {
 
 
     }
-    
+    type userProfile = {
+        userName: string;
+        cookedStat: number;
+        veganBadge: boolean;
+        meatBadge: boolean;
+        sweetBadge: boolean;
+        streak: number;
+        cookedDate: number;
+
+    }
     useEffect(() => {
         navigation.setOptions({
             headerStyle: { backgroundColor: "#FAFAFC" },
@@ -62,7 +71,7 @@ export default function Profile() {
                     setIsAuthed(false);
                 }
                 if (token) {
-                    const response = await axios.post('http://127.0.0.1:3000/checkToken', null, {
+                    const response = await axios.post<userProfile>('http://127.0.0.1:3000/checkToken', null, {
                         headers: {
                             Authorization: `Bearer ${token}`,
                         }
@@ -76,12 +85,12 @@ export default function Profile() {
                         setSweetBadgeUnlocked(response.data.sweetBadge);
                         setStreak(response.data.streak);
                         console.log("VEGAN BADGE:" + response.data.veganBadge);
-                        if (response.data.cookedDate.split('T')[0] == "2000-01-01") {
+                        const cookedDateStr = String(response.data.cookedDate);
+                        if (cookedDateStr.split('T')[0] === "2000-01-01") {
                             setLastCooked(0);
-                        }
-                        else {
-                            setLastCooked(response.data.cookedDate.split('T')[0]);
-                        }
+                          } else {
+                            setLastCooked(cookedDateStr.split('T')[0]);
+                          }
                     }
                 } else {
                     setIsAuthed(false);

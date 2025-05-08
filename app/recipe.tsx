@@ -9,7 +9,7 @@ export default function Recipe() {
     const navigation = useNavigation();
     const router = useRouter();
     const { title: recipeTitle, keywords } = useLocalSearchParams();
-    const [recipeID,setRecipeID] = useState();
+    const [recipeID,setRecipeID] = useState<number>();
     const [ingredients, setIngredients] = useState<string[]>([]);
     const [method, setMethod] = useState<string[][]>([]);
     const [nutrition, setNutrition] = useState<string[][]>([]);
@@ -104,6 +104,14 @@ export default function Recipe() {
             
         }
     }
+    type Recipe = {
+        id:number;
+        Ingredients:string;
+        Image:string;
+        Description:string;
+        Method:string;
+        Nutrition:string;
+    }
     useEffect(() => {
         navigation.setOptions({
             headerStyle: { backgroundColor: "#FAFAFC" },
@@ -153,7 +161,7 @@ export default function Recipe() {
             setNutrition(formattedNutrition);
         }
 
-        axios.post("http://127.0.0.1:3000/getRecipe", { n: recipeTitle })
+        axios.post<Recipe[]>("http://127.0.0.1:3000/getRecipe", { n: recipeTitle })
             .then(response => {
                 console.log("RESPONSE.DATA:", JSON.stringify(response.data, null, 2));
                 setRecipeID(response.data[0].id);
@@ -162,7 +170,7 @@ export default function Recipe() {
                 if (Array.isArray(parsedIngredients)) {
                     setIngredients(parsedIngredients);
                 } else {
-                    console.error("Expected ingredients to be an array, but got:", response.data[0].Ingredients);
+                    console.error("Expected ingredients to be an array, but got", response.data[0].Ingredients);
                     setIngredients([]); // Fallback to empty array
                 }
                 setDescription(response.data[0].Description);

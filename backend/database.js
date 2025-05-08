@@ -569,8 +569,20 @@ export async function addLastCookedDate(userName) {
             console.log(err);
         }
         else if (result) {
-            if (result.length == 0) {
-                con.query("INSERT INTO Statistics (UserName, Temp, Cooked, LastCooked) VALUES (?, ?, ?, ?)", [userName, '0', 0, '2000-01-01']);
+            if (result.length === 0) {
+                
+                con.query(
+                    "INSERT INTO Statistics (UserName, Temp, Cooked, LastCooked) VALUES (?, ?, ?, ?)",
+                    [userName, '0', 0, '2000-01-01'],
+                    (err) => {
+                        if (err) {
+                            console.log("Error inserting new stats row:", err);
+                        } else {
+                            console.log("New statistics row inserted for user:", userName);
+                        }
+                    }
+                );
+                return;
             }
             let todaysDate = new Date().toISOString().split('T')[0];
             let previousDate = result[0].LastCooked;
