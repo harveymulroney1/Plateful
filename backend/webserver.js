@@ -307,8 +307,62 @@ app.get('/getRecommendations', (req, res) => {
         con.query(sql, [userId], function (err, result) {
             if (err) throw err;
 
-            // This is a simplified recommendation approach — here we just return saved recipes
+            // This is a simplified recommendation approach 
             res.json({ recommendations: result });
         });
     });
+});
+
+//const { PythonShell } = require('python-shell');
+//const path = require('path');
+//const { exportUserData } = require('./database');
+
+app.post('/getAIRecommendations', (req, res) => {
+    const { userName } = req.body;
+
+    // Fetch user data
+    exportUserData((err, userData) => {
+        if (err) return res.status(500).send('Error fetching user data');
+
+        // Save user data to a CSV file for the Python script
+        const csvPath = path.join(__dirname, 'user_data.csv');
+        const fs = require('fs');
+        fs.writeFileSync(csvPath, JSON.stringify(userData));
+
+        // Call the Python script to get recommendations
+        PythonShell.run(
+            'recommendation_model.py',
+            { args: [userName] },
+            (err, recommendations) => {
+                if (err) return res.status(500).send('Error generating recommendations');
+                res.json({ recommendations });
+            }
+        );
+    });
+});
+
+new Promise((resolve, reject) => {
+    const py = spawn('python3', ['translator_code.py']);
+
+    let data=''
+    py.stdout.on('data', (chunk) => {
+    data += chunk.toString();
+    });
+
+    py.stderr.on('data', (err) => {
+    console.error('Error:', err.toString());
+    });
+
+    py.on('close', () => {
+    const result = JSON.parse(data);
+    console.log(result);
+    resolve(result);
+    });
+
+    let input= "how are you?"
+    let flang= "en" //First langauge (probs english) = 'en'
+    let slang= "hi" //Second language (What we translate to) = 'fr' , 'gr' etc
+
+    py.stdin.write(JSON.stringify({ input, flang, slang }));
+    py.stdin.end();
 });
