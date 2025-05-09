@@ -105,6 +105,11 @@ export default function Profile() {
         }
         checkToken();
     }, [navigation]);
+    useEffect(() => {
+        if (name) {
+            fetchBookMarks();
+        }
+    }, [name]);
     function navToRecipe(recipeTitle:string){
         router.push(`/recipe?title=${encodeURIComponent(recipeTitle)}`);
     }

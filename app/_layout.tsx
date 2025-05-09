@@ -55,7 +55,7 @@ export default function RootLayout() {
       script.async = true;
       document.body.appendChild(script); // Append the script to the document body
 
-      // Initialize Google Translate widget
+      // start Google Translate widget
       window.googleTranslateElementInit = () => {
         window.google?.translate?.TranslateElement &&
         new window.google.translate.TranslateElement(
@@ -71,23 +71,18 @@ export default function RootLayout() {
   return (
     <PaperProvider>
       <SnackbarProvider>
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, paddingBottom: 50 }}> {/* Added paddingBottom */}
           {/* Google Translate Widget */}
           <View
-style={{
-position: 'absolute',
-top: 10, // Positioned near the top
-left: '85%', // Moved further to the right
-              transform: [{ translateX: -50 }], // Adjusted to keep it visually balanced
+            style={{
+              position: 'absolute', // Changed to absolute
+              top: 10,
+              right: 70,
               zIndex: 1000,
             }}
->
-
+          >
             <div id="google_translate_element"></div>
           </View>
-
-
-
 
           <Stack screenOptions={{ headerTitleAlign: "center" }} />
         </View>
@@ -128,5 +123,4 @@ left: '85%', // Moved further to the right
             </Text>
           ))}
         </View>
-      )} */}      
-      
+      )} */}
