@@ -3,10 +3,11 @@ import { useEffect, useState } from "react";
 import { ImageBackground, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import axios from "axios";
 import Fuse from 'fuse.js';
-
+import { useSnackbar } from "./snackbar";
 // Menu
 import { Ionicons } from '@expo/vector-icons';
 import Menu from "./menu";
+
 
 /* const Recipes = [
     { id: "1", title: "Spiced duck breasts with sticky clementine sauce" },
@@ -57,6 +58,7 @@ const dietaryFilters = ["Vegetarian", "Vegan", "Gluten-free", "Dairy-free", "Nut
 const otherFilters = ["Quick", "Easy", "Healthy", "Low carb", "Low fat", "High protein", "Low sugar"];
 
 export default function Index() {
+    const { showError } = useSnackbar();
     const [Recipes,setRecipes] = useState<Recipe[]>([]);
     const [search, setSearch] = useState("");
     const navigation = useNavigation();
@@ -93,6 +95,7 @@ export default function Index() {
             })
             .catch(err => {
                 console.error("Error on getExplore: ", err);
+                showError("Failed to load recipes.");
             });
 
             axios.post("http://127.0.0.1:3000/loadAllRecipeNames")
@@ -102,6 +105,7 @@ export default function Index() {
             })
             .catch(err => {
                 console.error("Error fetching recipe names:", err);
+                showError("Failed to fetch recipe names.");
             });
         }, []);
     

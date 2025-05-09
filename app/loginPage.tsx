@@ -4,7 +4,9 @@ import { useNavigation, useRouter } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from "axios";
 import { Ionicons } from "@expo/vector-icons";
+import { useSnackbar } from "./snackbar";
 export default function LoginPage() {
+    const { showError } = useSnackbar();
     const navigation = useNavigation();
     const router = useRouter();
     const [username, setUsername] = useState("");
@@ -36,7 +38,7 @@ export default function LoginPage() {
             }
         } catch (error) {
             console.log("Login failed - try-catch caught error: ");
-            console.log(error);
+            showError("Login Failed.");;
         }
     }
     function createAccount() {

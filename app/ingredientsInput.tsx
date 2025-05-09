@@ -7,7 +7,7 @@ import { Button,Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, 
 import { useEffect } from 'react';
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import { useSnackbar } from "./snackbar";
 const PlaceholderImage = require('@/assets/images/background-image.png');
 const receiptIngrList = [];
 let username = "test1";
@@ -37,6 +37,7 @@ const Item = ({ title, img, keywords, onPress }: ItemProps) => (
 );
 
 export default function Index() {
+    const { showError } = useSnackbar();
     const [ingrList,setingrList] = useState<string[]>([]);
     const [receiptLines, setReceiptLines] = useState<string[]>([]);
     const [inputText, setInputText] = useState("");
@@ -108,6 +109,7 @@ export default function Index() {
         })
         .catch(function (error) {
           console.error("Error processing receipt:", error);
+          showError("Failed to process receipt.");
           setReceiptLines(["Failed to process the receipt."]);
         });
       }

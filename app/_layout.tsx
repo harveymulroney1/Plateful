@@ -4,6 +4,10 @@ import { Text, View } from "react-native";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Fuse from 'fuse.js';
+import { PaperProvider } from 'react-native-paper';
+import { SnackbarProvider } from "./snackbar";
+
+
 
 export default function RootLayout() {
 
@@ -49,6 +53,17 @@ export default function RootLayout() {
   //     console.log("Results: ", results);
   //   }
   // };
+
+  return (
+    <PaperProvider>
+      <SnackbarProvider>
+        <View style={{ flex: 1 }}>
+          {}
+          <Stack screenOptions={{ headerTitleAlign: "center" }} />
+        </View>
+      </SnackbarProvider>
+    </PaperProvider>
+  );
 
   return (
     <View style={{ flex: 1 }}>

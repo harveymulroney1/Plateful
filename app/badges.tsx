@@ -5,7 +5,11 @@ import { useState, useEffect } from "react";
 import { useNavigation, useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import { useSnackbar } from "./snackbar";
+
 export default function Badges() {
+    const { showError } = useSnackbar();
+
     const navigation = useNavigation();
     const router = useRouter();
     const [recipeMadeCount, setRecipeMadeCount] = useState(0);
@@ -40,7 +44,6 @@ export default function Badges() {
                 }
             } catch (error) {
                 console.log("caught an error: ");
-                console.log(error);
             }
         }
         checkToken();

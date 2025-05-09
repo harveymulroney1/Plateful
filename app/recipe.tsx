@@ -4,8 +4,9 @@ import { useNavigation, useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import { showError } from "./snackbar";
 export default function Recipe() {
+    const { showError } = require("./snackbar");
     const navigation = useNavigation();
     const router = useRouter();
     const { title: recipeTitle, keywords } = useLocalSearchParams();
@@ -98,6 +99,7 @@ export default function Recipe() {
                 )
                 .catch(err=>{
                     console.error("Error bookmarking: ",err);
+                    showError("Failed to bookmark.");
                 })
             }
         } catch (error) {
@@ -129,6 +131,7 @@ export default function Recipe() {
                 setRecipeKeywords(parsedKeywords);
             } catch (err) {
                 console.error("Failed to parse keywords:", err);
+                showError("Failed to parse keywords.");
             }
         }
 
@@ -177,7 +180,10 @@ export default function Recipe() {
                 formatMethod(JSON.parse(response.data[0].Method));
                 formatNutrition(JSON.parse(response.data[0].Nutrition));
             })
-            .catch(error => console.error("Error fetching recipe:", error));
+            .catch(error => {
+                console.error("Error fetching recipe:", error);
+                showError("Error fetching recipe");
+            });
     }, [navigation, recipeTitle]);
     
     useEffect(() => {

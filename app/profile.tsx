@@ -4,8 +4,10 @@ import { useNavigation, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import { useSnackbar } from "./snackbar";
 
 export default function Profile() {
+    const { showError } = useSnackbar();
     type bookmark={
         recipeName:string;
         img?:string
@@ -32,6 +34,7 @@ export default function Profile() {
         })
         .catch(err=>{
             console.error("Error Getting bookmarks:",err);
+            showError("Failed to load bookmarked recipes.");
         })
 
     
@@ -97,7 +100,7 @@ export default function Profile() {
                 }
             } catch (error) {
                 setIsAuthed(false);
-                console.log(error);
+                showError("Failed to authenticate.");;
             }
         }
         checkToken();
