@@ -1,72 +1,100 @@
 import { Stack, useRouter } from "expo-router";
-
 import { Text, View } from "react-native";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import Fuse from 'fuse.js';
 import { PaperProvider } from 'react-native-paper';
 import { SnackbarProvider } from "./snackbar";
 
 
+declare global {
+  interface Window {
+    googleTranslateElementInit?: () => void;
+    google?: {
+      translate: {
+        TranslateElement: new (options: object, containerId: string) => void;
+      };
+    };
+  }
+}
+
+
 
 export default function RootLayout() {
-
   // const options = {
   //   includeScore: true,
   //   threshold: 0.4,
   // };
 
+
   // const [search, setSearch] = useState("");
   // const [results, setResults] = useState<string[]>([]);
   const router = useRouter();
-  // const [allRecipes, setAllRecipes] = useState<string[]>([]);
+// const [allRecipes, setAllRecipes] = useState<string[]>([]);
   // const fuse = new Fuse(allRecipes, options);
-
   useEffect(() => {
+    // Function to load all recipe names from the server
     const loadNames = async () => {
       axios.post("http://127.0.0.1:3000/loadAllRecipeNames")
         .then(response => {
-          console.log("Response data from fetch all: ", response.data);
-          const receivedRecipes = response.data.map((r: { RecipeName: any; }) => r.RecipeName);
-          // setAllRecipes(receivedRecipes);
+          type RecipeResponse = { RecipeName: string }[];
+          const data = response.data as RecipeResponse;
+          console.log("Response data from fetch all: ", data);
+          const receivedRecipes = data.map((r) => r.RecipeName); // Extract recipe names
         })
         .catch(err => {
-          console.error("Error on fetching all R Names: ", err);
+          console.error("Error on fetching all R Names: ", err); // Log error if request fails
         });
     };
-    loadNames();
+    loadNames(); // Call the function to fetch recipe names
+
+    // Function to add Google Translate script to the document
+    const addGoogleTranslateScript = () => {
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+      script.async = true;
+      document.body.appendChild(script); // Append the script to the document body
+
+      // Initialize Google Translate widget
+      window.googleTranslateElementInit = () => {
+        window.google?.translate?.TranslateElement &&
+        new window.google.translate.TranslateElement(
+          { pageLanguage: 'en' }, // Set the page language to English
+          'google_translate_element' // Target element ID for the widget
+        );
+      };
+    };
+
+    addGoogleTranslateScript(); //  add the Google Translate script
   }, []);
-
-  // const performSearch = async (text: string) => {
-  //   setSearch(text);
-
-  //   if (!text.trim() || !fuse) {
-  //     setResults([]);
-  //     return;
-  //   }
-  //   console.log("allRecipes: ", allRecipes);
-  //   console.log("Searching text: ", text);
-  //   const result = fuse.search(text).slice(0, 5);
-  //   console.log("Result of fuse: ", result, "Score of fuse: ", result[0]?.score);
-  //   setResults(result.map(r => r.item));
-  //   if (results) {
-  //     console.log("Results: ", results);
-  //   }
-  // };
 
   return (
     <PaperProvider>
       <SnackbarProvider>
         <View style={{ flex: 1 }}>
-          {}
+          {/* Google Translate Widget */}
+          <View
+style={{
+position: 'absolute',
+top: 10, // Positioned near the top
+left: '85%', // Moved further to the right
+              transform: [{ translateX: -50 }], // Adjusted to keep it visually balanced
+              zIndex: 1000,
+            }}
+>
+
+            <div id="google_translate_element"></div>
+          </View>
+
+
+
+
           <Stack screenOptions={{ headerTitleAlign: "center" }} />
         </View>
       </SnackbarProvider>
     </PaperProvider>
   );
-
-  return (
-    <View style={{ flex: 1 }}>
+}
       {/* <SearchBar
         platform="default"
         containerStyle={{ backgroundColor: "white" }}
@@ -100,9 +128,5 @@ export default function RootLayout() {
             </Text>
           ))}
         </View>
-      )} */}
-
-      <Stack screenOptions={{ headerTitleAlign: "center" }} />
-    </View>
-  );
-}
+      )} */}      
+      
