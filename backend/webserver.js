@@ -243,9 +243,10 @@ app.post('/checkToken', (req, res) => { //validate a jwt token and return the us
                 let sBadge = await database.getSweetBadge(decoded.userName);
                 let mBadge = await database.getMeatBadge(decoded.userName);
                 let streakCount = await database.fetchStreak(decoded.userName);
+                let intlCount = await database.fetchInternationalCount(decoded.userName);
                 console.log("vegan badge data fetched: " + vBadge);
                 console.log("Streak data fetched: " + streakCount)
-                res.json({ userName: decoded.userName, cookedStat: recipeCount, cookedDate: lastCookedDate, veganBadge: vBadge, meatBadge: mBadge, sweetBadge: sBadge, streak: streakCount });
+                res.json({ userName: decoded.userName, cookedStat: recipeCount, cookedDate: lastCookedDate, veganBadge: vBadge, meatBadge: mBadge, sweetBadge: sBadge, streak: streakCount, international: intlCount });
             }
         })
     }
@@ -268,6 +269,21 @@ app.post('/addCookedStatistic', (req, res) => { //validate a jwt token and add t
     }
 });
 
+app.post('/addInternationalCount', (req, res) => {
+    const token = req.headers['authorization']?.split(' ')[1];
+    if (token) {
+        jwt.verify(token, JWT_SECRET, (err, decoded) => {
+            if (err) {
+                console.log("JWT VERIFICATION ERROR: ");
+                console.log(err);
+            }
+            else {
+                database.addInternationalCount(decoded.userName);
+                res.json({ userName: decoded.userName });
+            }
+        })
+    }
+});
 
 app.post('/addVeganBadge', (req, res) => {
     const token = req.headers['authorization']?.split(' ')[1];

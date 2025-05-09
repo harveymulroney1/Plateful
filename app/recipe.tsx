@@ -72,6 +72,19 @@ export default function Recipe() {
                         }
                     });
                 }
+                if (
+                    recipeKeywords.some(k => k.toLowerCase() === "italian") ||
+                    recipeKeywords.some(k => k.toLowerCase() === "greek") ||
+                    recipeKeywords.some(k => k.toLowerCase() === "indian") ||
+                    recipeKeywords.some(k => k.toLowerCase() === "asian")
+                ) {
+                    console.log("INTERNATIONAL")
+                    const response = await axios.post('http://127.0.0.1:3000/addInternationalCount', null, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        }
+                    });
+                }
             } else {
                 console.log("No token found");
             }

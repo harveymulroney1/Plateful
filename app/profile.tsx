@@ -22,6 +22,7 @@ export default function Profile() {
     const [veganBadgeUnlocked, setVeganBadgeUnlocked] = useState(Boolean);
     const [meatBadgeUnlocked, setMeatBadgeUnlocked] = useState(Boolean);
     const [sweetBadgeUnlocked, setSweetBadgeUnlocked] = useState(Boolean);
+    const [internationalBadgeUnlocked, setInternationalBadgeUnlocked] = useState(Boolean)
     const [streak, setStreak] = useState(0);
     const navigation = useNavigation();
     const router = useRouter();
@@ -88,7 +89,11 @@ export default function Profile() {
                         setSweetBadgeUnlocked(response.data.sweetBadge);
                         setStreak(response.data.streak);
                         console.log("VEGAN BADGE:" + response.data.veganBadge);
+                        console.log("INTL COUNT: " + response.data.international)
                         const cookedDateStr = String(response.data.cookedDate);
+                        if (response.data.international >= 10) {
+                            setInternationalBadgeUnlocked(true);
+                        }
                         if (cookedDateStr.split('T')[0] === "2000-01-01") {
                             setLastCooked(0);
                           } else {
@@ -161,7 +166,7 @@ const Item = ({ title, img, onPress }: ItemProps) => (
                     <Image source={meatBadgeUnlocked ? require("@/assets/images/badges/meat.png") : require("@/assets/images/badges/meat-locked.png")} style={{ width: 200, height: 200, marginRight: 10 }}/>
                     <Image source={sweetBadgeUnlocked ? require("@/assets/images/badges/sweet.png") : require("@/assets/images/badges/sweet-locked.png")} style={{ width: 200, height: 200, marginRight: 10 }}/>
                     <Image source={veganBadgeUnlocked ? require("@/assets/images/badges/vegan.png") : require("@/assets/images/badges/vegan-locked.png")} style={{ width: 200, height: 200, marginRight: 10 }}/>
-                    <Image source={require("@/assets/images/badges/international.png")} style={{ width: 200, height: 200, marginRight: 10 }}/>
+                    <Image source={internationalBadgeUnlocked ? require("@/assets/images/badges/international.png") : require("@/assets/images/badges/international-locked.png")} style={{ width: 200, height: 200, marginRight: 10 }}/>
                 </ScrollView>
             </View>
             <TouchableOpacity
