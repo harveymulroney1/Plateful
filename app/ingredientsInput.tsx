@@ -121,13 +121,14 @@ export default function Index() {
   async function getRecipes () {
     console.log("Getting Post for Recipes. Ingr List Length: ", ingrList.length);
     if (ingrList.length > 0) {
-      axios.post<any[]>("http://127.0.0.1:3000/getRecipesToDisplay", { ingredients: ingrList })
+      axios.post<Recipe[]>("http://127.0.0.1:3000/getRecipesToDisplay", { ingredients: ingrList })
         .then((response) => {
           const formatted = response.data.map((r: any): Recipe => ({
             recipeName: r[0],
-            img: r.Image || "",
-            keywords: cleanKeywords(r.keywords),
+            img: r?.[3] || "",
+            keywords: cleanKeywords(JSON.parse(r?.[4])),
           }));
+          console.log("Formatted:",formatted);
           setRecipes(formatted);
           if (formatted.length === 0) {
             Alert.alert("No Recipes Found", "Please add some more ingredients.");

@@ -126,6 +126,7 @@ export default function Recipe() {
         Description:string;
         Method:string;
         Nutrition:string;
+        
     }
     useEffect(() => {
         navigation.setOptions({
@@ -190,6 +191,7 @@ export default function Recipe() {
                     setIngredients([]); // Fallback to empty array
                 }
                 setDescription(response.data[0].Description);
+                
                 formatMethod(JSON.parse(response.data[0].Method));
                 formatNutrition(JSON.parse(response.data[0].Nutrition));
             })
@@ -210,17 +212,7 @@ export default function Recipe() {
         <ScrollView>
             <View style={styles.container}>
                 <Text style={styles.titleText}>{recipeTitle}</Text>
-                <View style={styles.sectionContainer}>
-                    {recipeKeywords.length > 0 ? (
-                        <View style={styles.labelContainer}>
-                            {recipeKeywords.map((keyword, index) => (
-                                <Text key={index} style={styles.label}>{keyword}</Text>
-                            ))}
-                        </View>
-                    ) : (
-                        <Text/>
-                    )}
-                </View>
+
 
                 <View style={styles.imageContainer}>
                     <View style={styles.imageShadow}>
@@ -231,7 +223,17 @@ export default function Recipe() {
                         )}
                     </View>
                 </View>
-
+                                <View style={styles.sectionContainer}>
+                    {recipeKeywords.length > 0 ? (
+                        <View style={styles.labelContainer}>
+                            {recipeKeywords.map((keyword, index) => (
+                                <Text key={index} style={styles.label}>{keyword}</Text>
+                            ))}
+                        </View>
+                    ) : (
+                        <Text/>
+                    )}
+                </View>
                 <View style={styles.descriptionContainer}>
                     <Text style={styles.sectionTitle}>Description</Text>
                     {Description ? (

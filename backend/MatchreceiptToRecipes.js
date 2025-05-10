@@ -78,11 +78,14 @@ export async function fetchRecipes(receiptLines)
       const ingredients = JSON.parse(element.Ingredients);
       const method = element.Method;
       const image = element.Image;
+      
+      const keywords = element.Keywords
       const result = await findRecipeMatches(ingredients,receiptLines);
       console.log("result for: ",name, ": ",result);
       if(result===true){
         console.log("adding to suggestion");
-        return [name,ingredients,method,image];
+        console.log("Img:",image); 
+        return [name,ingredients,method,image,keywords];
       }
       else{ return null;}
 

@@ -102,9 +102,9 @@ app.post('/getRecipe', (req, res) => {
             console.log("RESULT: " + JSON.stringify(result));
             res.json(result) //maybe this will fix loading the recipe
             })
-            .catch(err => {
-                console.error(err);
-            });
+    .catch(err => {
+        console.error(err);
+    });
 })
 
 app.post('/loadAllRecipeNames',(req,res)=>{
