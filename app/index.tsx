@@ -8,7 +8,6 @@ import { useSnackbar } from "./snackbar";
 import { Ionicons } from '@expo/vector-icons';
 import Menu from "./menu";
 
-
 /* const Recipes = [
     { id: "1", title: "Spiced duck breasts with sticky clementine sauce" },
     { id: "2", title: "Spicy peanut butter & corn ramen" },
@@ -162,22 +161,22 @@ export default function Index() {
     
 
 
-    useEffect(() => {
-        navigation.setOptions({
-            headerStyle: { backgroundColor: "#FAFAFC" },
-            headerTitle: "",
-            headerLeft: () => (
-                <TouchableOpacity onPress={() => router.push("/ingredientsInput")} style={{ marginLeft: 20 }}>
-                    <Ionicons name="restaurant-outline" size={20} color="#333333" />
-                </TouchableOpacity>
-            ),
-            headerRight: () => (
-                <TouchableOpacity onPress={() => router.push("/profile")} style={{ marginRight: 20 }}>
-                    <Ionicons name="person-circle-outline" size={25} color="#333333" />
-                </TouchableOpacity>
-            ),
-        });
-    }, [navigation]);
+    // useEffect(() => {
+    //     navigation.setOptions({
+    //         headerStyle: { backgroundColor: "#FAFAFC" },
+    //         headerTitle: "",
+    //         headerLeft: () => (
+    //             <TouchableOpacity onPress={() => router.push("/ingredientsInput")} style={{ marginLeft: 20 }}>
+    //                 <Ionicons name="restaurant-outline" size={20} color="#333333" />
+    //             </TouchableOpacity>
+    //         ),
+    //         headerRight: () => (
+    //             <TouchableOpacity onPress={() => router.push("/profile")} style={{ marginRight: 20 }}>
+    //                 <Ionicons name="person-circle-outline" size={25} color="#333333" />
+    //             </TouchableOpacity>
+    //         ),
+    //     });
+    // }, [navigation]);
 
     const handleItemPress = (recipeTitle: string, keywords?: string[]) => {
         const keywordsParam = keywords ? encodeURIComponent(JSON.stringify(keywords)) : "";
@@ -314,6 +313,18 @@ export default function Index() {
             </ScrollView>
 
             <Menu isOpen={isMenuOpen} onClose={handleCloseMenu} menuItems={menuItems} />
+
+            <View style={styles.footerHeader}>
+                <TouchableOpacity onPress={() => router.push("/ingredientsInput")} style={styles.footerIconLeft}>
+                    <Ionicons name="restaurant-outline" size={20} color="#333333" />
+                </TouchableOpacity>
+
+                <View style={{ flex: 1 }} />
+
+                <TouchableOpacity onPress={() => router.push("/profile")} style={styles.footerIconRight}>
+                    <Ionicons name="person-circle-outline" size={25} color="#333333" />
+                </TouchableOpacity>
+            </View>
         </View>
     );
 }
@@ -459,5 +470,29 @@ const styles = StyleSheet.create({
     labelText: {
         color: "white",
         fontSize: 10,
+    },
+
+    // FOOTER
+
+    footerHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#FAFAFC",
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
+    elevation: 4, // adds shadow on Android
+    shadowColor: "#000", // adds shadow on iOS
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    },
+    footerIconLeft: {
+        marginLeft: 20,
+    },
+    footerIconRight: {
+        marginRight: 20,
     },
 });

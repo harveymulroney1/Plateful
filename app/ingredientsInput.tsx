@@ -44,13 +44,12 @@ export default function Index() {
 
     const [showOverlay, setShowOverlay] = useState(false);
     
-    type Recipe = {
-        RecipeName: string;
-        Ingredients: string[];
-        Method: string[];
-        Image: string;
-        keywords: string[];    
-    }
+  type Recipe = {
+    recipeName: string;
+    img: string;
+    keywords: string[];
+  }
+
     const [recipes,setRecipes] = useState<Recipe[]>([]);
     const handleAddItem = () => {
         if (inputText.trim()) {
@@ -122,13 +121,11 @@ export default function Index() {
   async function getRecipes () {
     console.log("Getting Post for Recipes. Ingr List Length: ", ingrList.length);
     if (ingrList.length > 0) {
-      axios.post("http://127.0.0.1:3000/getRecipesToDisplay", { ingredients: ingrList })
+      axios.post<any[]>("http://127.0.0.1:3000/getRecipesToDisplay", { ingredients: ingrList })
         .then((response) => {
           const formatted = response.data.map((r: any): Recipe => ({
-            RecipeName: r[0],
-            Ingredients: r[1],
-            Method: r[2],
-            Image: r.Image || "",
+            recipeName: r[0],
+            img: r.Image || "",
             keywords: cleanKeywords(r.keywords),
           }));
           setRecipes(formatted);
@@ -187,9 +184,11 @@ function removeIngredient(index:number)
   };*/
 
 
-  const handleItemPress = (recipeTitle: string) => {
-    router.push(`/recipe?title=${encodeURIComponent(recipeTitle)}`);
+const handleItemPress = (recipeTitle: string, keywords?: string[]) => {
+  const keywordsParam = keywords ? encodeURIComponent(JSON.stringify(keywords)) : "";
+  router.push(`/recipe?title=${encodeURIComponent(recipeTitle)}&keywords=${keywordsParam}`);
 };
+
 
   return (
     <>
@@ -270,18 +269,26 @@ function removeIngredient(index:number)
           {recipes.map((item, index) => (
             <Item
               key={index}
-              title={item.RecipeName}
-              img={item.Image}
-              keywords={item.keywords?.map(k => k.charAt(0).toUpperCase() + k.slice(1))}
+              title={item.recipeName}
+              img={item.img}
+              keywords={item.keywords.map(k => k.charAt(0).toUpperCase() + k.slice(1))}
               onPress={() => {
                 setShowOverlay(false);
-                handleItemPress(item.RecipeName);
+                handleItemPress(item.recipeName, item.keywords);
               }}
             />
           ))}
         </ScrollView>
       </View>
     )}
+
+    <View style={styles.footerHeader}>
+      <TouchableOpacity onPress={() => router.push("/")} style={styles.footerIconLeft}>
+        <Ionicons name="arrow-back" size={20} color="#333333" />
+      </TouchableOpacity>
+
+      <View style={{ flex: 1 }} />
+    </View>
   </>
   );
 }
@@ -465,5 +472,29 @@ const styles = StyleSheet.create({
     labelText: {
         color: "white",
         fontSize: 10,
+    },
+
+    // FOOTER
+
+    footerHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      backgroundColor: "#FAFAFC",
+      paddingHorizontal: 20,
+      paddingVertical: 20,
+      borderTopWidth: 1,
+      borderTopColor: "#eee",
+      elevation: 4, // Android shadow
+      shadowColor: "#000", // iOS shadow
+      shadowOffset: { width: 0, height: -2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+    },
+    footerIconLeft: {
+      marginLeft: 20,
+    },
+    footerIconRight: {
+      marginRight: 20,
     },
 });

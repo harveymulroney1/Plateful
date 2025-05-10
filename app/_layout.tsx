@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { PaperProvider } from 'react-native-paper';
 import { SnackbarProvider } from "./snackbar";
-
+import { Ionicons } from "@expo/vector-icons";
 
 declare global {
   interface Window {
@@ -24,7 +24,6 @@ export default function RootLayout() {
   //   includeScore: true,
   //   threshold: 0.4,
   // };
-
 
   // const [search, setSearch] = useState("");
   // const [results, setResults] = useState<string[]>([]);
@@ -71,20 +70,20 @@ export default function RootLayout() {
   return (
     <PaperProvider>
       <SnackbarProvider>
-        <View style={{ flex: 1, paddingBottom: 50 }}> {/* Added paddingBottom */}
+        <View style={{ flex: 1 }}> {/* Added paddingBottom */}
           {/* Google Translate Widget */}
           <View
             style={{
               position: 'absolute', // Changed to absolute
-              top: 10,
-              right: 70,
+              top: 615,
+              right: 95,
               zIndex: 1000,
             }}
           >
             <div id="google_translate_element"></div>
           </View>
 
-          <Stack screenOptions={{ headerTitleAlign: "center" }} />
+          <Stack screenOptions={{ headerTitleAlign: "center", headerShown: false }}/>
         </View>
       </SnackbarProvider>
     </PaperProvider>

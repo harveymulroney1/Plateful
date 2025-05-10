@@ -135,7 +135,8 @@ const Item = ({ title, img, onPress }: ItemProps) => (
     </TouchableOpacity>
 );
     return(
-        isAuthed ? (
+        <>
+        {isAuthed ? (
             <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={styles.container}>
 
@@ -160,26 +161,26 @@ const Item = ({ title, img, onPress }: ItemProps) => (
             <View style={styles.box}>
                 <Text style={styles.boxTitle}>Badges</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ width: '100%' }}>
-                    <Image source={recipeMadeCount >= 1 ? require("@/assets/images/badges/first-dish.png") : require("@/assets/images/badges/first-dish-locked.png")} style={{ width: 200, height: 200, marginRight: 10 }}/>
-                    <Image source={recipeMadeCount >= 10 ? require("@/assets/images/badges/10.png") : require("@/assets/images/badges/10-locked.png")} style={{ width: 200, height: 200, marginRight: 10 }} />
-                    <Image source={recipeMadeCount >= 30 ? require("@/assets/images/badges/30.png") : require("@/assets/images/badges/30-locked.png")} style={{ width: 200, height: 200, marginRight: 10 }}/>
-                    <Image source={meatBadgeUnlocked ? require("@/assets/images/badges/meat.png") : require("@/assets/images/badges/meat-locked.png")} style={{ width: 200, height: 200, marginRight: 10 }}/>
-                    <Image source={sweetBadgeUnlocked ? require("@/assets/images/badges/sweet.png") : require("@/assets/images/badges/sweet-locked.png")} style={{ width: 200, height: 200, marginRight: 10 }}/>
-                    <Image source={veganBadgeUnlocked ? require("@/assets/images/badges/vegan.png") : require("@/assets/images/badges/vegan-locked.png")} style={{ width: 200, height: 200, marginRight: 10 }}/>
-                    <Image source={internationalBadgeUnlocked ? require("@/assets/images/badges/international.png") : require("@/assets/images/badges/international-locked.png")} style={{ width: 200, height: 200, marginRight: 10 }}/>
+                    <Image source={recipeMadeCount >= 1 ? require("@/assets/images/badges/first-dish.png") : require("@/assets/images/badges/first-dish-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
+                    <Image source={recipeMadeCount >= 10 ? require("@/assets/images/badges/10.png") : require("@/assets/images/badges/10-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }} />
+                    <Image source={recipeMadeCount >= 30 ? require("@/assets/images/badges/30.png") : require("@/assets/images/badges/30-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
+                    <Image source={meatBadgeUnlocked ? require("@/assets/images/badges/meat.png") : require("@/assets/images/badges/meat-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
+                    <Image source={sweetBadgeUnlocked ? require("@/assets/images/badges/sweet.png") : require("@/assets/images/badges/sweet-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
+                    <Image source={veganBadgeUnlocked ? require("@/assets/images/badges/vegan.png") : require("@/assets/images/badges/vegan-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
+                    <Image source={internationalBadgeUnlocked ? require("@/assets/images/badges/international.png") : require("@/assets/images/badges/international-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
                 </ScrollView>
             </View>
-            <TouchableOpacity
+            {/* <TouchableOpacity
             style={[styles.button, styles.selectedButton]}
             onPress={(fetchBookMarks)}
             >
             <Text style={styles.buttonText}>Fetch Bookmarks</Text>
-            </TouchableOpacity> 
+            </TouchableOpacity>  */}
             {/* Streaks */}
             <View style={styles.box}>
                         <Text style={styles.boxTitle}>Streaks</Text>
-                        <Text>Last Cooked Date: {lastCooked}</Text>
-                        <Text>Streak: {streak}</Text>
+                        <Text style={styles.profileDetail}>Last Cooked Date: {lastCooked}</Text>
+                        <Text style={styles.profileDetail}>Streak: {streak}</Text>
             </View>
                     <View style={styles.box}>
                         <Text style={styles.boxTitle}>Bookmarks</Text>
@@ -196,20 +197,32 @@ const Item = ({ title, img, onPress }: ItemProps) => (
         </View>
         </ScrollView>
     ): 
-    <View>
-        <Text>Not Authed Login Now!</Text>
-        <TouchableOpacity
-            style={[styles.button, styles.selectedButton]}
-            onPress={() => router.push("/loginPage")}
-        >
-            <Text style={styles.buttonText}>Login/Register Now</Text>
-        </TouchableOpacity>
-    </View>
+    <View style={[styles.container, { paddingVertical: 20 }]}>
+        <View style={styles.box}>
+            <Text style={styles.boxTitle}>Not authed, login now!</Text>
+            <TouchableOpacity
+                style={[styles.button, styles.selectedButton]}
+                onPress={() => router.push("/loginPage")}
+            >
+                <Text style={styles.buttonText}>Login</Text>
+            </TouchableOpacity>
+        </View>
+    </View>}
 
-                )};
-    
-    
-        
+        <View style={styles.footerHeader}>
+            <TouchableOpacity onPress={() => router.push("/")} style={styles.footerIconLeft}>
+                <Ionicons name="arrow-back" size={20} color="#333333" />
+            </TouchableOpacity>
+
+            <View style={{ flex: 1 }} />
+
+            <TouchableOpacity onPress={() => router.push("/settings")} style={styles.footerIconRight}>
+                <Ionicons name="settings-sharp" size={25} color="#333333" />
+            </TouchableOpacity>
+        </View>
+    </>
+)};
+
 
 
 const styles = StyleSheet.create({
@@ -222,8 +235,10 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.4)',
     },
     container: {
+        height: "100%",
         width: "100%",
         alignItems: "center",
+        backgroundColor: "#FAFAFC",
     },
     profileBox: {
         backgroundColor: "#FAFAFC",
@@ -321,5 +336,29 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: 'white',
         fontWeight: 'bold',
+    },
+
+        // FOOTER
+
+    footerHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#FAFAFC",
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
+    elevation: 4, // adds shadow on Android
+    shadowColor: "#000", // adds shadow on iOS
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    },
+    footerIconLeft: {
+        marginLeft: 20,
+    },
+    footerIconRight: {
+        marginRight: 20,
     },
 });

@@ -206,6 +206,7 @@ export default function Recipe() {
     },[]);
 
     return (
+        <>
         <ScrollView>
             <View style={styles.container}>
                 <Text style={styles.titleText}>{recipeTitle}</Text>
@@ -308,6 +309,15 @@ export default function Recipe() {
             </View>
 
         </ScrollView>
+
+        <View style={styles.footerHeader}>
+            <TouchableOpacity onPress={() => router.push("/")} style={styles.footerIconLeft}>
+                <Ionicons name="arrow-back" size={20} color="#333333" />
+            </TouchableOpacity>
+
+            <View style={{ flex: 1 }} />
+        </View>
+    </>
     );
 }
 
@@ -504,5 +514,29 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold',
         fontFamily: 'System',
+    },
+
+    // FOOTER
+
+    footerHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        backgroundColor: "#FAFAFC",
+        paddingHorizontal: 20,
+        paddingVertical: 20,
+        borderTopWidth: 1,
+        borderTopColor: "#eee",
+        elevation: 4, // adds shadow on Android
+        shadowColor: "#000", // adds shadow on iOS
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+    },
+    footerIconLeft: {
+        marginLeft: 20,
+    },
+    footerIconRight: {
+        marginRight: 20,
     },
 });
