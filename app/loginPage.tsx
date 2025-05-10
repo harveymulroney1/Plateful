@@ -1,4 +1,4 @@
-import { Text, TextInput, View, Button, StyleSheet, TouchableOpacity } from "react-native";
+import { Text, TextInput, View, Button, StyleSheet, TouchableOpacity , Alert} from "react-native";
 import { useEffect, useState } from "react";
 import { useNavigation, useRouter } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -11,7 +11,9 @@ export default function LoginPage() {
     const router = useRouter();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [isAuthed,setIsAuthed] = useState(Boolean);
     useEffect(() => {
+        checkIsAuthed();
         navigation.setOptions({
             headerStyle: { backgroundColor: "#FAFAFC" },
             headerTitle: "",
@@ -22,27 +24,64 @@ export default function LoginPage() {
             ),
         });
     }, [navigation]);
+    const checkIsAuthed = async () => {
+        const token = await AsyncStorage.getItem("userToken");
+        if(token)
+        {
+            await axios.post('http://127.0.0.1:3000/checkToken', null, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            }).then(response=>{
+                
+                setIsAuthed(true);
+            })
+            .catch(
+                err=>{
+                    setIsAuthed(false);
+                    console.log("User Token Not Valid");
+                    Alert.alert(
+                        "Authentication Failed",
+                        "Your session has expired. Please log in again.",
+                        [
+                          { text: "OK", onPress: () => router.push("/loginPage") }
+                        ]
+                      );
+                    
+                }
+            )
+            
+        }
+        else{setIsAuthed(false);}
+    }
     //let username = "";
     //let password = "";
     async function login() {
         try {
-            const response = await axios.post("http://127.0.0.1:3000/logIn", { u: username, p: password })
+            const response = await axios.post("http://127.0.0.1:3000/logIn", { u: username, p: password });
             const token = response.data.token;
             if (token) {
-                //await SecureStore.setItemAsync("userToken", token);
                 await AsyncStorage.setItem('userToken', token);
-                console.log("SecureStoreAsync has executed - login successful");
-            }
-            else {
-                console.log("Login failed as no token recieved");
+                console.log("Login successful, token saved");
+                setIsAuthed(true);
+                router.replace("/profile"); // Navigate to profile and close login page
+            } else {
+                console.log("Login failed: No token received");
+                showError("Login failed: No token received");
             }
         } catch (error) {
-            console.log("Login failed - try-catch caught error: ");
-            showError("Login Failed.");;
+            console.log("Login failed:", error);
+            showError("Login Failed.");
         }
     }
+
     function createAccount() {
         axios.post("http://127.0.0.1:3000/createAccount", { u: username, p: password })
+    }
+        const logout = async () => {
+        setIsAuthed(false);
+        await AsyncStorage.removeItem("userToken");
+        console.log("removed token");
     }
     return(
         <View style={styles.container}>
@@ -60,12 +99,29 @@ export default function LoginPage() {
                     placeholder="Password"
                     onChangeText={(password) => setPassword(password)}
                 />
+                {/* <TouchableOpacity
+                    style={[styles.button, styles.selectedButton]}
+                    onPress={login}
+                >
+                    <Text style={styles.buttonText}>Login</Text>
+                </TouchableOpacity> */}
+
+                {/* Login */}
+                {isAuthed ?
+                <TouchableOpacity
+                    style={[styles.button, styles.selectedButton]}
+                    onPress={() => logout()}
+                >
+                    <Text style={styles.buttonText}>Log out</Text>
+                </TouchableOpacity>
+                :
                 <TouchableOpacity
                     style={[styles.button, styles.selectedButton]}
                     onPress={login}
                 >
                     <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>
+                }
 
                 <TouchableOpacity
                     style={[styles.button, styles.selectedButton]}
@@ -73,6 +129,13 @@ export default function LoginPage() {
                 >
                     <Text style={styles.buttonText}>Create Account</Text>
                 </TouchableOpacity>
+            </View>
+
+            <View style={styles.footerHeader}>
+                <TouchableOpacity onPress={() => router.push("/profile")} style={styles.footerIconLeft}>
+                    <Ionicons name="arrow-back" size={20} color="#333333" />
+                </TouchableOpacity>
+            <View/>
             </View>
         </View>
     )
@@ -109,7 +172,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         padding: 20,
         marginTop: 15,
-        marginBottom: 20,
+        marginBottom: 40,
         alignItems: "flex-start",
         justifyContent: "flex-start",
         shadowColor: "#000",
@@ -149,5 +212,27 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold',
         fontFamily: 'System',
+    },
+
+    // FOOTER
+
+    footerHeader: {
+        flexDirection: "row",
+        width: "100%",
+        alignItems: "center",
+        justifyContent: "space-between",
+        backgroundColor: "#FAFAFC",
+        paddingHorizontal: 20,
+        paddingVertical: 15,
+        borderTopWidth: 1,
+        borderTopColor: "#eee",
+        elevation: 4, // adds shadow on Android
+        shadowColor: "#000", // adds shadow on iOS
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+    },
+    footerIconLeft: {
+        marginLeft: 20,
     },
 });

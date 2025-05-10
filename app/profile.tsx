@@ -111,6 +111,7 @@ export default function Profile() {
         checkToken();
     }, [navigation]);
     useEffect(() => {
+        checkIsAuthed();
         if (name) {
             fetchBookMarks();
         }
@@ -133,7 +134,23 @@ const Item = ({ title, img, onPress }: ItemProps) => (
             </View>
         </ImageBackground>
     </TouchableOpacity>
-);
+    );
+    
+    const checkIsAuthed = async () => {
+        const token = await AsyncStorage.getItem("userToken");
+        if(token)
+        {
+            setIsAuthed(true);
+        }
+        else{setIsAuthed(false);}
+    }
+
+    const logout = async () => {
+        setIsAuthed(false);
+        await AsyncStorage.removeItem("userToken");
+        console.log("removed token");
+    }
+
     return(
         <>
         {isAuthed ? (
@@ -164,6 +181,8 @@ const Item = ({ title, img, onPress }: ItemProps) => (
                     <Image source={recipeMadeCount >= 1 ? require("@/assets/images/badges/first-dish.png") : require("@/assets/images/badges/first-dish-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
                     <Image source={recipeMadeCount >= 10 ? require("@/assets/images/badges/10.png") : require("@/assets/images/badges/10-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }} />
                     <Image source={recipeMadeCount >= 30 ? require("@/assets/images/badges/30.png") : require("@/assets/images/badges/30-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
+                    <Image source={meatBadgeUnlocked ? require("@/assets/images/badges/meat.png") : require("@/assets/images/badges/meat-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
+                    <Image source={sweetBadgeUnlocked ? require("@/assets/images/badges/sweet.png") : require("@/assets/images/badges/sweet-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
                     <Image source={veganBadgeUnlocked ? require("@/assets/images/badges/vegan.png") : require("@/assets/images/badges/vegan-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
                     <Image source={internationalBadgeUnlocked ? require("@/assets/images/badges/international.png") : require("@/assets/images/badges/international-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
                 </ScrollView>
@@ -177,7 +196,7 @@ const Item = ({ title, img, onPress }: ItemProps) => (
             {/* Streaks */}
             <View style={styles.box}>
                         <Text style={styles.boxTitle}>Streaks</Text>
-                        <Text style={styles.profileDetail}>Last Cooked Date: {lastCooked}</Text>
+                        <Text style={styles.profileDetail}>Last Date Cooked: {lastCooked}</Text>
                         <Text style={styles.profileDetail}>Streak: {streak}</Text>
             </View>
                     <View style={styles.box}>
@@ -191,11 +210,33 @@ const Item = ({ title, img, onPress }: ItemProps) => (
                                                 />
                                             </View>
                                         ))}
-                    </View>
+            </View>
+
+            {/* Login */}
+            <View style={styles.box}>
+                <Text style={styles.boxTitle}>Login / Logout</Text>
+                
+                {isAuthed ?
+                <TouchableOpacity
+                    style={[styles.button, styles.selectedButton]}
+                    onPress={() => logout()}
+                >
+                    <Text style={styles.buttonText}>Log out</Text>
+                </TouchableOpacity>
+
+                :
+                <TouchableOpacity
+                    style={[styles.button, styles.selectedButton]}
+                    onPress={() => router.push("/loginPage")}
+                >
+                    <Text style={styles.buttonText}>Login</Text>
+                </TouchableOpacity>
+                }
+            </View>
         </View>
         </ScrollView>
     ): 
-    <View style={[styles.container, { paddingVertical: 20 }]}>
+    <View style={[styles.container, { paddingVertical: 40 }]}>
         <View style={styles.box}>
             <Text style={styles.boxTitle}>Not authed, login now!</Text>
             <TouchableOpacity
@@ -213,15 +254,9 @@ const Item = ({ title, img, onPress }: ItemProps) => (
             </TouchableOpacity>
 
             <View style={{ flex: 1 }} />
-
-            <TouchableOpacity onPress={() => router.push("/settings")} style={styles.footerIconRight}>
-                <Ionicons name="settings-sharp" size={25} color="#333333" />
-            </TouchableOpacity>
         </View>
     </>
 )};
-
-
 
 const styles = StyleSheet.create({
     scrollContainer: {
@@ -233,7 +268,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.4)',
     },
     container: {
-        height: "100%",
+        height: "90%",
         width: "100%",
         alignItems: "center",
         backgroundColor: "#FAFAFC",
