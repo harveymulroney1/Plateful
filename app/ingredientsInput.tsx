@@ -8,6 +8,7 @@ import { useEffect } from 'react';
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useSnackbar } from "./snackbar";
+import { Snackbar } from 'react-native-paper';
 const PlaceholderImage = require('@/assets/images/background-image.png');
 const receiptIngrList = [];
 let username = "test1";
@@ -120,6 +121,7 @@ export default function Index() {
 
   async function getRecipes () {
     console.log("Getting Post for Recipes. Ingr List Length: ", ingrList.length);
+    
     if (ingrList.length > 0) {
       axios.post<Recipe[]>("http://127.0.0.1:3000/getRecipesToDisplay", { ingredients: ingrList })
         .then((response) => {
@@ -131,6 +133,7 @@ export default function Index() {
           console.log("Formatted:",formatted);
           setRecipes(formatted);
           if (formatted.length === 0) {
+            showError("No Recipes Found. Add More!");
             Alert.alert("No Recipes Found", "Please add some more ingredients.");
           } else {
             setShowOverlay(true); // Show the overlay
