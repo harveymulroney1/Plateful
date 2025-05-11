@@ -181,8 +181,6 @@ const Item = ({ title, img, onPress }: ItemProps) => (
                     <Image source={recipeMadeCount >= 1 ? require("@/assets/images/badges/first-dish.png") : require("@/assets/images/badges/first-dish-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
                     <Image source={recipeMadeCount >= 10 ? require("@/assets/images/badges/10.png") : require("@/assets/images/badges/10-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }} />
                     <Image source={recipeMadeCount >= 30 ? require("@/assets/images/badges/30.png") : require("@/assets/images/badges/30-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
-                    <Image source={meatBadgeUnlocked ? require("@/assets/images/badges/meat.png") : require("@/assets/images/badges/meat-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
-                    <Image source={sweetBadgeUnlocked ? require("@/assets/images/badges/sweet.png") : require("@/assets/images/badges/sweet-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
                     <Image source={veganBadgeUnlocked ? require("@/assets/images/badges/vegan.png") : require("@/assets/images/badges/vegan-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
                     <Image source={internationalBadgeUnlocked ? require("@/assets/images/badges/international.png") : require("@/assets/images/badges/international-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
                 </ScrollView>
