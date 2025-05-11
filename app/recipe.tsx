@@ -62,7 +62,6 @@ export default function Recipe() {
                 });
                 if (response.data) {
                     let username = response.data;
-                    
                 }
                 if (recipeKeywords.includes("Vegan")) {
                     console.log("VEGAN")
@@ -72,12 +71,8 @@ export default function Recipe() {
                         }
                     });
                 }
-                if (
-                    recipeKeywords.some(k => k.toLowerCase() === "italian") ||
-                    recipeKeywords.some(k => k.toLowerCase() === "greek") ||
-                    recipeKeywords.some(k => k.toLowerCase() === "indian") ||
-                    recipeKeywords.some(k => k.toLowerCase() === "asian")
-                ) {
+                const internationalCuisines = ["chinese", "italian", "indian", "thai", "mexican", "american", "french", "mediterranean", "japanese", "korean"];
+                if (recipeKeywords.some(k => internationalCuisines.includes(k.toLowerCase()))) {
                     console.log("INTERNATIONAL")
                     const response = await axios.post('http://127.0.0.1:3000/addInternationalCount', null, {
                         headers: {

@@ -212,7 +212,7 @@ const Item = ({ title, img, onPress }: ItemProps) => (
 
             {/* Login */}
             <View style={styles.box}>
-                <Text style={styles.boxTitle}>Login / Logout</Text>
+                <Text style={styles.boxTitle}>Log in / Log out</Text>
                 
                 {isAuthed ?
                 <TouchableOpacity
@@ -227,7 +227,7 @@ const Item = ({ title, img, onPress }: ItemProps) => (
                     style={[styles.button, styles.selectedButton]}
                     onPress={() => router.push("/loginPage")}
                 >
-                    <Text style={styles.buttonText}>Login</Text>
+                    <Text style={styles.buttonText}>Log in</Text>
                 </TouchableOpacity>
                 }
             </View>
@@ -236,12 +236,12 @@ const Item = ({ title, img, onPress }: ItemProps) => (
     ): 
     <View style={[styles.container, { paddingVertical: 40 }]}>
         <View style={styles.box}>
-            <Text style={styles.boxTitle}>Not authed, login now!</Text>
+            <Text style={styles.boxTitle}>Not authenticated, log in now!</Text>
             <TouchableOpacity
                 style={[styles.button, styles.selectedButton]}
                 onPress={() => router.push("/loginPage")}
             >
-                <Text style={styles.buttonText}>Login</Text>
+                <Text style={styles.buttonText}>Log in</Text>
             </TouchableOpacity>
         </View>
     </View>}
