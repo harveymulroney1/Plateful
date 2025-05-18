@@ -288,6 +288,8 @@ export default function Recipe() {
                 </View>
                 <View style={styles.completeButtonContainer}>
                     <TouchableOpacity
+                        accessible={true}
+                        accessibilityLabel="Bookmark this Recipe"
                         style={[styles.completeButton]}
                         onPress={bookmarkRecipe}
                     >
@@ -296,6 +298,8 @@ export default function Recipe() {
                 </View>
                 <View style={styles.completeButtonContainer}>
                     <TouchableOpacity
+                        accessible={true}
+                        accessibilityLabel="Mark this Recipe as Cooked"
                         style={[styles.completeButton]}
                         onPress={addCount}
                     >
@@ -308,7 +312,11 @@ export default function Recipe() {
         </ScrollView>
 
         <View style={styles.footerHeader}>
-            <TouchableOpacity onPress={() => router.push("/")} style={styles.footerIconLeft}>
+            <TouchableOpacity onPress={() => router.push("/")} style={styles.footerIconLeft}
+                       accessible={true}
+                       accessibilityLabel="Go back to home page"
+                       >
+     
                 <Ionicons name="arrow-back" size={20} color="#333333" />
             </TouchableOpacity>
 

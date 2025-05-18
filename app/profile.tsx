@@ -197,11 +197,13 @@ const Item = ({ title, img, onPress }: ItemProps) => (
                         <Text style={styles.profileDetail}>Last Date Cooked: {lastCooked}</Text>
                         <Text style={styles.profileDetail}>Streak: {streak}</Text>
             </View>
-                    <View style={styles.box}>
+                    <View  style={styles.box}>
                         <Text style={styles.boxTitle}>Bookmarks</Text>
                                         {bookmarks.map((item) => (
                                             <View key={item.recipeName}>
                                                 <Item
+                                                    accessible={true}
+                                                    accessibilityLabel="Click to view recipe"
                                                     title={item.recipeName}
                                                     img={item.img}
                                                     onPress={() => navToRecipe(item.recipeName)}
@@ -216,6 +218,8 @@ const Item = ({ title, img, onPress }: ItemProps) => (
                 
                 {isAuthed ?
                 <TouchableOpacity
+                    accessible={true}
+                    accessibilityLabel="Click to log out"
                     style={[styles.button, styles.selectedButton]}
                     onPress={() => logout()}
                 >
@@ -224,6 +228,8 @@ const Item = ({ title, img, onPress }: ItemProps) => (
 
                 :
                 <TouchableOpacity
+                    accessible={true}
+                    accessibilityLabel="Click to log in"
                     style={[styles.button, styles.selectedButton]}
                     onPress={() => router.push("/loginPage")}
                 >
@@ -236,8 +242,11 @@ const Item = ({ title, img, onPress }: ItemProps) => (
     ): 
     <View style={[styles.container, { paddingVertical: 40 }]}>
         <View style={styles.box}>
+
             <Text style={styles.boxTitle}>Not authenticated, log in now!</Text>
             <TouchableOpacity
+                        accessible={true}
+                        accessibilityLabel="You aren't logged in, Click to log in"
                 style={[styles.button, styles.selectedButton]}
                 onPress={() => router.push("/loginPage")}
             >
@@ -247,7 +256,10 @@ const Item = ({ title, img, onPress }: ItemProps) => (
     </View>}
 
         <View style={styles.footerHeader}>
-            <TouchableOpacity onPress={() => router.push("/")} style={styles.footerIconLeft}>
+            <TouchableOpacity onPress={() => router.push("/")} style={styles.footerIconLeft}
+                            accessible ={true}
+                            accessibilityLabel="Click to go back to home page">
+
                 <Ionicons name="arrow-back" size={20} color="#333333" />
             </TouchableOpacity>
 

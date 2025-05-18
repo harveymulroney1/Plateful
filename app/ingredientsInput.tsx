@@ -204,12 +204,17 @@ const handleItemPress = (recipeTitle: string, keywords?: string[]) => {
       {/* <CustomButton theme="primary" label="Upload Receipt" onPress={pickImageAsync} /> */}
       
       <View style={styles.inputContainer}>
-        <TouchableOpacity onPress={handleAddItem}>
+        <TouchableOpacity onPress={handleAddItem}
+        accessible={true}
+        accessibilityLabel="Add Ingredient"
+        >
           <Ionicons name="add" size={20} color="gray" style={styles.inputIcon} />
         </TouchableOpacity>
         <TextInput
           style={styles.inputBox}
           value={inputText}
+          accessibilityLabel="Ingredient Input"
+          accessibilityLabelledBy="formLabel"
           onChangeText={(inputText) => setInputText(inputText)}
           onSubmitEditing={handleAddItem}
           placeholder="Enter ingredient"
@@ -222,11 +227,15 @@ const handleItemPress = (recipeTitle: string, keywords?: string[]) => {
         <TouchableOpacity
             style={[styles.button, styles.selectedButton]}
             onPress={pickImageAsync}
+            accessible={true}
+            accessibilityLabel="Scan Ingredients from Receipt"
         >
             <Text style={styles.buttonText}>Scan Ingredients</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
+          accessible={true}
+          accessibilityLabel="Clear Ingredients"
             style={[styles.button, styles.selectedButton]}
             onPress={() => setingrList([])} // Clear Ingredients
         >
@@ -239,7 +248,9 @@ const handleItemPress = (recipeTitle: string, keywords?: string[]) => {
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item, index }) => (
           <View style={styles.ingredientItem}>
-            <TouchableOpacity onPress={() => removeIngredient(index)} style={styles.removeButton}>
+            <TouchableOpacity onPress={() => removeIngredient(index)} style={styles.removeButton} 
+            accessibilityLabel= "Remove this Ingredient"
+            >
               <Ionicons name="remove" size={20} color="gray" />
             </TouchableOpacity>
             <TextInput
@@ -252,6 +263,8 @@ const handleItemPress = (recipeTitle: string, keywords?: string[]) => {
 
       <View style={styles.findRecipesButtonContainer}>
         <TouchableOpacity
+            accessible={true}
+            accessibilityLabel="Find Recipes Button"
             style={[styles.findRecipesButton]}
             onPress={getRecipes}
         >
@@ -265,13 +278,14 @@ const handleItemPress = (recipeTitle: string, keywords?: string[]) => {
       <View style={styles.overlay}>
         <View style={styles.overlayHeader}>
           <Text style={styles.overlayTitle}>Tailored recipes</Text>
-          <TouchableOpacity onPress={() => setShowOverlay(false)}>
+          <TouchableOpacity onPress={() => setShowOverlay(false)} accessibilityLabel="Hide Tailored Recipes">
             <Ionicons name="close" size={24} color="#FAFAFC" />
           </TouchableOpacity>
         </View>
         <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
           {recipes.map((item, index) => (
             <Item
+              accessibilityLabel={`Recipe: ${item.recipeName} Click to view full recipe`}
               key={index}
               title={item.recipeName}
               img={item.img}
@@ -287,7 +301,10 @@ const handleItemPress = (recipeTitle: string, keywords?: string[]) => {
     )}
 
     <View style={styles.footerHeader}>
-      <TouchableOpacity onPress={() => router.push("/")} style={styles.footerIconLeft}>
+      <TouchableOpacity onPress={() => router.push("/")} style={styles.footerIconLeft}
+      accessible={true}
+      accessibilityLabel="Go to Home Page"
+      >
         <Ionicons name="arrow-back" size={20} color="#333333" />
       </TouchableOpacity>
 
