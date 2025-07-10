@@ -194,7 +194,11 @@ export default function Index() {
                 <Text style={styles.mainTitle}>Get cooking today!</Text>
 
                 <View style={styles.searchContainer}>
-                    <TouchableOpacity onPress={() => handleSearch(searchInput)}>
+                    <TouchableOpacity onPress={() => handleSearch(searchInput)}
+                    accessible={true}
+                    accesibilityLabelHint="Search recipes by clicking & typing on here"
+                    accessibilityLabel="Search recipes"
+                    >
                         <Ionicons name="search" size={18} color="gray" style={styles.searchIcon} />
                     </TouchableOpacity>
                     <TextInput
@@ -217,6 +221,7 @@ export default function Index() {
                 >
                     {cuisineFilters.map((filter: string, index: number) => (
                         <TouchableOpacity
+                            accesibilityLabelHint="Click to select a cuisine filter"
                             key={index}
                             style={[styles.filterButton, selectedFilters.includes(filter) && styles.selectedFilter]}
                             onPress={() => toggleFilter(filter)}
@@ -237,6 +242,7 @@ export default function Index() {
                 >
                     {dietaryFilters.map((filter: string, index: number) => (
                         <TouchableOpacity
+                            accesibilityLabelHint="Click to select a dietary filter"
                             key={index}
                             style={[styles.filterButton, selectedFilters.includes(filter) && styles.selectedFilter]}
                             onPress={() => toggleFilter(filter)}
@@ -258,6 +264,7 @@ export default function Index() {
                     {otherFilters.map((filter: string, index: number) => (
                         <TouchableOpacity
                             key={index}
+                            accesibilityLabelHint="Click to select a filter"
                             style={[styles.filterButton, selectedFilters.includes(filter) && styles.selectedFilter]}
                             onPress={() => toggleFilter(filter)}
                         >
@@ -315,13 +322,17 @@ export default function Index() {
             <Menu isOpen={isMenuOpen} onClose={handleCloseMenu} menuItems={menuItems} />
 
             <View style={styles.footerHeader}>
-                <TouchableOpacity onPress={() => router.push("/ingredientsInput")} style={styles.footerIconLeft}>
+                <TouchableOpacity onPress={() => router.push("/ingredientsInput")} style={styles.footerIconLeft}
+                accessibilityLabel="Add ingredients"
+                >
                     <Ionicons name="restaurant-outline" size={20} color="#333333" />
                 </TouchableOpacity>
 
                 <View style={{ flex: 1 }} />
 
-                <TouchableOpacity onPress={() => router.push("/profile")} style={styles.footerIconRight}>
+                <TouchableOpacity onPress={() => router.push("/profile")} style={styles.footerIconRight}
+                accessibilityLabel="Click to Profile"
+                >
                     <Ionicons name="person-circle-outline" size={25} color="#333333" />
                 </TouchableOpacity>
             </View>

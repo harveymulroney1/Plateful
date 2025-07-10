@@ -88,12 +88,16 @@ export default function LoginPage() {
             <View style={styles.box}>
                 <Text style={styles.boxTitle}>Login</Text>
                 <TextInput
+                    accessible={true}
+                    accessibilityLabel="Username"
                     style = {styles.input}
                     placeholder="Username"
                     value={username}
                     onChangeText={(username) => setUsername(username)}
                 />
                 <TextInput
+                    accessible={true}
+                    accessibilityLabel="Password"
                     style={styles.input}
                     secureTextEntry={true}
                     placeholder="Password"
@@ -109,6 +113,8 @@ export default function LoginPage() {
                 {/* Login */}
                 {isAuthed ?
                 <TouchableOpacity
+                    accessible={true}
+                    accessibilityLabel="Logout"
                     style={[styles.button, styles.selectedButton]}
                     onPress={() => logout()}
                 >
@@ -116,23 +122,30 @@ export default function LoginPage() {
                 </TouchableOpacity>
                 :
                 <TouchableOpacity
+                    accessible={true}
+                    accessibilityLabel="Login"
                     style={[styles.button, styles.selectedButton]}
                     onPress={login}
                 >
-                    <Text style={styles.buttonText}>Login</Text>
+                    <Text style={styles.buttonText}>Log in</Text>
                 </TouchableOpacity>
                 }
 
                 <TouchableOpacity
                     style={[styles.button, styles.selectedButton]}
                     onPress={createAccount}
+                    accessible={true}
+                    accessibilityLabel="Create Account"
                 >
                     <Text style={styles.buttonText}>Create Account</Text>
                 </TouchableOpacity>
             </View>
 
             <View style={styles.footerHeader}>
-                <TouchableOpacity onPress={() => router.push("/profile")} style={styles.footerIconLeft}>
+                <TouchableOpacity onPress={() => router.push("/profile")} style={styles.footerIconLeft}
+                accessible={true}
+                accessibilityLabel="Back to Profile"
+                >
                     <Ionicons name="arrow-back" size={20} color="#333333" />
                 </TouchableOpacity>
             <View/>

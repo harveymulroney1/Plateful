@@ -181,8 +181,6 @@ const Item = ({ title, img, onPress }: ItemProps) => (
                     <Image source={recipeMadeCount >= 1 ? require("@/assets/images/badges/first-dish.png") : require("@/assets/images/badges/first-dish-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
                     <Image source={recipeMadeCount >= 10 ? require("@/assets/images/badges/10.png") : require("@/assets/images/badges/10-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }} />
                     <Image source={recipeMadeCount >= 30 ? require("@/assets/images/badges/30.png") : require("@/assets/images/badges/30-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
-                    <Image source={meatBadgeUnlocked ? require("@/assets/images/badges/meat.png") : require("@/assets/images/badges/meat-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
-                    <Image source={sweetBadgeUnlocked ? require("@/assets/images/badges/sweet.png") : require("@/assets/images/badges/sweet-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
                     <Image source={veganBadgeUnlocked ? require("@/assets/images/badges/vegan.png") : require("@/assets/images/badges/vegan-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
                     <Image source={internationalBadgeUnlocked ? require("@/assets/images/badges/international.png") : require("@/assets/images/badges/international-locked.png")} style={{ width: 150, height: 150, marginRight: 10 }}/>
                 </ScrollView>
@@ -199,11 +197,13 @@ const Item = ({ title, img, onPress }: ItemProps) => (
                         <Text style={styles.profileDetail}>Last Date Cooked: {lastCooked}</Text>
                         <Text style={styles.profileDetail}>Streak: {streak}</Text>
             </View>
-                    <View style={styles.box}>
+                    <View  style={styles.box}>
                         <Text style={styles.boxTitle}>Bookmarks</Text>
                                         {bookmarks.map((item) => (
                                             <View key={item.recipeName}>
                                                 <Item
+                                                    accessible={true}
+                                                    accessibilityLabel="Click to view recipe"
                                                     title={item.recipeName}
                                                     img={item.img}
                                                     onPress={() => navToRecipe(item.recipeName)}
@@ -214,10 +214,12 @@ const Item = ({ title, img, onPress }: ItemProps) => (
 
             {/* Login */}
             <View style={styles.box}>
-                <Text style={styles.boxTitle}>Login / Logout</Text>
+                <Text style={styles.boxTitle}>Log in / Log out</Text>
                 
                 {isAuthed ?
                 <TouchableOpacity
+                    accessible={true}
+                    accessibilityLabel="Click to log out"
                     style={[styles.button, styles.selectedButton]}
                     onPress={() => logout()}
                 >
@@ -226,10 +228,12 @@ const Item = ({ title, img, onPress }: ItemProps) => (
 
                 :
                 <TouchableOpacity
+                    accessible={true}
+                    accessibilityLabel="Click to log in"
                     style={[styles.button, styles.selectedButton]}
                     onPress={() => router.push("/loginPage")}
                 >
-                    <Text style={styles.buttonText}>Login</Text>
+                    <Text style={styles.buttonText}>Log in</Text>
                 </TouchableOpacity>
                 }
             </View>
@@ -238,18 +242,24 @@ const Item = ({ title, img, onPress }: ItemProps) => (
     ): 
     <View style={[styles.container, { paddingVertical: 40 }]}>
         <View style={styles.box}>
-            <Text style={styles.boxTitle}>Not authed, login now!</Text>
+
+            <Text style={styles.boxTitle}>Not authenticated, log in now!</Text>
             <TouchableOpacity
+                        accessible={true}
+                        accessibilityLabel="You aren't logged in, Click to log in"
                 style={[styles.button, styles.selectedButton]}
                 onPress={() => router.push("/loginPage")}
             >
-                <Text style={styles.buttonText}>Login</Text>
+                <Text style={styles.buttonText}>Log in</Text>
             </TouchableOpacity>
         </View>
     </View>}
 
         <View style={styles.footerHeader}>
-            <TouchableOpacity onPress={() => router.push("/")} style={styles.footerIconLeft}>
+            <TouchableOpacity onPress={() => router.push("/")} style={styles.footerIconLeft}
+                            accessible ={true}
+                            accessibilityLabel="Click to go back to home page">
+
                 <Ionicons name="arrow-back" size={20} color="#333333" />
             </TouchableOpacity>
 

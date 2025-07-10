@@ -62,7 +62,6 @@ export default function Recipe() {
                 });
                 if (response.data) {
                     let username = response.data;
-                    
                 }
                 if (recipeKeywords.includes("Vegan")) {
                     console.log("VEGAN")
@@ -72,12 +71,8 @@ export default function Recipe() {
                         }
                     });
                 }
-                if (
-                    recipeKeywords.some(k => k.toLowerCase() === "italian") ||
-                    recipeKeywords.some(k => k.toLowerCase() === "greek") ||
-                    recipeKeywords.some(k => k.toLowerCase() === "indian") ||
-                    recipeKeywords.some(k => k.toLowerCase() === "asian")
-                ) {
+                const internationalCuisines = ["chinese", "italian", "indian", "thai", "mexican", "american", "french", "mediterranean", "japanese", "korean"];
+                if (recipeKeywords.some(k => internationalCuisines.includes(k.toLowerCase()))) {
                     console.log("INTERNATIONAL")
                     const response = await axios.post('http://127.0.0.1:3000/addInternationalCount', null, {
                         headers: {
@@ -293,6 +288,8 @@ export default function Recipe() {
                 </View>
                 <View style={styles.completeButtonContainer}>
                     <TouchableOpacity
+                        accessible={true}
+                        accessibilityLabel="Bookmark this Recipe"
                         style={[styles.completeButton]}
                         onPress={bookmarkRecipe}
                     >
@@ -301,6 +298,8 @@ export default function Recipe() {
                 </View>
                 <View style={styles.completeButtonContainer}>
                     <TouchableOpacity
+                        accessible={true}
+                        accessibilityLabel="Mark this Recipe as Cooked"
                         style={[styles.completeButton]}
                         onPress={addCount}
                     >
@@ -313,7 +312,11 @@ export default function Recipe() {
         </ScrollView>
 
         <View style={styles.footerHeader}>
-            <TouchableOpacity onPress={() => router.push("/")} style={styles.footerIconLeft}>
+            <TouchableOpacity onPress={() => router.push("/")} style={styles.footerIconLeft}
+                       accessible={true}
+                       accessibilityLabel="Go back to home page"
+                       >
+     
                 <Ionicons name="arrow-back" size={20} color="#333333" />
             </TouchableOpacity>
 

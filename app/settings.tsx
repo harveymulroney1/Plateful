@@ -49,6 +49,8 @@ export default function Settings() {
                 <Text style={styles.boxTitle}>Settings</Text>
                 {isAuthed ?
                 <TouchableOpacity
+                    accessible={true}
+                    accessibilityLabel="Logout"
                     style={[styles.button, styles.selectedButton]}
                     onPress={() => logout()}
                 >
@@ -57,6 +59,8 @@ export default function Settings() {
 
                 :
                 <TouchableOpacity
+                    accessible={true}
+                    accessibilityLabel="Login"
                     style={[styles.button, styles.selectedButton]}
                     onPress={() => router.push("/loginPage")}
                 >
@@ -70,7 +74,10 @@ export default function Settings() {
         </View>
 
             <View style={styles.footerHeader}>
-                <TouchableOpacity onPress={() => router.push("/")} style={styles.footerIconLeft}>
+                <TouchableOpacity onPress={() => router.push("/")} style={styles.footerIconLeft}
+                accessible={true}
+                accessibilityLabel="Home"
+                >
                     <Ionicons name="arrow-back" size={20} color="#333333" />
                 </TouchableOpacity>
     
