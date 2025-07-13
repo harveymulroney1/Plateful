@@ -1,10 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button,Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView, ImageBackground, Dimensions } from 'react-native';
 import { Snackbar } from 'react-native-paper';
 import { useSnackbar } from "./snackbar";
 import Recipe from './recipe';
+import axios from "axios";
 export default function shoppingList()
 {
    type Recipe = {
@@ -40,7 +41,7 @@ export default function shoppingList()
     const { showError } = useSnackbar();
     const [shoppingList,setShoppingList] = useState<string[]>([]); 
     const [recipesToAdd, setRecipesToAdd] = useState<Recipe[]>([]); // list of recipes to add to the shopping list - User Added
-    const [recipes, setRecipes] = useState<Recipe[]>([{ recipeName:"Chicken Curry",img:"" ,keywords: ["chicken", "curry", "coconut milk"],ingredients:["Chicken 500g","Coconut Milk 1 can"," 2 Peppers"]},{recipeName:"Chicken Beef",img:"" ,keywords: ["chicken", "curry", "coconut milk"],ingredients:["Beef 1kg","1 can Coconut Milk"," 1 Pepper"]},{recipeName:"Pork Curry",img:"" ,keywords: ["Pork", "curry", "coconut milk"],ingredients:["Pork 500g","Coconut Milk 1 can"," 2 Peppers"]}]);
+    const [recipes, setRecipes] = useState<Recipe[]>([]);
     const updateIngredient = (text:string, index: number) => {
     const updated = [...shoppingList];
     updated[index] = text;
@@ -49,6 +50,38 @@ export default function shoppingList()
   };
   const [showOverlay, setShowOverlay] = useState(false);
     
+  function fetchingDisplayRecipes()
+  {
+    axios.post('http://127.0.0.1:3000/exploreRecipesToDisplay')
+      .then( response => {
+          const cleaned = response.data.map((recipe: Recipe) => ({
+            recipeName:recipe.recipeName,
+            img:recipe.img,
+            keywords: cleanKeywords(recipe.keywords),
+            ingredients:recipe.ingredients
+        }));
+        console.log("Response from Display Recipes: ",cleaned);
+        setRecipes(cleaned);
+      }
+      
+        
+      )
+      .catch(err=>{
+        console.error("Error on getting recipes for shopping list: ",err);
+      })
+  }
+      const cleanKeywords = (keywords: any): string[] => {
+        if (Array.isArray(keywords)) {
+            return keywords.map((k: any) => (typeof k === "string" ? k.trim() : String(k).trim()));
+        } else if (typeof keywords === "string") {
+            return keywords
+                .split(",")
+                .map(k => k.trim())
+                .filter(k => k.length > 0);
+        } else {
+            return [];
+        }
+    };
     function removeIngredient(index:number)
     {
     const updated = [...shoppingList];
@@ -99,6 +132,11 @@ export default function shoppingList()
       setRecipesToAdd([...recipesToAdd,recipes[index]]); // adds the recipe selected at this index
       nextItem();
     }
+
+    useEffect(()=>
+    {
+      fetchingDisplayRecipes();
+    },[])
     return (
       
         <>
@@ -123,7 +161,6 @@ export default function shoppingList()
             returnKeyType="done"
             />
         </View>
-
         <View style={styles.buttonContainer}>
             <TouchableOpacity
                 style={[styles.button, styles.selectedButton]}
@@ -160,10 +197,7 @@ export default function shoppingList()
         {showOverlay && (
           
         <View style={styles.overlay}>
-                <View style={styles.overlayHeader}>
-                  
 
-                </View>
                 <ScrollView contentContainerStyle={{ paddingBottom: 550 }}>
                   
                   {index < recipes.length ? (
@@ -339,8 +373,9 @@ const styles = StyleSheet.create({
     // STYLES FOR RECIPE TILES
 
     item: {
-      height: 150,
+      height: 350,
       marginBottom: 20,
+      
       borderRadius: 12,
       overflow: "hidden",
       shadowColor: "#000",
@@ -348,11 +383,13 @@ const styles = StyleSheet.create({
       shadowOpacity: 0.1,
       shadowRadius: 4,
       elevation: 2,
+      justifyContent: 'center',
       backgroundColor: "#FAFAFC",
     },
     foodImage: {
         flex: 1,
         justifyContent: 'flex-end',
+        
     },
     textContainer: {
         padding: 16,
@@ -383,28 +420,69 @@ const styles = StyleSheet.create({
     confirmationBtnContainer:{
       position:'absolute',
       bottom:100,
+      marginBottom:150,
       flexDirection:'row',
       justifyContent:'space-between',
+      
       width:'80%',
       alignSelf:'center'
     },
     greenYesButton:{
-      borderRadius:50,
+      borderRadius:75,
       backgroundColor:"green",
-      width:100,
-      height:100,
+      width:150,
+      height:150,
+      
       justifyContent: 'center',
       alignItems: 'center',
 
     },
     redNoButton:{
-      borderRadius:50,
+      borderRadius:75,
       backgroundColor:"red",
-      width:100,
-      height:100,
+      width:150,
+      height:150,
       justifyContent: 'center',
       alignItems: 'center',
-
+    },
+    filters: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      marginBottom: 20,
+    },
+    filterScrollView: {
+      paddingVertical: 10, // Optional: Add padding at the top and bottom of the scrollable area
+    },
+    filterContainer: {
+      flexDirection: 'row',  // Stack items horizontally
+      paddingHorizontal: 5,  // Optional: Add horizontal padding between items
+    },
+    filterButton: {
+      backgroundColor: "#FAFAFC",
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      borderRadius: 20,
+      marginTop: 2,
+      marginRight: 15,
+      marginBottom: 5,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    selectedFilter: {
+      backgroundColor: "#FA6163",
+    },
+    filterText: {
+      fontFamily: "System",
+      fontSize: 14,
+      color: "#333333",
+    },
+    filterTextSelected: {
+      fontFamily: "System",
+      fontSize: 14,
+      color: "white",
     },
     // FOOTER
 

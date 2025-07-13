@@ -72,7 +72,7 @@ export default function RootLayout() {
       <SnackbarProvider>
         <View style={{ flex: 1 }}> {/* Added paddingBottom */}
           {/* Google Translate Widget */}
-          <View
+{/*           <View
             style={{
               position: 'absolute', // Changed to absolute
               top: 615,
@@ -81,7 +81,7 @@ export default function RootLayout() {
             }}
           >
             <div id="google_translate_element"></div>
-          </View>
+          </View> */}
 
           <Stack screenOptions={{ headerTitleAlign: "center", headerShown: false }}/>
         </View>

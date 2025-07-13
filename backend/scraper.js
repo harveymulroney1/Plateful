@@ -1,5 +1,7 @@
 import puppeteer from 'puppeteer';
 import {insertRecipes} from './database.js';
+import { forEach } from 'wonka';
+import Fuse from 'fuse.js';
 
 //const { insertRecipes } = require('./database.js');
 
@@ -99,6 +101,29 @@ export async function scrapeIngrMethod(url) {
     
 
 }
+const options = {
+  includeScore: true,
+  threshold: 0.25, // Adjust for leniency - should be 0.25
+  keys: ["name"]
+};
+
+function combineQuantities(ingredient,listToCombine) // list of ingredients
+{
+    // fuzzy match the whole words against eachother - go through each val in the list and compare to rest? - thats double linked though surely? - quite long/inefficient
+    // match - COMBINE - remove the one matched to & update the original
+    // pass ingredient and fuzzy match that to list to combine
+    const fuse = new Fuse(listToCombine.map(item=>({name:item})),options);
+    for(const ingr of listToCombine){
+        const result = fuse.search(ingr);
+        // check if similar then just add the amount from second to first.
+
+        // check score 
+        // combine
+
+    }
+}
+
+
 function cleanIngredients(rawIngredients) {
     
     return rawIngredients.map(item => {

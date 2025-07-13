@@ -228,7 +228,7 @@ export function getAllRecipeNames(){
 // only fetches the info needed for front cover display
 export function getDisplayRecipes(){
     return new Promise((resolve,reject) => {
-    con.query("SELECT RecipeName,Image,Keywords FROM Recipe",function(err,result){
+    con.query("SELECT RecipeName,Image,Keywords,Ingredients FROM Recipe",function(err,result){
         if (err){
             console.error("Error on DB fetch getDisplayInfo: ",err);
             reject(err);
@@ -238,7 +238,8 @@ export function getDisplayRecipes(){
             const recipes = result.map(row => ({
                 recipeName: row.RecipeName,
                 img: row.Image,
-                keywords: JSON.parse(row.Keywords || "[]")
+                keywords: JSON.parse(row.Keywords || "[]"),
+                ingredients: JSON.parse(row.Ingredients || "[]")
             }));
             resolve(recipes);
         }
@@ -246,6 +247,8 @@ export function getDisplayRecipes(){
     )
     });
 }
+
+
 
 export function OLDselectBookmarksByName(userName){
     return new Promise((resolve, reject) => {
