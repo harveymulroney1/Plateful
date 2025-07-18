@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Button,Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView, ImageBackground, Dimensions } from 'react-native';
+import { Button,Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView, ImageBackground, Dimensions, Touchable } from 'react-native';
 import { Snackbar } from 'react-native-paper';
 import { useSnackbar } from "./snackbar";
 import Recipe from './recipe';
@@ -16,7 +16,7 @@ export default function shoppingList()
   }
   
   type ItemProps = { title: string; img?:string; keywords?:string[]; onPress: () => void };
-  const [index,setIndex] = useState(0); // Placeholder for current index, can be updated based on user interaction
+  const [index,setIndex] = useState(0); 
   const Item = ({ title, img, keywords, onPress }: ItemProps) => (
       <TouchableOpacity onPress={onPress} style={styles.item}>
           <ImageBackground
@@ -41,7 +41,12 @@ export default function shoppingList()
     const { showError } = useSnackbar();
     const [shoppingList,setShoppingList] = useState<string[]>([]); 
     const [recipesToAdd, setRecipesToAdd] = useState<Recipe[]>([]); // list of recipes to add to the shopping list - User Added
+    const [selectedFilters,setSelectedFilters] = useState<string[]>([]);
+    const [BuildComplete,setBuildComplete] = useState(Boolean);
+    //const [filteredRecipes,setFilteredRecipes]= useState<Recipe[]>([]);
+    const cuisineFilters = ["Chinese", "Italian", "Indian", "Thai", "Mexican", "American", "Mediterranean"];
     const [recipes, setRecipes] = useState<Recipe[]>([]);
+    const [filteredR, setFilteredR] = useState<Recipe[]>([]);
     const updateIngredient = (text:string, index: number) => {
     const updated = [...shoppingList];
     updated[index] = text;
@@ -50,6 +55,20 @@ export default function shoppingList()
   };
   const [showOverlay, setShowOverlay] = useState(false);
     
+  function editFilters(filter:string)
+  {
+    if(!selectedFilters.includes(filter)) // not already.
+    {
+      setSelectedFilters([...selectedFilters,filter]);
+      
+    }
+    else
+    {
+      // remove this new filter
+      setSelectedFilters(selectedFilters.filter(i=> i!==filter));
+      
+    }
+  }
   function fetchingDisplayRecipes()
   {
     axios.post('http://127.0.0.1:3000/exploreRecipesToDisplay')
@@ -96,6 +115,7 @@ export default function shoppingList()
       // FOR NOW JUST BASIC POPULATE
       
       recipesToAdd.forEach(element => {
+        
         //setShoppingList([shoppingList,element.ingredients])
         shoppingList.push(...element.ingredients)
         
@@ -113,26 +133,71 @@ export default function shoppingList()
         }
     }
     function nextItem() {
-      console.log("index:", index, "recipes.length:", recipes.length);
-        if (index < recipes.length -1) {
+      console.log("index:", index, "recipes.length:", filteredR.length);
+        if (index < filteredR.length -1) {
             setIndex(index + 1);
             console.log(index);
         } else {
             // remove overlay and show shopping list
-            populateShoppingList();
-            toggleOverlay();
+            setBuildComplete(true);
+
             
         }
     }
+    
     const toggleOverlay = () => {
         setShowOverlay(!showOverlay);
     }
     function addRecipe () {
       console.log("added recipe");
-      setRecipesToAdd([...recipesToAdd,recipes[index]]); // adds the recipe selected at this index
-      nextItem();
-    }
+      //setRecipesToAdd([...recipesToAdd,recipes[index]]); // adds the recipe selected at this index
+      console.log("Recipe Adding:",filteredR[index]);
+      setRecipesToAdd(prev => {
+          const updated = [...prev,filteredR[index]]; 
+          
+          if (index < filteredR.length -1) {
+          setIndex(prev=>prev + 1);
+          
+          } else {
+            setBuildComplete(true);
+          // remove overlay and show shopping list
+            
+          }
 
+          return updated;
+
+      });// adds the recipe selected at this index
+      
+
+    }
+    useEffect(()=>{
+      if(BuildComplete){
+        populateShoppingList();
+        toggleOverlay();
+        setBuildComplete(false);
+      }
+
+    },[BuildComplete])
+/*     useEffect(()=>{
+      nextItem();
+    },[recipesToAdd]) */
+    useEffect(() => {
+  if (filteredR[index]) {
+    console.log("Now showing:", filteredR[index].recipeName);
+  }
+}, [index]);
+    useEffect(()=> {
+
+      const lowerSelectedFilters = selectedFilters.map(item=>item.toLowerCase());
+      console.log("Selected Filters:",lowerSelectedFilters);
+      setFilteredR(recipes.filter(rec=>rec.keywords.some(item=>lowerSelectedFilters.includes(item))));
+    },[selectedFilters,index] 
+    )
+    function filterRecipes (){
+      const lowerSelectedFilters = selectedFilters.map(item=>item.toLowerCase());
+      console.log("Selected Filters:",lowerSelectedFilters);
+      setFilteredR(recipes.filter(rec=>rec.keywords.some(item=>lowerSelectedFilters.includes(item))));
+    }
     useEffect(()=>
     {
       fetchingDisplayRecipes();
@@ -142,7 +207,7 @@ export default function shoppingList()
         <>
         <ScrollView contentContainerStyle={[styles.container, { flexGrow: 1 }]}>
 
-        <Text style={styles.header}>Find tailored recipes!</Text>
+        <Text style={styles.header}>Build your shopping list!</Text>
 
         {/* <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} /> */}
         {/* <CustomButton theme="primary" label="Upload Receipt" onPress={pickImageAsync} /> */}
@@ -160,6 +225,14 @@ export default function shoppingList()
             placeholderTextColor="#999"
             returnKeyType="done"
             />
+        </View>
+        <View>      
+           {cuisineFilters.map((filter: string, index: number) => ( 
+          <TouchableOpacity onPress = {()=>editFilters(filter)} style={selectedFilters.includes(filter) ? styles.selectedFilterBtn : styles.filterNormBtn }>
+            <Text style={selectedFilters.includes(filter) ? styles.selectedFilterText : styles.filterNormText}>{filter}</Text>
+          </TouchableOpacity>))}
+          
+        
         </View>
         <View style={styles.buttonContainer}>
             <TouchableOpacity
@@ -192,6 +265,7 @@ export default function shoppingList()
             )}
         />
 
+        
 
         </ScrollView>
         {showOverlay && (
@@ -200,11 +274,12 @@ export default function shoppingList()
 
                 <ScrollView contentContainerStyle={{ paddingBottom: 550 }}>
                   
-                  {index < recipes.length ? (
+                  {index < filteredR.length ? (
+                    
                     <Item
-                    title={recipes[index].recipeName}
-                    img={recipes[index].img}
-                    keywords={recipes[index].keywords.map(k => k.charAt(0).toUpperCase() + k.slice(1))}
+                    title={filteredR[index].recipeName}
+                    img={filteredR[index].img}
+                    keywords={filteredR[index].keywords.map(k => k.charAt(0).toUpperCase() + k.slice(1))}
                     onPress={() => {}}
                     />
                   ): <Text>No more recipes to show!</Text>}
@@ -221,7 +296,7 @@ export default function shoppingList()
                 
               </View>
               )}
-
+        
         <View style={styles.footerHeader}>
         <TouchableOpacity onPress={() => router.push("/")} style={styles.footerIconLeft}>
             <Ionicons name="arrow-back" size={20} color="#333333" />
@@ -507,6 +582,28 @@ const styles = StyleSheet.create({
     footerIconRight: {
       marginRight: 20,
     },
+
+
+    // filters
+    filterNormText:{
+      color:'black',
+      alignContent:'center',
+    },
+    filterNormBtn:{
+      //backgroundColor:'white', - USE THIS
+      borderRadius:50,
+      backgroundColor:'#009933', // DEBUG
+      shadowOpacity:0.1,
+      shadowRadius:4,
+    },
+    selectedFilterText:{
+      color:'white'
+    },
+    selectedFilterBtn:{
+      backgroundColor:'#009933',
+      borderRadius:45,
+      
+    }
 });
 
 
