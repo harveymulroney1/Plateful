@@ -71,7 +71,7 @@ export default function shoppingList()
   }
   function fetchingDisplayRecipes()
   {
-    axios.post('http://127.0.0.1:3000/exploreRecipesToDisplay')
+    axios.post<Recipe[]>('http://127.0.0.1:3000/exploreRecipesToDisplay')
       .then( response => {
           const cleaned = response.data.map((recipe: Recipe) => ({
             recipeName:recipe.recipeName,
