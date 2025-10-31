@@ -12,6 +12,7 @@
   "description": "",
   "dependencies": {
     "express": "^5.1.0",
+    "groq-sdk": "^0.34.0",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.1",
     "python-shell": "^5.0.0"

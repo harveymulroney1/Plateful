@@ -7,6 +7,7 @@ import cors from 'cors';
 import {fetchRecipes,cleanIngredientsOnly} from "./MatchreceiptToRecipes.js";
 import { spawn } from 'child_process';
 import jwt from 'jsonwebtoken';
+import {generateMealPlan} from './aiImpl.js'
 database.connectToDB();
 database.createTables(); //Create tables for database
 getRecipeURLs(); //Add recipes to database
@@ -74,6 +75,27 @@ app.post('/insert', (req, res) => {
     const password = req.body.p;
     database.insertIngredients(userName, ingredients, password) //Layout: insertingredients("Rebecca", ["Lettuce", "Tomato", "Mayo", "Basi"], "mypassword")
     res.end('Ingredients inserted');
+})
+
+app.post('/getMealPlan',(req,res)=>{
+    //extract user data from request
+    const cuisine = req.body.cuisine;
+    const calories = req.body.calories;
+    const protein = req.body.protein;
+    const carbs = req.body.carbs;
+    const fat = req.body.fat;
+    if (!cuisine || !calories || !protein || !carbs || !fat) {
+        return res.status(400).json({ error: 'Missing required parameters' });
+    }
+    generateMealPlan(cuisine, calories, protein, carbs, fat)
+    .then(result=>{
+        Console.log("Meal Plan Created");
+        res.end(result);
+    })
+    .catch(err=>{
+        console.error("Failed to generate meal plan: ",err);}
+    )
+
 })
 
 //Handle Post request on /getName 

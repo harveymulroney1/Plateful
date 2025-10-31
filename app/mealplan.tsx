@@ -14,10 +14,27 @@ export default function shoppingList()
     ingredients:string[];
     keywords: string[];
   }
-  const [caloriesSelected,setCaloriesSelected] = useState("");
+  const [caloriesSelected,setCaloriesSelected] = useState("2000");
   const [proteinSelected,setProteinSelected] = useState("");
- 
+  const [carbsSelected,setCarbsSelected] = useState("");
+  const [fatsSelected,setFatsSelected] = useState("");
+  const [cuisinesSelected,setcuisinesSelected] = useState([]);
+  
   type ItemProps = { title: string; img?:string; keywords?:string[]; onPress: () => void };
+  const mealPlan = (()=>{
+    axios.post("/getMealPlan",
+      // cuisine needs doing but its an array
+      {calories:caloriesSelected,protein:proteinSelected,carbs:carbsSelected,fat:fatsSelected}
+    )
+    .then(response=>{
+      // response
+      console.log("Meal Plan Received - parsing now");
+    })
+    .catch(err=>{
+      console.error("Error on AI meal Plan",err);
+      showError("Failed to create meal plan");
+    })
+  })
   const [index,setIndex] = useState(0); 
   const Item = ({ title, img, keywords, onPress }: ItemProps) => (
       <TouchableOpacity onPress={onPress} style={styles.item}>
@@ -239,9 +256,23 @@ export default function shoppingList()
           <TextInput
             value={caloriesSelected}
             placeholder='2000'
+            defaultValue='2000'
             inputMode='numeric'
             onChangeText={(caloriesSelected)=>setCaloriesSelected(caloriesSelected)}
           />
+        </View>
+        <Text>Carbohydrates</Text>
+        <View style={styles.proteinContainer}>
+          
+          <TextInput
+          value={carbsSelected}
+          style={styles.input}
+          inputMode='numeric'
+          placeholder={String(Math.round(Number(caloriesSelected)*.45 / 4))}
+          defaultValue={String(Math.round(Number(caloriesSelected)*.45 / 4))}
+          onChangeText={(carbsSelected)=>setCarbsSelected(carbsSelected)}
+          />
+          <Text style={styles.unit}>g</Text>
         </View>
         <Text>Protein</Text>
         <View style={styles.proteinContainer}>
@@ -250,9 +281,22 @@ export default function shoppingList()
           value={proteinSelected}
           style={styles.input}
           inputMode='numeric'
-          placeholder='100'
-          defaultValue='100'
+          placeholder={String(Math.round(Number(caloriesSelected)*.30 / 4))}
+          defaultValue={String(Math.round(Number(caloriesSelected)*.30 / 4))}
           onChangeText={(proteinSelected)=>setProteinSelected(proteinSelected)}
+          />
+          <Text style={styles.unit}>g</Text>
+        </View>
+        <Text>Fats</Text>
+        <View style={styles.proteinContainer}>
+          
+          <TextInput
+          value={fatsSelected}
+          style={styles.input}
+          inputMode='numeric'
+          placeholder={String(Math.round(Number(caloriesSelected)*.25 / 9))}
+          defaultValue={String(Math.round(Number(caloriesSelected)*.25 / 9))}
+          onChangeText={(fatsSelected)=>setFatsSelected(fatsSelected)}
           />
           <Text style={styles.unit}>g</Text>
         </View>
@@ -267,7 +311,7 @@ export default function shoppingList()
                 <TouchableOpacity
             style={styles.selectedButton}
             onPress={toggleOverlay}>
-              <Text style={styles.buttonText}>Build List!</Text>
+              <Text style={styles.buttonText}>Build Meal Plan!</Text>
             
         </TouchableOpacity>
         

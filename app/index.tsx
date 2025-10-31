@@ -264,7 +264,7 @@ export default function Index() {
                     {otherFilters.map((filter: string, index: number) => (
                         <TouchableOpacity
                             key={index}
-                            accesibilityLabelHint="Click to select a filter"
+                            accessibilityLabel="Click to select a filter"
                             style={[styles.filterButton, selectedFilters.includes(filter) && styles.selectedFilter]}
                             onPress={() => toggleFilter(filter)}
                         >
