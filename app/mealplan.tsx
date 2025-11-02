@@ -6,6 +6,8 @@ import { Snackbar } from 'react-native-paper';
 import { useSnackbar } from "./snackbar";
 import Recipe from './recipe';
 import axios from "axios";
+import { MealCard } from '@/components/MealCard';
+import { DayPlan } from '@/components/DayPlan';
 export default function shoppingList()
 {
    type Recipe = {
@@ -19,7 +21,33 @@ export default function shoppingList()
   const [carbsSelected,setCarbsSelected] = useState("");
   const [fatsSelected,setFatsSelected] = useState("");
   const [cuisinesSelected,setcuisinesSelected] = useState([]);
-  
+  const dummyDayPlan = {
+    breakfast: {
+      mealName: "Oatmeal with Berries",
+      calories: 350,
+      mealType: "Breakfast",
+      protein: 10,
+    },
+    lunch: {
+      mealName: "Grilled Chicken Salad",
+      calories: 600, 
+      mealType: "Lunch",
+      protein: 45,
+    },
+    dinner: {
+      mealName: "Salmon with Quinoa",
+      calories: 700,
+      mealType: "Dinner",
+      protein: 50,
+    },
+    snacks: {
+      mealName: "Greek Yogurt with Honey",
+      calories: 200,
+      mealType: "Snack",
+      protein: 15,
+    },
+    dayIndex: 1,
+  };
   type ItemProps = { title: string; img?:string; keywords?:string[]; onPress: () => void };
   const mealPlan = (()=>{
     axios.post("/getMealPlan",
@@ -330,7 +358,15 @@ export default function shoppingList()
             </View>
             )}
         />
+        <View style={styles.dayPlanContainer}>
+          <DayPlan {...dummyDayPlan}/>
+          {dummyDayPlan.dayIndex = 2}
+          <DayPlan {...dummyDayPlan}/>
+          {dummyDayPlan.dayIndex = 3}
+          <DayPlan {...dummyDayPlan}/>
+        </View>
 
+        {/* <MealCard mealName={"Spaghetti Bolognaise"} calories={2400} mealType={"Dinner"} protein={60}/> */}
         
 
         </ScrollView>
@@ -363,12 +399,14 @@ export default function shoppingList()
               </View>
               )}
         
+        
         <View style={styles.footerHeader}>
         <TouchableOpacity onPress={() => router.push("/")} style={styles.footerIconLeft}>
             <Ionicons name="arrow-back" size={20} color="#333333" />
         </TouchableOpacity>
 
         <View style={{ flex: 1 }} />
+        
         </View>
     </>
     );
@@ -567,6 +605,12 @@ const styles = StyleSheet.create({
       alignItems:'center',
       paddingHorizontal:5,
       borderRadius:8,
+    },
+    dayPlanContainer:{
+      flexDirection:'column',
+      justifyContent:'space-between',
+      marginTop:20,
+      marginBottom:20,
     },
     input:{
       flex:1,
