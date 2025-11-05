@@ -8,6 +8,7 @@ import {fetchRecipes,cleanIngredientsOnly} from "./MatchreceiptToRecipes.js";
 import { spawn } from 'child_process';
 import jwt from 'jsonwebtoken';
 import {generateMealPlan} from './aiImpl.js'
+import {dummyExample} from './aiImpl.js'
 database.connectToDB();
 database.createTables(); //Create tables for database
 getRecipeURLs(); //Add recipes to database
@@ -79,22 +80,25 @@ app.post('/insert', (req, res) => {
 
 app.post('/getMealPlan',(req,res)=>{
     //extract user data from request
-    const cuisine = req.body.cuisine;
+    const { cuisine, calories, protein, carbs, fat } = req.body;
+    /* const cuisine = req.body.cuisine;
     const calories = req.body.calories;
     const protein = req.body.protein;
     const carbs = req.body.carbs;
-    const fat = req.body.fat;
-    if (!cuisine || !calories || !protein || !carbs || !fat) {
-        return res.status(400).json({ error: 'Missing required parameters' });
-    }
-    generateMealPlan(cuisine, calories, protein, carbs, fat)
+    const fat = req.body.fat; */
+    //if (!cuisine || !calories || !protein || !carbs || !fat) {
+   //     return res.status(400).json({ error: 'Missing required parameters' });
+    //}
+    // TESTING DUMMY RESPONSE
+    res.json({ mealPlan: dummyExample });
+    /*generateMealPlan(cuisine, calories, protein, carbs, fat)
     .then(result=>{
         Console.log("Meal Plan Created");
         res.end(result);
     })
     .catch(err=>{
         console.error("Failed to generate meal plan: ",err);}
-    )
+    )*/
 
 })
 
@@ -195,6 +199,7 @@ app.post('/bookmarkRecipe',(req,res)=>{
         }
     })
 })
+
 
 //Handle Post request on /scan
 //This is used to scan receipt

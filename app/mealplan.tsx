@@ -8,7 +8,7 @@ import Recipe from './recipe';
 import axios from "axios";
 import { MealCard } from '@/components/MealCard';
 import { DayPlan } from '@/components/DayPlan';
-export default function shoppingList()
+export default function MealPlan()
 {
    type Recipe = {
     recipeName: string;
@@ -16,11 +16,53 @@ export default function shoppingList()
     ingredients:string[];
     keywords: string[];
   }
+  type MealPreferences = {
+    cuisines:string[];
+    calories:string;
+    carbs:string;
+    fats:string;
+    protein:string;
+  }
   const [caloriesSelected,setCaloriesSelected] = useState("2000");
   const [proteinSelected,setProteinSelected] = useState("");
   const [carbsSelected,setCarbsSelected] = useState("");
   const [fatsSelected,setFatsSelected] = useState("");
   const [cuisinesSelected,setcuisinesSelected] = useState([]);
+
+  const fetchMealPlan = () => {
+      axios.post<string>("http://127.0.0.1:3000/getMealPlan",getMealPreferences())
+      .then(response => {
+        console.log("Meal Plan Received: ",JSON.stringify(response.data));
+        
+      })
+      .catch(err =>{
+        console.error("Error generating meal plan: ",err);
+        showError("failed to create meal plan");
+      })
+
+      
+    
+  }
+  const parseMealPlan = (mealPlanString:string) => {
+    try {
+      const mealPlan = JSON.parse(mealPlanString);
+      for (const day of mealPlan.plan.day) {
+        day.dayIndex = day.day;
+        for(const meal of mealPlan.plan.day.meals)
+        {
+          day.meal.mealType = meal.type;
+          day.meal.mealName = meal.name;
+          day.meal.desc = meal.desc;
+          day.meal.macros = meal.macros;
+          day.meal.reuse = meal.reuse;
+          day.meal.ingredients = meal.ingredients;  
+        }
+      }
+      return mealPlan;
+    } catch (error) {
+      console.error("Error parsing meal plan JSON:", error);
+      return null;
+    }};
   const dummyDayPlan = {
     breakfast: {
       mealName: "Oatmeal with Berries",
@@ -101,7 +143,15 @@ export default function shoppingList()
     
   };
   const [showOverlay, setShowOverlay] = useState(false);
-    
+  const getMealPreferences = ():MealPreferences => {
+    return {
+      cuisines:selectedFilters??[],
+      calories:caloriesSelected,
+      protein: proteinSelected,
+      carbs: carbsSelected,
+      fats: fatsSelected
+    };
+  };
   function editFilters(filter:string)
   {
     if(!selectedFilters.includes(filter)) // not already.
@@ -338,7 +388,7 @@ export default function shoppingList()
         </View>
                 <TouchableOpacity
             style={styles.selectedButton}
-            onPress={toggleOverlay}>
+            onPress={fetchMealPlan}>
               <Text style={styles.buttonText}>Build Meal Plan!</Text>
             
         </TouchableOpacity>
