@@ -329,8 +329,8 @@ export default function MealPlan()
             <Text style={selectedFilters.includes(filter) ? styles.selectedFilterText : styles.filterNormText}>{filter}</Text>
           </TouchableOpacity>))}
         </View>
-        <View>
-          <Text>Calories</Text>
+        <View style={styles.preferenceContainer}>
+          <Text style={styles.preferenceTitle}>Calories</Text>
           <TextInput
             value={caloriesSelected}
             placeholder='2000'
@@ -339,22 +339,21 @@ export default function MealPlan()
             onChangeText={(caloriesSelected)=>setCaloriesSelected(caloriesSelected)}
           />
         </View>
-        <Text>Carbohydrates</Text>
-        <View style={styles.proteinContainer}>
-          
+        
+        <View style={styles.preferenceContainer}>
+          <Text style={styles.preferenceTitle}>Carbohydrates</Text>
           <TextInput
           value={carbsSelected}
-          style={styles.input}
           inputMode='numeric'
           placeholder={String(Math.round(Number(caloriesSelected)*.45 / 4))}
           defaultValue={String(Math.round(Number(caloriesSelected)*.45 / 4))}
           onChangeText={(carbsSelected)=>setCarbsSelected(carbsSelected)}
           />
-          <Text style={styles.unit}>g</Text>
+          <Text>g</Text>
         </View>
-        <Text>Protein</Text>
-        <View style={styles.proteinContainer}>
-          
+        
+        <View style={styles.preferenceContainer}>
+          <Text style={styles.preferenceTitle}>Protein</Text>
           <TextInput
           value={proteinSelected}
           style={styles.input}
@@ -378,14 +377,7 @@ export default function MealPlan()
           />
           <Text style={styles.unit}>g</Text>
         </View>
-        <View style={styles.buttonContainer}>
-            <TouchableOpacity
-                style={[styles.button, styles.selectedButton]}
-                onPress={() => setShoppingList([])} // Clear List
-            >
-                <Text style={styles.buttonText}>Clear Ingredients</Text>
-            </TouchableOpacity>
-        </View>
+
                 <TouchableOpacity
             style={styles.selectedButton}
             onPress={fetchMealPlan}>
@@ -473,6 +465,23 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.85)',
     padding: 0,
     zIndex: 1000,
+  },
+  preferenceContainer:{
+    flexDirection:'row',
+    justifyContent:'space-between',
+    backgroundColor: "#FAFAFC",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  preferenceTitle:{
+    fontSize: 18,
+    color: '#000000ff',
+  },
+  preferenceText:{
+    fontSize:12,
+    
   },
   overlayHeader: {
     flexDirection: 'row',
